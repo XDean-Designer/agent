@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+
+# 本地渲染中间产物（帧序列、临时预览页、已归档的探索脚本）
+.motion/
+
+# 渲染输出（预览图在 docs/ 下单独挑选入库）
+out/
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

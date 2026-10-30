@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Working Motion · AI Agent 工作中状态</title>
+<style>
+:root{
+  --bg:#F6F2EC;
+  --paper:#FFFFFF;
+  --paper-2:#FFFCF9;
+  --ink:#1B1319;
+  --ink-2:#4C4049;
+  --muted:#6C5F69;
+  --line:rgba(32,18,28,.10);
+  --line-2:rgba(32,18,28,.17);
+  --amber:#B4443C;
+  --accent-ring:rgba(226,135,155,.62);
+  --crimson:#C2383F;
+  --p-cream:#FFDCCB;
+  --p-apricot:#FFC7A8;
+  --p-blush:#FBC9CE;
+  --p-rose:#F7B3C4;
+  --p-coral:#F39287;
+  --p-berry:#E2879B;
+  --ease:cubic-bezier(.37,0,.63,1);
+  --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+  --mono:"Cascadia Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(760px 420px at 6% -8%, rgba(255,199,168,.26), transparent 62%),
+    radial-gradient(700px 380px at 98% 0%, rgba(194,56,63,.10), transparent 60%);
+}
+
+/* ---------- bar ---------- */
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(16px) saturate(130%);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:10px}
+.brand{font-size:12.5px;letter-spacing:.02em;color:var(--ink);font-weight:600}
+.brand b{font-weight:700}
+.bar i.sep{width:1px;height:12px;background:var(--line-2);display:block}
+.bar-sub{font-size:11.5px;color:var(--muted);letter-spacing:.01em}
+.bar-spacer{margin-left:auto}
+.ghost{appearance:none;font:inherit;font-size:11.5px;color:var(--ink-2);background:var(--paper);
+  border:1px solid var(--line-2);border-radius:9px;padding:6px 11px;cursor:pointer;transition:.18s var(--ease)}
+.ghost:hover{color:var(--ink);border-color:rgba(32,18,28,.28)}
+.ghost[aria-pressed="false"]{background:rgba(32,18,28,.05);color:var(--muted)}
+
+/* ---------- layout ---------- */
+.wrap{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:22px 24px 56px}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{
+  appearance:none;font:inherit;text-align:left;cursor:pointer;
+  display:flex;flex-direction:column;gap:12px;padding:14px;
+  background:var(--paper);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 1px 2px rgba(70,30,45,.04),0 14px 26px -22px rgba(70,30,45,.35);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease),transform .2s var(--ease);
+}
+.card:hover{transform:translateY(-1px);border-color:var(--line-2)}
+.card[aria-pressed="true"]{
+  border-color:var(--accent-ring);
+  box-shadow:0 0 0 3px rgba(226,135,155,.16),0 1px 2px rgba(70,30,45,.05);
+}
+.card-top{display:flex;align-items:center;gap:8px}
+.badge{width:20px;height:20px;flex:none;border-radius:6px;display:grid;place-items:center;
+  font-size:10.5px;font-weight:700;color:var(--amber);background:rgba(226,135,155,.13);border:1px solid rgba(226,135,155,.30)}
+.card[aria-pressed="true"] .badge{background:var(--amber);border-color:var(--amber);color:#fff}
+.name{font-size:12.5px;font-weight:620;letter-spacing:-.01em;color:var(--ink)}
+.tag{font-size:9.5px;letter-spacing:.05em;color:var(--amber);border:1px solid rgba(226,135,155,.34);
+  background:rgba(226,135,155,.11);padding:1px 5px;border-radius:99px;margin-left:auto}
+.card-foot{font-size:10.5px;color:var(--muted);letter-spacing:.01em;line-height:1.45}
+
+/* ---------- bubble ---------- */
+.bubble{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 1px 2px rgba(70,30,45,.05);
+  min-width:0;
+}
+.card .bubble{background:var(--paper-2)}
+
+/* ---------- bot ---------- */
+.bot{position:relative;width:var(--s);height:calc(var(--s) * .8787);flex:none;isolation:isolate}
+.bot .halo{
+  position:absolute;inset:-26%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(50% 50% at 50% 44%, rgba(249,160,146,.28), rgba(247,179,196,0) 70%);
+  filter:blur(calc(var(--s) * .07));will-change:opacity,transform;
+}
+.bot .head{position:absolute;inset:0;transform-origin:50% 100%;will-change:transform}
+.bot .head img{display:block;width:100%;height:100%}
+.bot .shadow{
+  position:absolute;left:50%;bottom:-13%;width:64%;height:15%;transform:translateX(-50%);
+  border-radius:50%;pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(150,78,74,.30), rgba(150,78,74,0) 72%);
+  filter:blur(calc(var(--s) * .022));
+}
+
+/* ---------- strip ---------- */
+.strip{position:relative;flex:1;min-width:0;height:var(--strip-h);overflow:hidden}
+.strip svg.ecg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+.strip .wave{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;gap:0}
+.strip .wave i{
+  flex:1 1 0;max-width:5px;min-width:2px;height:100%;border-radius:99px;display:block;
+  background:linear-gradient(180deg,var(--p-cream),var(--p-rose) 52%,var(--p-berry));
+  transform:scaleY(.2);transform-origin:50% 50%;will-change:transform;
+}
+.strip .dots{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:7px}
+.strip .dots i{width:6px;height:6px;border-radius:50%;background:var(--p-coral);display:block;
+  opacity:.28;will-change:opacity,transform}
+
+/* ---------- demo ---------- */
+.demo{margin-top:26px}
+.demo-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.demo-head h2{margin:0;font-size:13px;font-weight:620;letter-spacing:-.01em}
+.demo-head .cur{font-size:11px;color:var(--muted)}
+.demo-head .ghost{margin-left:auto}
+.chat{
+  max-width:720px;padding:18px;border:1px solid var(--line);border-radius:16px;
+  background:var(--paper);box-shadow:0 1px 2px rgba(70,30,45,.04),0 16px 30px -26px rgba(70,30,45,.4);
+  display:flex;flex-direction:column;gap:13px;
+}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.user{justify-content:flex-end}
+.msg .bubble{max-width:76%;font-size:12.5px;line-height:1.6;padding:9px 13px;border-radius:13px;color:var(--ink)}
+.msg.user .bubble{background:linear-gradient(180deg,rgba(255,199,168,.30),rgba(226,135,155,.16));border-color:rgba(226,135,155,.28)}
+.msg.user .bubble{display:block}
+.reply{opacity:0;transform:translateY(8px);transition:opacity .32s var(--ease),transform .32s var(--ease)}
+.chat.answered .reply{opacity:1;transform:none}
+.stack{display:grid;transition:opacity .28s var(--ease),transform .28s var(--ease)}
+.stack > *{grid-area:1/1;transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.stack > .bubble{width:100%;max-width:306px}
+.stack > .bubble:not(.on){opacity:0;transform:scale(.965);pointer-events:none}
+.chat.answered .stack{opacity:0;transform:translateY(-4px) scale(.985);pointer-events:none}
+.avatar-bot{width:26px;height:26px;flex:none;display:grid;place-items:center}
+
+/* ---------- params ---------- */
+.params{margin-top:28px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--paper);max-width:900px}
+.params table{width:100%;border-collapse:collapse;font-size:11px}
+.params th,.params td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.params tr:last-child th,.params tr:last-child td{border-bottom:0}
+.params thead th{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;background:rgba(32,18,28,.028)}
+.params tbody th{font-weight:500;color:var(--muted);white-space:nowrap;width:86px}
+.params td{color:var(--ink-2);font-variant-numeric:tabular-nums}
+.params td b{color:var(--ink);font-weight:600}
+.params .col-sel{background:rgba(226,135,155,.09)}
+.params td.on{color:var(--ink)}
+.params code{font-family:var(--mono);font-size:10px;color:var(--amber)}
+
+/* ---------- record ---------- */
+#recordStage{display:none}
+body.record .bar,body.record .wrap{display:none}
+body.record #recordStage{display:grid;place-items:center;position:fixed;inset:0;background:var(--bg)}
+body.record[data-bg="transparent"] #recordStage{background:transparent}
+
+@media (max-width:1000px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:680px){
+  .cards{grid-template-columns:1fr}
+  /* 单列时卡片很宽，气泡限宽，避免心电被拉得过疏 */
+  .card .bubble{max-width:360px}
+  .wrap{padding:16px 14px 40px}
+  .bar-in{padding:10px 14px}
+  .bar-sub,i.sep{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .card,.ghost,.reply,.stack,.stack>*{transition:none}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <span class="brand">Working <b>Motion</b></span>
+    <i class="sep"></i>
+    <span class="bar-sub">AI Agent · 工作中状态</span>
+    <div class="bar-spacer"></div>
+    <button class="ghost" id="motionBtn" aria-pressed="true">暂停</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cards" id="cards" role="radiogroup" aria-label="动效方案"></div>
+
+  <section class="demo">
+    <div class="demo-head">
+      <h2>对话现场</h2>
+      <span class="cur" id="curName">A · Alive</span>
+      <button class="ghost" id="replyBtn">重播衔接</button>
+    </div>
+    <div class="chat" id="chat">
+      <div class="msg user"><div class="bubble">帮我总结这份 12 页的数据迁移方案，重点讲风险和回滚。</div></div>
+      <div class="stack" id="stack"></div>
+      <div class="msg reply" id="reply">
+        <div class="avatar-bot" id="avatar"></div>
+        <div class="bubble">分三阶段：<b>影子双写 → 灰度读切换 → 下线旧库</b>。风险集中在第二阶段的一致性校验窗口，建议把回滚点固定在每次灰度 5% 之前。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="params">
+    <table id="paramTable">
+      <thead>
+        <tr><th>参数</th><th data-col="A">A · Alive</th><th data-col="D">D · Wave Float</th><th data-col="E">E · Heart Trace</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>主循环</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>头部</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>右侧形态</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>节拍</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>缓动</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>窄宽适配</th><td>A</td><td>D</td><td>E</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<div id="recordStage"></div>
+
+<script>
+"use strict";
+const TAU = Math.PI * 2;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const mod1 = (x) => ((x % 1) + 1) % 1;
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const SPEC = {
+  A: { loop: 3.4, name: "Alive", foot: "悬浮 7.5% · 三点跑马 0.85s", head: "悬浮 7.5% · 无压缩",
+        form: "三点跑马", mult: "4 轮", ease: "sine", small: "3 点恒定" },
+  D: { loop: 3.0, name: "Wave Float", foot: "悬浮 8.3% · 声波阶梯", head: "悬浮 8.3% · 无压缩",
+        form: "声波阶梯", mult: "2×", ease: "sine", small: "每 8px 一根" },
+  E: { loop: 1.8, name: "Heart Trace", foot: "单点拖尾 46% · 1.8s · 1.7Hz", head: "蹦跶 12% + 浮 3.3%",
+        form: "单点拖尾心电", mult: "3 拍", ease: "蓄/腾/落/回", small: "按宽定拍数" },
+};
+const ORDER = ["A", "D", "E"];
+
+const state = { mode: "thinking", selected: "E", playing: true };
+
+/* ---------------------------------------------------------------- motion */
+function floatCurve(p, amp) {
+  const b = 0.5 - 0.5 * Math.cos(TAU * p);
+  return { dy: -amp * b, sx: 1 + 0.0028 * b, sy: 1 + 0.0028 * b, breathe: b };
+}
+
+function bounceCurve(p, H, squash, t0 = 0.07, t1 = 0.34, settle = 0.42) {
+  let dy = 0, sy = 1, sx = 1;
+  if (p < t0) {                                    // 蓄力：下压再弹回 1
+    const k = p / t0;
+    const s = Math.sin(Math.PI * k);
+    sy = 1 - squash * s;
+    sx = 1 + squash * 0.62 * s;
+  } else if (p < t1) {                             // 腾空：抛物线 + 速度拉伸
+    const u = (p - t0) / (t1 - t0);
+    dy = -H * 4 * u * (1 - u);
+    const st = Math.sin(TAU * u) ** 2;
+    sy = 1 + squash * 0.5 * st;
+    sx = 1 - squash * 0.37 * st;
+  } else if (p < t1 + settle) {                    // 落地 + 阻尼回弹
+    const k = (p - t1) / settle;
+    const env = Math.exp(-4.6 * k) * Math.sin(Math.PI * 2.6 * k);
+    sy = 1 - squash * 1.32 * env;
+    sx = 1 + squash * 0.92 * env;
+  }
+  return { dy, sx, sy };
+}
+
+/* ---------------------------------------------------------------- ecg */
+const PAL = {
+  cream: "#FFDCCB", apricot: "#FFC7A8", blush: "#FBC9CE",
+  rose: "#F7B3C4", coral: "#F39287", berry: "#E2879B",
+};
+const ECG_BEAT_PX = 77;     // 每拍约占宽度
+const R_POS = 0.350;        // R 峰在一拍中的位置
+
+function gaussPx(dpx, sigma) {
+  return Math.exp(-((dpx / sigma) ** 2));
+}
+
+function ecgY(x, beatPx, h, scale) {
+  let d = x % beatPx;
+  const at = (frac) => {
+    let v = d - frac * beatPx;
+    if (v > beatPx / 2) v -= beatPx;
+    if (v < -beatPx / 2) v += beatPx;
+    return v;
+  };
+  let v = 0;
+  v += 0.13 * gaussPx(at(0.155), 3.4);    // P
+  v += -0.11 * gaussPx(at(0.312), 1.7);   // Q
+  v += 1.00 * gaussPx(at(R_POS), 1.55);   // R
+  v += -0.27 * gaussPx(at(0.398), 1.9);   // S
+  v += 0.20 * gaussPx(at(0.600), 4.8);    // T
+  return h / 2 - v * scale;
+}
+
+function ecgPath(w, h, beats, scale) {
+  const beatPx = w / beats;
+  const n = Math.max(600, Math.round(w * 5));
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const x = (i / n) * w;
+    d += (i ? "L" : "M") + x.toFixed(2) + " " + ecgY(x, beatPx, h, scale).toFixed(2);
+  }
+  return d;
+}
+
+let uid = 0;
+function buildEcg(strip, w, h) {
+  const id = "e" + (uid++);
+  // 拍数固定上限 3，保证卡片与对话行的节奏一致（1.8s / 3 拍 = 1.67Hz）
+  const beats = Math.min(3, Math.max(1, Math.round(w / ECG_BEAT_PX)));
+  const beatPx = w / beats;
+  const scale = h * 0.36;
+  const d = ecgPath(w, h, beats, scale);
+  const L = w * 0.46;                       // 拖尾长度 = 46% 条宽
+  const swCore = clamp(h * 0.088, 1.7, 2.4).toFixed(2);
+  const swGlow = (h * 0.21).toFixed(2);
+  const rDot = Math.max(1.6, h * 0.082).toFixed(2);
+  const rHalo = (h * 0.17).toFixed(2);
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "ecg");
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.setAttribute("aria-hidden", "true");
+  svg.innerHTML =
+    `<defs>
+       <linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="0">
+         <stop offset="0" stop-color="${PAL.apricot}"/>
+         <stop offset=".5" stop-color="${PAL.coral}"/>
+         <stop offset="1" stop-color="${PAL.berry}"/>
+       </linearGradient>
+       <linearGradient id="b${id}" x1="0" y1="0" x2="1" y2="0">
+         <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+         <stop offset=".28" stop-color="#fff" stop-opacity=".16"/>
+         <stop offset=".62" stop-color="#fff" stop-opacity=".52"/>
+         <stop offset=".86" stop-color="#fff" stop-opacity=".88"/>
+         <stop offset="1" stop-color="#fff" stop-opacity="1"/>
+       </linearGradient>
+       <filter id="f${id}" x="-12%" y="-180%" width="124%" height="460%">
+         <feGaussianBlur stdDeviation="0.45"/>
+       </filter>
+       <filter id="u${id}" x="-25%" y="-240%" width="150%" height="580%">
+         <feGaussianBlur stdDeviation="${(h * 0.07).toFixed(2)}"/>
+       </filter>
+       <mask id="m${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+         <rect class="tA" y="0" height="${h}" width="${L.toFixed(2)}" fill="url(#b${id})"/>
+         <rect class="tB" y="0" height="${h}" width="${L.toFixed(2)}" fill="url(#b${id})"/>
+       </mask>
+     </defs>
+     <g mask="url(#m${id})">
+       <g>
+         <path d="${d}" fill="none" stroke="${PAL.apricot}" stroke-width="${swGlow}"
+               stroke-linecap="round" opacity=".4" filter="url(#u${id})"/>
+         <path d="${d}" fill="none" stroke="url(#g${id})" stroke-width="${swCore}"
+               stroke-linecap="round" filter="url(#f${id})"/>
+       </g>
+       <g transform="translate(${-w} 0)">
+         <path d="${d}" fill="none" stroke="${PAL.apricot}" stroke-width="${swGlow}"
+               stroke-linecap="round" opacity=".4" filter="url(#u${id})"/>
+         <path d="${d}" fill="none" stroke="url(#g${id})" stroke-width="${swCore}"
+               stroke-linecap="round" filter="url(#f${id})"/>
+       </g>
+     </g>
+     <circle class="dotHalo" r="${rHalo}" fill="${PAL.rose}" opacity=".5" filter="url(#u${id})"/>
+     <circle class="dot" r="${rDot}" fill="${PAL.berry}"/>`;
+
+  strip.appendChild(svg);
+  strip._w = w;
+  strip._h = h;
+  strip._beatPx = beatPx;
+  strip._scale = scale;
+  strip._trailL = L;
+  strip._tA = svg.querySelector(".tA");
+  strip._tB = svg.querySelector(".tB");
+  strip._dot = svg.querySelector(".dot");
+  strip._dotHalo = svg.querySelector(".dotHalo");
+  strip._maskRectW = L;
+
+  // R 波联动：光点扫过每个 R 峰时头部轻压，单次行程 = beats 次
+  const phases = [];
+  for (let k = 0; k < beats; k++) phases.push((k + R_POS) / beats);
+  strip._passes = 1;
+  strip._rPhases = phases;
+}
+
+function buildWave(strip, w) {
+  const n = clamp(Math.round(w / 8), 8, 40);
+  const wave = document.createElement("div");
+  wave.className = "wave";
+  wave.innerHTML = "<i></i>".repeat(n);
+  strip.appendChild(wave);
+  return [...wave.querySelectorAll("i")];
+}
+
+/* ---------------------------------------------------------------- scene */
+class Scene {
+  constructor(el, variant, opts = {}) {
+    this.el = el;
+    this.variant = variant;
+    this.size = opts.size || 40;
+    this.small = this.size < 40;
+    this.head = el.querySelector(".head");
+    this.halo = el.querySelector(".halo");
+    this.shadow = el.querySelector(".shadow");
+    this.strip = el.querySelector(".strip");
+    this.bars = [];
+    this.dots = [];
+    this._lastT = 0;
+
+    // 各方案单次循环内的最大上行行程（用于接触影归一化）
+    this.liftRef = { A: 7.5, D: 8.3, E: 15.3 }[variant] || 12;
+
+    if (this.strip) {
+      this.strip.dataset.v = variant;
+      if (variant === "A") {
+        this.strip.innerHTML = `<div class="dots"><i></i><i></i><i></i></div>`;
+        this.dots = [...this.strip.querySelectorAll(".dots i")];
+      }
+    }
+  }
+
+  rebuild() {
+    const strip = this.strip;
+    if (!strip) return;
+    const w = Math.max(40, Math.round(strip.clientWidth));
+    const h = Math.max(10, Math.round(strip.clientHeight));
+    strip.querySelectorAll("svg.ecg,.wave").forEach((el) => el.remove());
+    strip._dot = strip._dotHalo = null;
+    strip._rPhases = null;
+    if (this.variant === "E") {
+      buildEcg(strip, w, h);
+    } else if (this.variant === "D") {
+      this.bars = buildWave(strip, w);
+    }
+    // 重建后立刻按当前时间补一帧，否则暂停状态下 resize 会留下空条
+    this.renderAt(this._lastT || 0);
+  }
+
+  // R 波联动：每次亮带扫过 R 峰，头部轻压一下
+  heartbeat(p) {
+    const ph = this.strip && this.strip._rPhases;
+    if (!ph || !ph.length) return 0;
+    let s = 0;
+    for (const c of ph) {
+      let d = mod1(p - c);
+      if (d > 0.5) d -= 1;
+      s += Math.exp(-((d / 0.028) ** 2));
+    }
+    return Math.min(1, s);
+  }
+
+  renderAt(t) {
+    this._lastT = t;
+    const spec = SPEC[this.variant];
+    const p = mod1(t / spec.loop);
+    const m = { dy: 0, sx: 1, sy: 1, breathe: 0 };
+
+    if (this.variant === "A") {
+      Object.assign(m, floatCurve(p, 7.5));
+      m.sx = 1 + 0.010 * m.breathe;
+      m.sy = 1 + 0.010 * m.breathe;
+    } else if (this.variant === "D") {
+      Object.assign(m, floatCurve(p, 8.3));
+    } else if (this.variant === "E") {
+      const f = floatCurve(p, 3.3);
+      const b = bounceCurve(p, 12, 0.07, 0.07, 0.34, 0.45);
+      m.dy = f.dy + b.dy;
+      m.sx = f.sx * b.sx;
+      m.sy = f.sy * b.sy;
+      m.breathe = f.breathe;
+    } else {
+      const f = floatCurve(p, 5.8);
+      const b = bounceCurve(p, 8, 0.06, 0.10, 0.24, 0.10);
+      m.dy = f.dy + b.dy;
+      m.sx = f.sx * b.sx;
+      m.sy = f.sy * b.sy;
+      m.breathe = f.breathe;
+    }
+
+    // 心拍联动
+    const hb = this.heartbeat(p);
+    if (hb > 0.002) {
+      const k = 0.020;
+      m.sy -= k * hb;
+      m.sx += k * 0.62 * hb;
+    }
+
+    this.head.style.transform =
+      `translateY(${m.dy.toFixed(3)}%) scale(${m.sx.toFixed(4)},${m.sy.toFixed(4)})` +
+      (this.variant === "A" ? ` rotate(${(0.45 * Math.sin(TAU * p)).toFixed(3)}deg)` : "");
+
+    // 接触影：越高越小越虚（按各方案最大行程归一，避免大幅时影子提前压死）
+    const lift = clamp(-m.dy / this.liftRef, 0, 1);
+    if (this.shadow) {
+      this.shadow.style.transform = `translateX(-50%) scale(${(1 - 0.52 * lift).toFixed(3)})`;
+      this.shadow.style.opacity = (0.92 - 0.62 * lift).toFixed(3);
+    }
+
+    // 染色柔光：飘离纸面时扩散并淡一点，强化"浮起"而不是"平移"
+    if (this.halo) {
+      this.halo.style.opacity =
+        ((0.72 + 0.24 * (m.breathe || 0) + 0.2 * hb) * (1 - 0.16 * lift)).toFixed(3);
+      this.halo.style.transform =
+        `scale(${(1 + 0.05 * (m.breathe || 0) + 0.03 * hb + 0.07 * lift).toFixed(4)})`;
+    }
+
+    this.renderStrip(p, m);
+  }
+
+  renderStrip(p, m) {
+    const v = this.variant;
+
+    if (v === "A") {
+      // 跑马灯：3 点依次点亮，0.85s 一轮（循环内 4 轮）
+      const reps = 4;
+      const head = mod1(p * reps) * 3;
+      this.dots.forEach((dot, i) => {
+        let dist = Math.abs(i - head);
+        dist = Math.min(dist, 3 - dist);
+        const k = Math.exp(-((dist / 0.62) ** 2));
+        dot.style.opacity = (0.2 + 0.8 * k).toFixed(3);
+        dot.style.transform =
+          `translateY(${(-1.7 * k).toFixed(2)}px) scale(${(0.8 + 0.45 * k).toFixed(3)})`;
+      });
+      return;
+    }
+
+    if (this.bars.length) {
+      const freq = 2;
+      const n = this.bars.length;
+      for (let i = 0; i < n; i++) {
+        const e = 0.5 + 0.5 * Math.sin(TAU * (p * freq) - i * 0.56);
+        this.bars[i].style.transform = `scaleY(${(0.16 + 0.84 * Math.pow(e, 1.7)).toFixed(3)})`;
+      }
+      return;
+    }
+
+    const strip = this.strip;
+    if (strip && strip._dot) {
+      // E：单点沿心电轨迹前进，身后拖出渐隐痕迹（无常驻底槽）
+      const w = strip._w, h = strip._h;
+      const k = mod1(p * strip._passes);
+      const x = k * w;
+      const y = ecgY(x, strip._beatPx, h, strip._scale);
+
+      // 拖尾固定 46% 条宽，身后渐隐
+      const L = w * 0.46;
+      const tail = x - L;
+
+      strip._tA.setAttribute("x", tail.toFixed(2));
+      strip._tA.setAttribute("width", L.toFixed(2));
+      strip._tB.setAttribute("x", (tail + w).toFixed(2));
+      strip._tB.setAttribute("width", L.toFixed(2));
+
+      strip._dot.setAttribute("cx", x.toFixed(2));
+      strip._dot.setAttribute("cy", y.toFixed(2));
+      strip._dotHalo.setAttribute("cx", x.toFixed(2));
+      strip._dotHalo.setAttribute("cy", y.toFixed(2));
+
+      // 接缝处光点淡出淡入，避免从右缘瞬移到左缘
+      const edge = clamp(Math.min(k, 1 - k) / 0.05, 0, 1);
+      const breathe = 0.86 + 0.14 * (0.5 + 0.5 * Math.sin(TAU * p * 3));
+      strip._dot.setAttribute("opacity", (edge * breathe).toFixed(3));
+      strip._dotHalo.setAttribute("opacity", (0.5 * edge * breathe).toFixed(3));
+      return;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------- builders */
+function makeBubble(variant, opts = {}) {
+  const size = opts.size || 40;
+  const stripH = opts.stripH || 18;
+  const el = document.createElement("div");
+  el.className = "bubble";
+  el.dataset.variant = variant;
+  el.innerHTML =
+    `<div class="bot" style="--s:${size}px">
+       <span class="halo"></span>
+       <span class="shadow"></span>
+       <span class="head"><img src="assets/robot.svg" alt=""></span>
+     </div>
+     <div class="strip" style="--strip-h:${stripH}px"></div>`;
+  return new Scene(el, variant, { size });
+}
+
+/* ---------------------------------------------------------------- cards */
+const cardsEl = document.getElementById("cards");
+const scenes = [];
+const cardBubbles = {};
+
+for (const v of ORDER) {
+  const spec = SPEC[v];
+  const card = document.createElement("button");
+  card.className = "card";
+  card.dataset.variant = v;
+  card.setAttribute("aria-pressed", String(state.selected === v));
+  card.setAttribute("role", "radio");
+  card.innerHTML =
+    `<div class="card-top">
+       <span class="badge">${v}</span>
+       <span class="name">${spec.name}</span>
+       ${v === "E" ? '<span class="tag">推荐</span>' : ""}
+     </div>
+     <div class="card-body"></div>
+     <div class="card-foot">${spec.foot}</div>`;
+  const scene = makeBubble(v, { size: 46, stripH: 26 });
+  card.querySelector(".card-body").appendChild(scene.el);
+  cardsEl.appendChild(card);
+  scene.rebuild();
+  scenes.push(scene);
+  cardBubbles[v] = scene;
+  card.addEventListener("click", () => select(v));
+}
+
+/* ---------------------------------------------------------------- demo */
+const stack = document.getElementById("stack");
+const chat = document.getElementById("chat");
+const rowScenes = {};
+
+for (const v of ORDER) {
+  const scene = makeBubble(v, { size: 40, stripH: 22 });
+  scene.el.classList.toggle("on", v === state.selected);
+  stack.appendChild(scene.el);
+  scene.rebuild();
+  scenes.push(scene);
+  rowScenes[v] = scene;
+}
+
+const avatarScene = (() => {
+  const el = document.createElement("div");
+  el.className = "bot";
+  el.style.setProperty("--s", "20px");
+  el.innerHTML = `<span class="halo"></span><span class="head"><img src="assets/robot.svg" alt=""></span>`;
+  document.getElementById("avatar").appendChild(el);
+  const s = new Scene(el, "A", { size: 20 });
+  scenes.push(s);
+  return s;
+})();
+
+function select(v) {
+  state.selected = v;
+  for (const c of cardsEl.children) c.setAttribute("aria-pressed", String(c.dataset.variant === v));
+  for (const k of ORDER) rowScenes[k].el.classList.toggle("on", k === v);
+  document.getElementById("curName").textContent = `${v} · ${SPEC[v].name}`;
+  for (const th of document.querySelectorAll("#paramTable thead th[data-col]")) {
+    th.classList.toggle("col-sel", th.dataset.col === v);
+  }
+  for (const row of document.querySelectorAll("#paramTable tbody tr")) {
+    [...row.children].forEach((cell, i) => {
+      cell.classList.toggle("on", i > 0 && ORDER[i - 1] === v);
+    });
+  }
+}
+
+/* ---------------------------------------------------------------- params */
+const PARAMS = {
+  A: ["3.4s", "悬浮 7.5% · 无压缩", "3 点跑马 · 0.85s/轮", "4 轮 + 1 拍", "sine", "3 点恒定"],
+  D: ["3.0s", "悬浮 8.3% · 无压缩", "声波阶梯", "4 个来回", "sine", "每 8px 一根，8–40 根"],
+  E: ["1.8s", "蹦跶 12% + 浮 3.3%", "单点拖尾 · 46% 条宽", "3 拍 · 1.7Hz · R 波触发", "蓄/腾/落/回", "按宽定拍数，约每 77px 一拍"],
+};
+{
+  const rows = document.querySelectorAll("#paramTable tbody tr");
+  rows.forEach((row, i) => {
+    ORDER.forEach((v, ci) => {
+      const cell = row.children[ci + 1];
+      const text = PARAMS[v][i];
+      cell.innerHTML = i === 0 ? `<b>${text}</b>` : text;
+    });
+  });
+}
+
+/* ---------------------------------------------------------------- controls */
+let t0 = performance.now(), pausedAt = 0, manual = false;
+const motionBtn = document.getElementById("motionBtn");
+motionBtn.addEventListener("click", () => setPlaying(!state.playing));
+
+function setPlaying(on) {
+  state.playing = on;
+  if (on) t0 = performance.now() - pausedAt * 1000;
+  else pausedAt = (performance.now() - t0) / 1000;
+  motionBtn.textContent = on ? "暂停" : "播放";
+  motionBtn.setAttribute("aria-pressed", String(on));
+}
+
+const replyBtn = document.getElementById("replyBtn");
+let demoTimer = 0;
+replyBtn.addEventListener("click", () => {
+  clearTimeout(demoTimer);
+  chat.classList.remove("answered");
+  demoTimer = setTimeout(() => chat.classList.add("answered"), 1900);
+});
+
+function tick(now) {
+  const t = (now - t0) / 1000;
+  if (!manual && state.playing) {
+    for (const s of scenes) {
+      if (!s.el.isConnected) continue;
+      if (s.el.classList.contains("bubble") && !s.el.classList.contains("on") && s.el.parentElement === stack) continue;
+      s.renderAt(t);
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+let resizeT = 0;
+addEventListener("resize", () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => { for (const s of scenes) s.rebuild(); }, 180);
+});
+
+/* ---------------------------------------------------------------- record */
+const params = new URLSearchParams(location.search);
+if (params.get("record")) {
+  document.body.classList.add("record");
+  const v = ORDER.includes(params.get("record")) ? params.get("record") : "E";
+  const w = +(params.get("w") || 560);
+  document.body.dataset.bg = params.get("bg") || "light";
+
+  const stage = document.getElementById("recordStage");
+  const scene = makeBubble(v, { size: +(params.get("bot") || 76), stripH: +(params.get("sh") || 34) });
+  scene.el.style.width = w + "px";
+  scene.el.style.maxWidth = "none";
+  stage.appendChild(scene.el);
+  scene.rebuild();
+
+  scenes.length = 0;
+  cardsEl.innerHTML = "";
+  stacksCleanup();
+  scenes.push(scene);
+
+  manual = true;
+  state.playing = false;
+  window.__T = SPEC[v].loop;
+  window.__seek = (t) => scene.renderAt(t);
+  window.__ready = true;
+}
+
+function stacksCleanup() {
+  const s = document.getElementById("stack");
+  if (s) s.innerHTML = "";
+  const c = document.getElementById("chat");
+  if (c) c.style.display = "none";
+}
+
+select(state.selected);
+if (REDUCED) {
+  setPlaying(false);
+  for (const s of scenes) s.renderAt(SPEC[s.variant].loop * 0.3);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
