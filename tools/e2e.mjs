@@ -26,7 +26,7 @@ const snap = () => page.evaluate(() => ({
 
 console.log('init  ', JSON.stringify(await snap()));
 
-for (const v of ['D', 'E', 'A']) {
+for (const v of ['D', 'E', 'B', 'A']) {
   await page.click(`.card[data-variant="${v}"]`);
   await new Promise((r) => setTimeout(r, 350));
   console.log('click ' + v, JSON.stringify(await snap()));

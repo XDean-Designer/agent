@@ -22,7 +22,7 @@ const b2 = await puppeteer.launch({
   defaultViewport: { width: 960, height: 260, deviceScaleFactor: 3 },
 });
 const p2 = await b2.newPage();
-for (const v of ['A', 'D', 'E']) {
+for (const v of ['A', 'D', 'E', 'B']) {
   await p2.goto(`file:///D:/AI%20agent/index.html?record=${v}&w=560&bot=76&sh=34`, { waitUntil: 'load' });
   await p2.waitForFunction('window.__ready === true', { timeout: 20000 });
   const T = await p2.evaluate(() => window.__T);

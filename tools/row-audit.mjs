@@ -10,7 +10,7 @@ const page = await browser.newPage();
 await page.goto('file:///D:/AI%20agent/index.html', { waitUntil: 'load' });
 await new Promise((r) => setTimeout(r, 500));
 
-for (const v of ['A', 'D', 'E']) {
+for (const v of ['A', 'D', 'E', 'B']) {
   await page.click(`.card[data-variant="${v}"]`);
   await new Promise((r) => setTimeout(r, 320));
   const d = await page.evaluate(() => {

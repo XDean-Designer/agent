@@ -90,6 +90,11 @@ body::before{
   min-width:0;
 }
 .card .bubble{background:var(--paper-2)}
+/* B：纯蹦跶，右侧空白，气泡贴合机器人 */
+.bubble[data-variant="B"] .strip{display:none}
+.bubble[data-variant="B"]{width:auto;justify-content:center;padding-inline:18px}
+.card .bubble[data-variant="B"]{max-width:none}
+.card[data-variant="B"] .card-body{display:flex;justify-content:center;min-height:64px;align-items:center}
 
 /* ---------- bot ---------- */
 .bot{position:relative;width:var(--s);height:calc(var(--s) * .8787);flex:none;isolation:isolate}
@@ -141,6 +146,7 @@ body::before{
 .stack{display:grid;transition:opacity .28s var(--ease),transform .28s var(--ease)}
 .stack > *{grid-area:1/1;transition:opacity .3s var(--ease),transform .3s var(--ease)}
 .stack > .bubble{width:100%;max-width:306px}
+.stack > .bubble[data-variant="B"]{width:fit-content;max-width:none;justify-self:start}
 .stack > .bubble:not(.on){opacity:0;transform:scale(.965);pointer-events:none}
 .chat.answered .stack{opacity:0;transform:translateY(-4px) scale(.985);pointer-events:none}
 .avatar-bot{width:26px;height:26px;flex:none;display:grid;place-items:center}
@@ -211,15 +217,15 @@ body.record[data-bg="transparent"] #recordStage{background:transparent}
   <section class="params">
     <table id="paramTable">
       <thead>
-        <tr><th>参数</th><th data-col="A">A · Alive</th><th data-col="D">D · Wave Float</th><th data-col="E">E · Heart Trace</th></tr>
+        <tr><th>参数</th><th data-col="A">A · Alive</th><th data-col="D">D · Wave Float</th><th data-col="E">E · Heart Trace</th><th data-col="B">B · Solo Hop</th></tr>
       </thead>
       <tbody>
-        <tr><th>主循环</th><td>A</td><td>D</td><td>E</td></tr>
-        <tr><th>头部</th><td>A</td><td>D</td><td>E</td></tr>
-        <tr><th>右侧形态</th><td>A</td><td>D</td><td>E</td></tr>
-        <tr><th>节拍</th><td>A</td><td>D</td><td>E</td></tr>
-        <tr><th>缓动</th><td>A</td><td>D</td><td>E</td></tr>
-        <tr><th>窄宽适配</th><td>A</td><td>D</td><td>E</td></tr>
+        <tr><th>主循环</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
+        <tr><th>头部</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
+        <tr><th>右侧形态</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
+        <tr><th>节拍</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
+        <tr><th>缓动</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
+        <tr><th>窄宽适配</th><td>A</td><td>D</td><td>E</td><td>B</td></tr>
       </tbody>
     </table>
   </section>
@@ -241,8 +247,10 @@ const SPEC = {
         form: "声波阶梯", mult: "2×", ease: "sine", small: "每 8px 一根" },
   E: { loop: 1.8, name: "Heart Trace", foot: "单点拖尾 46% · 1.8s · 1.7Hz", head: "蹦跶 12% + 浮 3.3%",
         form: "单点拖尾心电", mult: "3 拍", ease: "蓄/腾/落/回", small: "按宽定拍数" },
+  B: { loop: 1.0, name: "Solo Hop", foot: "纯蹦跶 12% · 1.0s · 1Hz", head: "蹦跶 12% · 无悬浮",
+        form: "无", mult: "1 跳", ease: "蓄/腾/落/回", small: "右侧空白" },
 };
-const ORDER = ["A", "D", "E"];
+const ORDER = ["A", "D", "E", "B"];
 
 const state = { mode: "thinking", selected: "E", playing: true };
 
@@ -419,7 +427,7 @@ class Scene {
     this._lastT = 0;
 
     // 各方案单次循环内的最大上行行程（用于接触影归一化）
-    this.liftRef = { A: 7.5, D: 8.3, E: 15.3 }[variant] || 12;
+    this.liftRef = { A: 7.5, D: 8.3, E: 15.3, B: 12 }[variant] || 12;
 
     if (this.strip) {
       this.strip.dataset.v = variant;
@@ -479,13 +487,12 @@ class Scene {
       m.sx = f.sx * b.sx;
       m.sy = f.sy * b.sy;
       m.breathe = f.breathe;
-    } else {
-      const f = floatCurve(p, 5.8);
-      const b = bounceCurve(p, 8, 0.06, 0.10, 0.24, 0.10);
-      m.dy = f.dy + b.dy;
-      m.sx = f.sx * b.sx;
-      m.sy = f.sy * b.sy;
-      m.breathe = f.breathe;
+    } else if (this.variant === "B") {
+      // 纯蹦跶：无悬浮、无右侧轨道，1.0s 一跳
+      const b = bounceCurve(p, 12, 0.07, 0.07, 0.34, 0.45);
+      m.dy = b.dy;
+      m.sx = b.sx;
+      m.sy = b.sy;
     }
 
     // 心拍联动
@@ -669,6 +676,7 @@ const PARAMS = {
   A: ["3.4s", "悬浮 7.5% · 无压缩", "3 点跑马 · 0.85s/轮", "4 轮 + 1 拍", "sine", "3 点恒定"],
   D: ["3.0s", "悬浮 8.3% · 无压缩", "声波阶梯", "4 个来回", "sine", "每 8px 一根，8–40 根"],
   E: ["1.8s", "蹦跶 12% + 浮 3.3%", "单点拖尾 · 46% 条宽", "3 拍 · 1.7Hz · R 波触发", "蓄/腾/落/回", "按宽定拍数，约每 77px 一拍"],
+  B: ["1.0s", "蹦跶 12% · 无悬浮", "无（纯头部）", "1 跳 · 1Hz", "蓄/腾/落/回", "右侧空白"],
 };
 {
   const rows = document.querySelectorAll("#paramTable tbody tr");
