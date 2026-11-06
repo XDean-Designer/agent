@@ -12,7 +12,7 @@
   --tab-w:340px;
   --tab-h:60px;
   --ai-size:50px;
-  --orb:152px;
+  --orb:128px;
   /* 相对金属外径内收：媒体放大，圆裁切掉金属边 */
   --media-scale:1.12;
   --tab-bottom:8px;
@@ -117,7 +117,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   background:transparent;
   box-shadow:0 14px 32px rgba(0,0,0,.22);
 }
-/* 媒体放大居中：金属边落在圆裁切外，展示直径仍为 d152 */
+/* 媒体放大居中：金属边落在圆裁切外，展示直径为 d128 */
 .orb__shell .clip{
   position:absolute;left:50%;top:50%;
   width:calc(var(--orb) * var(--media-scale));
@@ -233,7 +233,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
       </div>
     </div>
   </div>
-  <p class="caption">实景首页 · d152 · 裁掉金属边 · 0.8s 起播 · 约 2.4s 后快收</p>
+  <p class="caption">实景首页 · d128 · 裁掉金属边 · 0.8s 起播 · 约 2.4s 后快收</p>
 
 <script>
 (() => {
@@ -244,7 +244,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   const aiBtn = document.getElementById("aiBtn");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const ORB = 152;
+  const ORB = 128;
   const MEDIA_START = 0.80; // 跳过空环前摇，直接进机器人段
   const SHOW_MS = 2400;     // 片源 0.8 → 3.2s
   const POP_MS = 200;       // 轻弹出现，不跟空环长大
@@ -323,7 +323,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     orb.setAttribute("aria-hidden", "false");
     orb.classList.add("is-open");
 
-    // 直接满幅 d152，轻弹出现
+    // 直接满幅 d128，轻弹出现
     setOrbSize(ORB);
     orb.style.opacity = "0";
     orb.style.transform = reduced ? "none" : "scale(.92)";
