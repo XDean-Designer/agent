@@ -114,12 +114,12 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   background:transparent;
   box-shadow:0 14px 32px rgba(0,0,0,.22);
 }
-/* GIF 固定满尺寸居中；壳子长大 = 裁到视频圆框边缘 */
-.orb__shell img{
+/* 媒体固定 d152 居中；壳子宽高长大 = 裁到视频圆框（MP4 不怕父级改尺寸） */
+.orb__shell .clip{
   position:absolute;left:50%;top:50%;
   width:var(--orb);height:var(--orb);
   margin-left:calc(var(--orb) / -2);margin-top:calc(var(--orb) / -2);
-  object-fit:contain;display:block;
+  object-fit:cover;display:block;background:#ddd;
   pointer-events:none;user-select:none;
 }
 
@@ -183,8 +183,15 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
 
     <div class="orb" id="orb" aria-hidden="true">
       <div class="orb__shell">
-        <img id="clip" alt="" width="280" height="280" decoding="async"
-             src="assets/tab/agent-intro.gif">
+        <!-- 手机端用 MP4：GIF 在父级尺寸变化时会反复从头解码 -->
+        <video id="clip" class="clip"
+          width="480" height="480"
+          muted playsinline webkit-playsinline
+          preload="auto"
+          disablepictureinpicture
+          controlslist="nodownload nofullscreen noremoteplayback"
+          poster="assets/tab/intro-poster.jpg"
+          src="assets/tab/agent-intro.mp4"></video>
       </div>
     </div>
 
@@ -221,7 +228,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
       </div>
     </div>
   </div>
-  <p class="caption">实景首页 · d152 · 片头圆同步长大 · 2.9s 后快速收回 tab 中央</p>
+  <p class="caption">实景首页 · d152 · MP4 内联播放 · 3.2s 后快速收回 tab 中央</p>
 
 <script>
 (() => {
@@ -232,12 +239,10 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   const aiBtn = document.getElementById("aiBtn");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const GIF_SRC = "assets/tab/agent-intro.gif";
   const ORB = 152;
-  const SHOW_MS = 2900;   // 再提前 0.5s 快速收回
-  const GROW_MS = 800;    // 仅片头圆框长大同步
-  const OUT_MS = 280;     // 快速收回时长
-  // measured outer_r / 422 — 仅片头
+  const SHOW_MS = 3200;
+  const GROW_MS = 800;
+  const OUT_MS = 280;
   const RING_KEYS = [
     [0.0, 0.70],
     [0.2, 0.70],
@@ -268,7 +273,6 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     orb.style.width = s + "px";
     orb.style.height = s + "px";
     orb.style.marginLeft = -s / 2 + "px";
-    // A：圆底贴 tab
     orb.style.bottom = "calc(var(--tab-bottom) + 3px)";
     orb.style.transform = "none";
   }
@@ -282,19 +286,33 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
       let done = false;
       const finish = () => { if (done) return; done = true; el.removeEventListener("transitionend", onEnd); resolve(); };
       const onEnd = (e) => {
-        if (e.target === el && (e.propertyName === "width" || e.propertyName === "opacity")) finish();
+        if (e.target === el && (e.propertyName === "width" || e.propertyName === "transform" || e.propertyName === "opacity")) finish();
       };
       el.addEventListener("transitionend", onEnd);
       setTimeout(finish, fallback);
     });
   }
 
-  function restartGif() {
-    clip.src = GIF_SRC + "?t=" + Date.now();
+  function stopMedia() {
+    try {
+      clip.pause();
+      clip.currentTime = 0;
+    } catch (_) { /* ignore */ }
   }
 
-  /** 仅片头：CSS 圆裁切随视频环长大到满幅 */
-  function growWithGif(t0) {
+  async function startMedia() {
+    stopMedia();
+    clip.muted = true;
+    clip.playsInline = true;
+    try {
+      const p = clip.play();
+      if (p && typeof p.then === "function") await p;
+    } catch (_) {
+      // 个别机型需轻触；重播按钮 / AI 点击仍可触发
+    }
+  }
+
+  function growWithMedia(t0) {
     return new Promise((resolve) => {
       if (reduced) {
         setOrbSize(ORB);
@@ -304,7 +322,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
       const step = (now) => {
         const elapsed = now - t0;
         const tSec = Math.min(GROW_MS, elapsed) / 1000;
-        setOrbSize(ORB * Math.min(1, ringScaleAt(tSec)));
+        setOrbSize(ORB * ringScaleAt(tSec));
         orb.style.opacity = "1";
         if (elapsed < GROW_MS) syncRaf = requestAnimationFrame(step);
         else {
@@ -336,13 +354,13 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     const t0 = performance.now();
     window.__introT0 = t0;
     window.__introShowMs = SHOW_MS;
-    restartGif();
-    await growWithGif(t0);
+    await startMedia();
+    await growWithMedia(t0);
 
     const elapsed = performance.now() - t0;
     await wait(Math.max(0, SHOW_MS - elapsed));
 
-    // 清掉片头用的 transition:none，再快速收回 tab 中央
+    stopMedia();
     orb.style.transition = "";
     void orb.offsetWidth;
     orb.classList.add("phase-out");
@@ -358,13 +376,14 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     orb.style.opacity = "";
     orb.style.transform = "";
     orb.style.transition = "";
-    clip.removeAttribute("src");
-    clip.src = GIF_SRC;
     busy = false;
   }
 
   replayBtn.addEventListener("click", () => playIntro());
   aiBtn.addEventListener("click", () => { if (!busy) playIntro(); });
+
+  // 提前缓冲，降低首播卡顿
+  try { clip.load(); } catch (_) { /* ignore */ }
 
   const boot = () => {
     if (document.visibilityState === "hidden") return;
