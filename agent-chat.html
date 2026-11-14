@@ -21,6 +21,7 @@
   --font:"Noto Sans SC",sans-serif;
   --fs-body:15px; /* 默认「中」 */
   --kb-h:0px;
+  --safe-bottom:0px;
   --mobile-scale:1;
   --mobile-h:844px;
   --statusbar-h:0px;
@@ -407,7 +408,8 @@ button{font:inherit;color:inherit}
 
 /* ---------- composer：Figma 双态 ---------- */
 .composer{
-  flex:none;padding:10px 12px calc(12px + var(--kb-h));
+  flex:none;
+  padding:10px 12px calc(12px + var(--kb-h, 0px) + var(--safe-bottom, 0px));
   background:transparent;
 }
 #frame.mode-fullscreen .composer{
@@ -464,13 +466,18 @@ button{font:inherit;color:inherit}
   -webkit-tap-highlight-color: transparent;
 }
 html.is-mobile { --statusbar-h: 0px; }
-html.is-mobile, html.is-mobile body { height: 100%; overflow: hidden; }
+html.is-mobile, html.is-mobile body {
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
 html.is-mobile body {
+  /* 底安全区改由 .composer 的 --safe-bottom 承担，避免 100%+padding 裁切输入条 */
   background: #000;
   padding:
     env(safe-area-inset-top, 0px)
     env(safe-area-inset-right, 0px)
-    env(safe-area-inset-bottom, 0px)
+    0
     env(safe-area-inset-left, 0px);
   box-sizing: border-box;
 }
@@ -483,7 +490,11 @@ html.is-mobile #frame {
   transform-origin: top center;margin: 0;
   height: var(--mobile-h, 844px);box-shadow: none;border-radius: 0;
 }
-html.is-mobile .composer { padding-bottom: calc(12px + var(--kb-h, 0px)); }
+html.is-mobile .composer {
+  padding-bottom: calc(12px + var(--kb-h, 0px) + var(--safe-bottom, 0px));
+  /* 垫高区域延续面板底色，避免露黑 */
+  background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 28%);
+}
 html.is-mobile .site-nav {
   display: flex;flex-direction: column;
   position: fixed;left: 0; top: 0; bottom: 0;
@@ -1025,6 +1036,32 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!isFinite(scale) || scale <= 0) scale = 1;
     root.style.setProperty("--mobile-scale", String(Math.round(scale * 1000) / 1000));
     root.style.setProperty("--mobile-h", Math.round(logicalH) + "px");
+    updateSafeBottom(scale);
+  }
+  function readSafeBottomPx() {
+    var probe = document.getElementById("safeAreaProbe");
+    if (!probe) {
+      probe = document.createElement("div");
+      probe.id = "safeAreaProbe";
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText =
+        "position:fixed;left:0;bottom:0;width:0;height:env(safe-area-inset-bottom,0px);" +
+        "pointer-events:none;visibility:hidden;z-index:-1";
+      document.body.appendChild(probe);
+    }
+    var h = probe.getBoundingClientRect().height || 0;
+    /* 部分 Android 不报 inset，给一点底垫避免贴边被遮 */
+    if (h < 1 && /Android|iPhone|iPod|iPad/i.test(navigator.userAgent || "")) h = 20;
+    return h;
+  }
+  function updateSafeBottom(scale) {
+    if (!root.classList.contains("is-mobile")) return;
+    if (!isFinite(scale) || scale <= 0) {
+      scale = parseFloat(root.style.getPropertyValue("--mobile-scale")) || 1;
+    }
+    var px = readSafeBottomPx();
+    var logical = px / scale;
+    root.style.setProperty("--safe-bottom", Math.round(logical) + "px");
   }
   function updateKeyboardInset() {
     if (!root.classList.contains("is-mobile")) return;
@@ -1045,6 +1082,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       root.style.removeProperty("--mobile-scale");
       root.style.removeProperty("--mobile-h");
       root.style.removeProperty("--kb-h");
+      root.style.removeProperty("--safe-bottom");
       return;
     }
     updateScale();
