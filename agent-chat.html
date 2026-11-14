@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <title>AI Agent · 对话窗口原型</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +66,7 @@ button{font:inherit;color:inherit}
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   margin-left:220px;padding:28px 24px;
 }
+.frame-slot{display:contents}
 
 #frame{
   width:var(--lw);height:var(--lh);position:relative;overflow:hidden;
@@ -468,31 +469,51 @@ button{font:inherit;color:inherit}
 html.is-mobile { --statusbar-h: 0px; }
 html.is-mobile, html.is-mobile body {
   height: 100%;
-  height: 100dvh;
   overflow: hidden;
 }
 html.is-mobile body {
-  /* 底安全区改由 .composer 的 --safe-bottom 承担，避免 100%+padding 裁切输入条 */
+  /* 尺寸交给 visualViewport，避免 100dvh 把输入条推到浏览器底栏外 */
   background: #000;
-  padding:
-    env(safe-area-inset-top, 0px)
-    env(safe-area-inset-right, 0px)
-    0
-    env(safe-area-inset-left, 0px);
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: 100%;
 }
 html.is-mobile .stage {
-  margin-left: 0;padding: 0;width: 100%;height: 100%;
-  align-items: flex-start;justify-content: center;overflow: hidden;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  left: 0;
+  top: var(--vv-top, 0px);
+  width: var(--vv-width, 100%);
+  height: var(--vv-height, 100%);
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+/* 裁剪容器：贴合 visualViewport，保证输入条在可见屏内 */
+html.is-mobile .frame-slot {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 html.is-mobile #frame {
+  width: var(--lw);
+  height: var(--mobile-h, 844px);
   transform: scale(var(--mobile-scale));
-  transform-origin: top center;margin: 0;
-  height: var(--mobile-h, 844px);box-shadow: none;border-radius: 0;
+  transform-origin: top center;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
+  flex: none;
 }
 html.is-mobile .composer {
   padding-bottom: calc(12px + var(--kb-h, 0px) + var(--safe-bottom, 0px));
-  /* 垫高区域延续面板底色，避免露黑 */
   background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 28%);
 }
 html.is-mobile .site-nav {
@@ -526,6 +547,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 </aside>
 
 <div class="stage">
+  <div class="frame-slot">
   <div id="frame" class="mode-sheet" data-mode="sheet">
     <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
     <div class="scrim" aria-hidden="true"></div>
@@ -633,8 +655,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         </footer>
       </div>
     </section>
-  </div>
-</div>
+  </div><!-- #frame -->
+  </div><!-- .frame-slot -->
+</div><!-- .stage -->
 
 <script>
 (function () {
@@ -1021,21 +1044,47 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   window.openSiteNav = openSiteNav;
   window.closeSiteNav = closeSiteNav;
 
+  function visibleSize() {
+    /* 三星等机型：必须用 visualViewport，100dvh/innerHeight 会把底栏外区域算进去 */
+    var vv = window.visualViewport;
+    if (vv && vv.width > 0 && vv.height > 0) {
+      return {
+        w: vv.width,
+        h: vv.height,
+        top: vv.offsetTop || 0,
+        left: vv.offsetLeft || 0
+      };
+    }
+    return {
+      w: window.innerWidth || (stage && stage.clientWidth) || CONFIG.logicalWidth,
+      h: window.innerHeight || (stage && stage.clientHeight) || CONFIG.logicalHeightFallback,
+      top: 0,
+      left: 0
+    };
+  }
   function updateScale() {
     if (!root.classList.contains("is-mobile") || !stage) return;
-    var w = stage.clientWidth || window.innerWidth;
-    var h = stage.clientHeight || window.innerHeight;
+    var vis = visibleSize();
+    var w = vis.w;
+    var h = vis.h;
     var lw = CONFIG.logicalWidth;
     var lh0 = CONFIG.logicalHeightFallback;
+    /* 宽铺满；高度跟可见视口，保证输入条落在屏内 */
     var scale = w / lw;
     var logicalH = scale > 0 ? h / scale : h;
     if (!isFinite(logicalH) || logicalH < CONFIG.minLogicalHeight) {
       scale = Math.min(w / lw, h / lh0);
-      logicalH = lh0;
+      logicalH = scale > 0 ? h / scale : lh0;
     }
     if (!isFinite(scale) || scale <= 0) scale = 1;
+    if (!isFinite(logicalH) || logicalH <= 0) logicalH = lh0;
     root.style.setProperty("--mobile-scale", String(Math.round(scale * 1000) / 1000));
     root.style.setProperty("--mobile-h", Math.round(logicalH) + "px");
+    root.style.setProperty("--vv-width", Math.round(w) + "px");
+    root.style.setProperty("--vv-height", Math.round(h) + "px");
+    root.style.setProperty("--vv-top", Math.round(vis.top) + "px");
+    root.style.setProperty("--vv-left", Math.round(vis.left) + "px");
+    stage.style.left = Math.round(vis.left) + "px";
     updateSafeBottom(scale);
   }
   function readSafeBottomPx() {
@@ -1050,8 +1099,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       document.body.appendChild(probe);
     }
     var h = probe.getBoundingClientRect().height || 0;
-    /* 部分 Android 不报 inset，给一点底垫避免贴边被遮 */
-    if (h < 1 && /Android|iPhone|iPod|iPad/i.test(navigator.userAgent || "")) h = 20;
+    var ua = navigator.userAgent || "";
+    /* 三星等 Android 手势条常不报 inset，给足底垫 */
+    if (/Android/i.test(ua)) h = Math.max(h, 34);
+    else if (h < 1 && /iPhone|iPod|iPad/i.test(ua)) h = 24;
     return h;
   }
   function updateSafeBottom(scale) {
@@ -1083,6 +1134,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       root.style.removeProperty("--mobile-h");
       root.style.removeProperty("--kb-h");
       root.style.removeProperty("--safe-bottom");
+      root.style.removeProperty("--vv-width");
+      root.style.removeProperty("--vv-height");
+      root.style.removeProperty("--vv-top");
+      root.style.removeProperty("--vv-left");
+      if (stage) {
+        stage.style.left = "";
+        stage.style.top = "";
+        stage.style.width = "";
+        stage.style.height = "";
+      }
       return;
     }
     updateScale();
