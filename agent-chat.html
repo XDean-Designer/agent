@@ -291,15 +291,12 @@ button{font:inherit;color:inherit}
   border-bottom:1px solid rgba(80,40,70,.06);
 }
 .fn-ico{
-  width:34px;height:34px;border-radius:10px;flex:none;
-  display:grid;place-items:center;overflow:hidden;
-  background:linear-gradient(145deg,#fff,#f8eef5);
-  border:1px solid rgba(80,40,70,.08);
-  box-shadow:0 2px 6px rgba(120,50,80,.08);
+  width:34px;height:34px;flex:none;
+  display:grid;place-items:center;
+  background:transparent;border:0;box-shadow:none;border-radius:0;
 }
 .fn-ico img{
-  width:30px;height:26px;object-fit:contain;display:block;
-  transform:translateY(1px);
+  width:34px;height:30px;object-fit:contain;display:block;
 }
 .fn-titles{flex:1;min-width:0}
 .fn-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a;letter-spacing:.01em}
@@ -341,11 +338,13 @@ button{font:inherit;color:inherit}
   margin:0;padding:8px 8px 4px;font-size:11.5px;font-weight:650;
   color:#8a7f88;letter-spacing:.04em;
 }
+.fn-item{margin:0 2px 6px;border-radius:12px;overflow:hidden}
 .fn-row{
   display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
-  margin:0 2px 6px;padding:10px 12px;
-  border-radius:12px;background:#faf9fb;
-  border:1px solid rgba(26,26,26,.04);
+  padding:10px 12px;cursor:pointer;
+  background:#faf9fb;border:1px solid rgba(26,26,26,.04);
+  border-radius:12px;transition:background .15s ease,border-radius .15s ease;
+  -webkit-tap-highlight-color:transparent;user-select:none;
 }
 .fn-row.is-off{opacity:.55;background:#f5f5f6}
 .fn-row-name{font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3}
@@ -362,9 +361,149 @@ button{font:inherit;color:inherit}
   width:6px;height:6px;border-radius:50%;background:#3cbc6e;flex:none;
 }
 .fn-row.is-off .fn-dot{background:#b0b0b0}
+.fn-item.is-open .fn-row{
+  opacity:1;background:#f7f7f7;border-color:transparent;
+  border-radius:12px 12px 0 0;margin:0;
+}
+.fn-item.is-open .fn-row-name{color:#929292;font-weight:500}
+.fn-item.is-open .fn-row-price,
+.fn-item.is-open .fn-row-status{display:none}
+.fn-item.is-saved .fn-row{
+  background:#f3faf5;box-shadow:inset 0 0 0 1px rgba(52,199,89,.28);
+}
+.fn-inline{
+  display:none;background:#f7f7f7;padding:0 0 12px;
+  border-radius:0 0 12px 12px;
+}
+.fn-item.is-open .fn-inline{display:block}
+.fn-form{position:relative}
+.fn-form::before{
+  content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
+  background:#ebebeb;transform:scaleY(.5);pointer-events:none;
+}
+.fn-frow{
+  display:flex;align-items:center;min-height:48px;padding:0 12px;gap:8px;
+  position:relative;
+}
+.fn-frow:not(:last-child)::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:0;height:1px;
+  background:#ebebeb;transform:scaleY(.5);pointer-events:none;
+}
+.fn-flabel{
+  flex:0 0 68px;width:68px;font-size:14px;color:#1a1a1a;line-height:1.2;
+}
+.fn-ffield{
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:4px;
+}
+.fn-ffield input[type="text"],
+.fn-ffield input[type="number"],
+.fn-ffield select{
+  appearance:none;-webkit-appearance:none;border:0;background:transparent;
+  width:100%;max-width:100%;text-align:right;font-size:14px;font-weight:500;
+  color:#1a1a1a;outline:none;padding:0;font-family:inherit;
+}
+.fn-ffield select{
+  padding-right:14px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23929292' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right center;
+}
+.fn-ffield input::placeholder{color:#929292;font-weight:400}
+.fn-pencil{
+  flex:none;width:16px;height:16px;pointer-events:none;opacity:.85;
+}
+.fn-dur{
+  display:inline-flex;align-items:center;gap:8px;margin-left:auto;
+}
+.fn-dur-num{
+  width:68px;height:32px;border:.67px solid #ededed;border-radius:8px;
+  font-size:14px;font-weight:500;color:#1a1a1a;text-align:right;padding:0 8px;
+  background:#fff;outline:none;font-family:inherit;box-sizing:border-box;
+}
+.fn-dur-units{
+  display:grid;grid-template-columns:1fr 1fr;position:relative;
+  width:72px;height:32px;padding:2.33px;box-sizing:border-box;
+  background:#fff;border:.67px solid #ededed;border-radius:8px;
+}
+.fn-dur-ind{
+  position:absolute;top:2.33px;bottom:2.33px;left:2.33px;
+  width:calc((100% - 4.66px) / 2);border-radius:6px;
+  background:rgba(254,139,75,.1);transition:transform .18s ease;
+  pointer-events:none;
+}
+.fn-dur-units[data-unit="hour"] .fn-dur-ind{transform:translateX(100%)}
+.fn-dur-unit{
+  appearance:none;border:0;background:transparent;position:relative;z-index:1;
+  font-size:14px;font-weight:500;color:#929292;cursor:pointer;padding:0;
+  font-family:inherit;line-height:26px;
+}
+.fn-dur-unit.is-on{color:#ff8a4c}
+.fn-frow--sw{padding:8px 12px}
+.fn-sw-pair{
+  display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;
+}
+.fn-sw-item{display:inline-flex;align-items:center;gap:8px}
+.fn-sw-item .fn-flabel{flex:none;width:auto}
+.fn-switch{
+  appearance:none;border:0;padding:0;cursor:pointer;
+  width:40px;height:22px;border-radius:11px;background:#e5e5e5;
+  position:relative;flex:none;transition:background .18s ease;
+}
+.fn-switch::after{
+  content:"";position:absolute;width:18px;height:18px;top:2px;left:2px;
+  border-radius:50%;background:#fff;transition:transform .18s ease;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.fn-switch.is-on{
+  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
+}
+.fn-switch.is-on::after{transform:translateX(18px)}
+.fn-switch:disabled{opacity:.45;cursor:default}
+.fn-inline-foot{
+  padding:12px 12px 0;border-top:1px solid #ebebeb;margin-top:0;
+}
+.fn-inline-save{
+  appearance:none;border:0;cursor:pointer;width:100%;height:48px;
+  border-radius:12px;font-size:16px;font-weight:500;font-family:inherit;
+  color:#7a3d6a;
+  background:linear-gradient(105deg,#f3f0ff,#fce8f3 55%,#fff0ea);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  transition:background .15s ease,transform .12s ease;
+}
+.fn-inline-save:active{transform:scale(.985);background:#f8eaf2}
+.fn-inline-save svg{flex:none}
 .fn-empty{
   margin:8px;padding:22px 12px;text-align:center;color:#8a8a8a;
   font-size:13px;border-radius:12px;background:#faf9fb;
+}
+.fn-discard{
+  position:absolute;inset:0;z-index:20;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.36);padding:20px;border-radius:inherit;
+}
+.fn-discard.is-on{display:flex}
+.fn-discard[hidden]{display:none !important}
+.fn-discard-card{
+  width:min(100%,280px);background:#fff;border-radius:14px;
+  padding:18px 16px 14px;box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.fn-discard-card h3{
+  margin:0;font-size:16px;font-weight:650;color:#1a1a1a;text-align:center;
+}
+.fn-discard-card p{
+  margin:8px 0 0;font-size:13px;color:#6a6a72;line-height:1.45;text-align:center;
+}
+.fn-discard-acts{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;
+}
+.fn-discard-acts button{
+  appearance:none;height:40px;border-radius:10px;font-size:14px;font-weight:550;
+  font-family:inherit;cursor:pointer;
+}
+.fn-discard-keep{
+  border:1px solid rgba(26,26,26,.12);background:#fff;color:#333;
+}
+.fn-discard-ok{
+  border:0;color:#fff;
+  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
 }
 
 .fn-foot{
@@ -610,7 +749,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               <div class="fn-meta" id="fnMeta">
                 <span>共 <b id="fnTotal">22</b> 项</span>
                 <span>·</span>
-                <span><b id="fnCats">4</b> 个小类</span>
+                <span><b id="fnCats">4</b> 个分类</span>
                 <span>·</span>
                 <span id="fnFilterHint">全部</span>
               </div>
@@ -630,6 +769,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <button type="button" class="fn-act fn-act-primary" id="btnGotoManage">去价目表管理</button>
               </footer>
               <div class="fn-toast" id="fnToast" role="status"></div>
+              <div class="fn-discard" id="fnDiscard" role="dialog" aria-modal="true" aria-labelledby="fnDiscardTitle" hidden>
+                <div class="fn-discard-card">
+                  <h3 id="fnDiscardTitle">放弃修改？</h3>
+                  <p>这一项还有没保存的改动，收起后将不会保留。</p>
+                  <div class="fn-discard-acts">
+                    <button type="button" class="fn-discard-keep" id="fnDiscardKeep">继续编辑</button>
+                    <button type="button" class="fn-discard-ok" id="fnDiscardOk">放弃</button>
+                  </div>
+                </div>
+              </div>
             </article>
           </div>
 
@@ -661,34 +810,44 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
 <script>
 (function () {
+  /* [分类, 名称, 价格, 状态, 时长分钟, 可预约] */
+  var CATS = ["洗吹", "剪发", "染发", "烫护"];
   var PRICE_ROWS = [
     /* 洗吹 6 */
-    ["洗吹", "洗剪吹经典", 88, "在售"],
-    ["洗吹", "洗剪吹精修", 68, "在售"],
-    ["洗吹", "洗吹造型", 49, "在售"],
-    ["洗吹", "头皮护理洗", 128, "在售"],
-    ["洗吹", "吹发（造型）", 10, "停售"],
-    ["洗吹", "儿童洗剪吹", 58, "在售"],
+    ["洗吹", "洗剪吹经典", 88, "在售", 45, true],
+    ["洗吹", "洗剪吹精修", 68, "在售", 40, true],
+    ["洗吹", "洗吹造型", 49, "在售", 30, true],
+    ["洗吹", "头皮护理洗", 128, "在售", 50, true],
+    ["洗吹", "吹发（造型）", 10, "停售", 20, false],
+    ["洗吹", "儿童洗剪吹", 58, "在售", 35, true],
     /* 剪发 6 */
-    ["剪发", "总监剪发", 198, "在售"],
-    ["剪发", "设计总监剪发", 168, "在售"],
-    ["剪发", "设计师剪发", 128, "在售"],
-    ["剪发", "高级发型师剪发", 98, "在售"],
-    ["剪发", "修剪刘海", 30, "在售"],
-    ["剪发", "男士商务剪", 80, "停售"],
+    ["剪发", "总监剪发", 198, "在售", 60, true],
+    ["剪发", "设计总监剪发", 168, "在售", 55, true],
+    ["剪发", "设计师剪发", 128, "在售", 50, true],
+    ["剪发", "高级发型师剪发", 98, "在售", 45, true],
+    ["剪发", "修剪刘海", 30, "在售", 15, true],
+    ["剪发", "男士商务剪", 80, "停售", 40, false],
     /* 染发 5 */
-    ["染发", "泡泡染", 298, "在售"],
-    ["染发", "全头单色染", 388, "在售"],
-    ["染发", "北极星潮色", 688, "在售"],
-    ["染发", "局部挑染", 268, "在售"],
-    ["染发", "漂发护理套餐", 458, "停售"],
+    ["染发", "泡泡染", 298, "在售", 90, true],
+    ["染发", "全头单色染", 388, "在售", 120, true],
+    ["染发", "北极星潮色", 688, "在售", 150, true],
+    ["染发", "局部挑染", 268, "在售", 90, true],
+    ["染发", "漂发护理套餐", 458, "停售", 150, false],
     /* 烫护 5 */
-    ["烫护", "空气烫", 498, "在售"],
-    ["烫护", "卷发拉直", 398, "在售"],
-    ["烫护", "羊毛卷烫", 568, "在售"],
-    ["烫护", "蛋白矫正", 628, "在售"],
-    ["烫护", "热玛吉护理", 880, "停售"]
+    ["烫护", "空气烫", 498, "在售", 120, true],
+    ["烫护", "卷发拉直", 398, "在售", 100, true],
+    ["烫护", "羊毛卷烫", 568, "在售", 130, true],
+    ["烫护", "蛋白矫正", 628, "在售", 140, true],
+    ["烫护", "热玛吉护理", 880, "停售", 90, false]
   ];
+  var PENCIL_SVG =
+    '<svg class="fn-pencil" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
+    '<path d="M9.6 2.85l3.55 3.55M2.5 13.5l.85-3.9L10.7 2.25a1.2 1.2 0 011.7 0l1.35 1.35a1.2 1.2 0 010 1.7L6.4 12.65l-3.9.85z" stroke="#C7C7CC" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M2.5 13.5h5.2" stroke="#C7C7CC" stroke-width="1.05" stroke-linecap="round"/>' +
+    "</svg>";
+  var SAVE_SVG =
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M12 3.4v11.2"/><path d="M6.6 9.6l5.4 5.4 5.4-5.4"/><path d="M3.4 21h17.2"/></svg>';
 
   var frame = document.getElementById("frame");
   var navSheet = document.getElementById("navSheet");
@@ -714,10 +873,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var btnFilterOff = document.getElementById("btnFilterOff");
   var btnGotoManage = document.getElementById("btnGotoManage");
   var fnToast = document.getElementById("fnToast");
+  var fnDiscard = document.getElementById("fnDiscard");
+  var fnDiscardKeep = document.getElementById("fnDiscardKeep");
+  var fnDiscardOk = document.getElementById("fnDiscardOk");
   var agentNote = document.getElementById("agentNote");
 
   var priceState = { cat: "全部", onlyOn: false };
   var toastTimer = 0;
+  var glowTimer = 0;
+  /* 行内展开：手风琴 + 脏值确认 */
+  var inlineState = {
+    id: null,
+    dirty: false,
+    base: null,
+    form: null,
+    pending: null /* { type: 'close'|'tab'|'filter', cat?, onlyOn? } */
+  };
   /* 「全部」打乱顺序：进入时打一次，切回全部不重打乱 */
   var shuffledAll = PRICE_ROWS.slice();
   for (var si = shuffledAll.length - 1; si > 0; si--) {
@@ -725,6 +896,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var tmp = shuffledAll[si];
     shuffledAll[si] = shuffledAll[sj];
     shuffledAll[sj] = tmp;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
   function countStats(rows) {
@@ -745,6 +924,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     });
   }
 
+  function rowIdOf(r) {
+    return PRICE_ROWS.indexOf(r);
+  }
+
   function showToast(msg) {
     fnToast.textContent = msg;
     fnToast.classList.add("is-on");
@@ -752,18 +935,345 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     toastTimer = setTimeout(function () { fnToast.classList.remove("is-on"); }, 1600);
   }
 
-  function rowHtml(r) {
-    var off = r[3] === "停售";
+  function snapshotForm(f) {
+    return {
+      name: f.name,
+      cat: f.cat,
+      price: f.price,
+      duration: f.duration,
+      durUnit: f.durUnit,
+      onSale: f.onSale,
+      bookable: f.bookable
+    };
+  }
+
+  function formEqual(a, b) {
+    if (!a || !b) return false;
+    return a.name === b.name && a.cat === b.cat && a.price === b.price &&
+      a.duration === b.duration && a.durUnit === b.durUnit &&
+      a.onSale === b.onSale && a.bookable === b.bookable;
+  }
+
+  function markDirty() {
+    if (!inlineState.form || !inlineState.base) return;
+    inlineState.dirty = !formEqual(inlineState.form, inlineState.base);
+  }
+
+  function durationDisplay(mins) {
+    if (mins >= 60 && mins % 60 === 0) {
+      return { value: mins / 60, unit: "hour" };
+    }
+    return { value: mins, unit: "min" };
+  }
+
+  function durationToMinutes(value, unit) {
+    var n = parseFloat(value);
+    if (!isFinite(n) || n <= 0) return 0;
+    return unit === "hour" ? Math.round(n * 60) : Math.round(n);
+  }
+
+  function buildInlineHtml(r) {
+    var dur = durationDisplay(r[4] || 30);
+    var onSale = r[3] === "在售";
+    var bookable = !!r[5] && onSale;
+    var catOpts = CATS.map(function (c) {
+      return '<option value="' + c + '"' + (c === r[0] ? " selected" : "") + ">" + c + "</option>";
+    }).join("");
     return (
-      '<div class="fn-row' + (off ? " is-off" : "") + '">' +
-        '<div class="fn-row-name">' + r[1] + "</div>" +
-        '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
-        '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+      '<div class="fn-form">' +
+        '<div class="fn-frow">' +
+          '<span class="fn-flabel">名称</span>' +
+          '<div class="fn-ffield"><input type="text" data-f="name" maxlength="30" value="' + escapeHtml(r[1]) + '" placeholder="请输入">' + PENCIL_SVG + "</div>" +
+        "</div>" +
+        '<div class="fn-frow">' +
+          '<span class="fn-flabel">分类</span>' +
+          '<div class="fn-ffield"><select data-f="cat">' + catOpts + "</select></div>" +
+        "</div>" +
+        '<div class="fn-frow">' +
+          '<span class="fn-flabel">价格</span>' +
+          '<div class="fn-ffield"><input type="text" data-f="price" inputmode="decimal" value="¥' + escapeHtml(String(r[2])) + '" placeholder="请输入">' + PENCIL_SVG + "</div>" +
+        "</div>" +
+        '<div class="fn-frow">' +
+          '<span class="fn-flabel">时长</span>' +
+          '<div class="fn-ffield">' +
+            '<div class="fn-dur">' +
+              '<input class="fn-dur-num" type="number" data-f="duration" min="1" step="1" value="' + dur.value + '">' +
+              '<div class="fn-dur-units" data-unit="' + dur.unit + '">' +
+                '<span class="fn-dur-ind"></span>' +
+                '<button type="button" class="fn-dur-unit' + (dur.unit === "min" ? " is-on" : "") + '" data-unit="min">分</button>' +
+                '<button type="button" class="fn-dur-unit' + (dur.unit === "hour" ? " is-on" : "") + '" data-unit="hour">时</button>' +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="fn-frow fn-frow--sw">' +
+          '<div class="fn-sw-pair">' +
+            '<span class="fn-sw-item"><span class="fn-flabel">在售</span>' +
+              '<button type="button" class="fn-switch' + (onSale ? " is-on" : "") + '" data-f="onSale" aria-pressed="' + onSale + '"></button></span>' +
+            '<span class="fn-sw-item"><span class="fn-flabel">可预约</span>' +
+              '<button type="button" class="fn-switch' + (bookable ? " is-on" : "") + '"' +
+                (onSale ? "" : " disabled") + ' data-f="bookable" aria-pressed="' + bookable + '"></button></span>' +
+          "</div>" +
+        "</div>" +
+      "</div>" +
+      '<div class="fn-inline-foot">' +
+        '<button type="button" class="fn-inline-save" data-act="save">' + SAVE_SVG + "<span>保存</span></button>" +
       "</div>"
     );
   }
 
+  function itemHtml(r) {
+    var id = rowIdOf(r);
+    var off = r[3] === "停售";
+    return (
+      '<div class="fn-item" data-id="' + id + '">' +
+        '<div class="fn-row' + (off ? " is-off" : "") + '" role="button" tabindex="0" aria-expanded="false">' +
+          '<div class="fn-row-name">' + escapeHtml(r[1]) + "</div>" +
+          '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
+          '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+        "</div>" +
+        '<div class="fn-inline" hidden></div>' +
+      "</div>"
+    );
+  }
+
+  function syncFormFromDom(panel) {
+    if (!panel || !inlineState.form) return;
+    var nameEl = panel.querySelector('[data-f="name"]');
+    var catEl = panel.querySelector('[data-f="cat"]');
+    var priceEl = panel.querySelector('[data-f="price"]');
+    var durEl = panel.querySelector('[data-f="duration"]');
+    var units = panel.querySelector(".fn-dur-units");
+    var onBtn = panel.querySelector('[data-f="onSale"]');
+    var bookBtn = panel.querySelector('[data-f="bookable"]');
+    inlineState.form.name = nameEl ? nameEl.value.trim() : "";
+    inlineState.form.cat = catEl ? catEl.value : "";
+    inlineState.form.price = priceEl ? String(priceEl.value).replace(/[¥￥,\s]/g, "") : "";
+    inlineState.form.durUnit = units ? units.getAttribute("data-unit") || "min" : "min";
+    inlineState.form.duration = durEl ? durEl.value : "";
+    inlineState.form.onSale = !!(onBtn && onBtn.classList.contains("is-on"));
+    inlineState.form.bookable = !!(bookBtn && bookBtn.classList.contains("is-on"));
+    markDirty();
+  }
+
+  function bindInlineEvents(item) {
+    var panel = item.querySelector(".fn-inline");
+    if (!panel) return;
+
+    panel.querySelectorAll('input[data-f], select[data-f]').forEach(function (el) {
+      el.addEventListener("input", function () {
+        syncFormFromDom(panel);
+      });
+      el.addEventListener("change", function () {
+        syncFormFromDom(panel);
+      });
+    });
+
+    var priceEl = panel.querySelector('[data-f="price"]');
+    if (priceEl) {
+      priceEl.addEventListener("focus", function () {
+        var v = String(priceEl.value).replace(/[¥￥,\s]/g, "");
+        priceEl.value = v;
+      });
+      priceEl.addEventListener("blur", function () {
+        var v = String(priceEl.value).replace(/[¥￥,\s]/g, "");
+        if (v !== "" && isFinite(Number(v))) priceEl.value = "¥" + v;
+        syncFormFromDom(panel);
+      });
+    }
+
+    panel.querySelectorAll(".fn-dur-unit").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var wrap = panel.querySelector(".fn-dur-units");
+        var unit = btn.getAttribute("data-unit");
+        wrap.setAttribute("data-unit", unit);
+        panel.querySelectorAll(".fn-dur-unit").forEach(function (b) {
+          b.classList.toggle("is-on", b === btn);
+        });
+        syncFormFromDom(panel);
+      });
+    });
+
+    var onBtn = panel.querySelector('[data-f="onSale"]');
+    var bookBtn = panel.querySelector('[data-f="bookable"]');
+    if (onBtn) {
+      onBtn.addEventListener("click", function () {
+        var next = !onBtn.classList.contains("is-on");
+        onBtn.classList.toggle("is-on", next);
+        onBtn.setAttribute("aria-pressed", next ? "true" : "false");
+        if (!next && bookBtn) {
+          bookBtn.classList.remove("is-on");
+          bookBtn.setAttribute("aria-pressed", "false");
+          bookBtn.disabled = true;
+        } else if (bookBtn) {
+          bookBtn.disabled = false;
+        }
+        syncFormFromDom(panel);
+        showToast(next ? "已设为在售" : "已设为停售");
+      });
+    }
+    if (bookBtn) {
+      bookBtn.addEventListener("click", function () {
+        if (bookBtn.disabled) {
+          showToast("停售项目不可预约");
+          return;
+        }
+        var next = !bookBtn.classList.contains("is-on");
+        bookBtn.classList.toggle("is-on", next);
+        bookBtn.setAttribute("aria-pressed", next ? "true" : "false");
+        syncFormFromDom(panel);
+        showToast(next ? "已开启可预约" : "已关闭可预约");
+      });
+    }
+
+    var saveBtn = panel.querySelector('[data-act="save"]');
+    if (saveBtn) {
+      saveBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        saveInline(item);
+      });
+    }
+  }
+
+  function closeInlineHard() {
+    var open = fnList.querySelector(".fn-item.is-open");
+    if (open) {
+      open.classList.remove("is-open");
+      var row = open.querySelector(".fn-row");
+      if (row) row.setAttribute("aria-expanded", "false");
+      var panel = open.querySelector(".fn-inline");
+      if (panel) {
+        panel.hidden = true;
+        panel.innerHTML = "";
+      }
+    }
+    inlineState.id = null;
+    inlineState.dirty = false;
+    inlineState.base = null;
+    inlineState.form = null;
+  }
+
+  function openDiscard(pending) {
+    inlineState.pending = pending || { type: "close" };
+    fnDiscard.hidden = false;
+    fnDiscard.classList.add("is-on");
+  }
+
+  function hideDiscard() {
+    fnDiscard.classList.remove("is-on");
+    fnDiscard.hidden = true;
+    inlineState.pending = null;
+  }
+
+  function requestCloseInline(pending) {
+    if (inlineState.id == null) return;
+    if (inlineState.dirty) {
+      openDiscard(pending || { type: "close" });
+      return;
+    }
+    closeInlineHard();
+    if (pending && pending.type === "tab") applyTab(pending.cat);
+    else if (pending && pending.type === "filter") applyFilter(pending.onlyOn);
+    else requestAnimationFrame(updateScrollHint);
+  }
+
+  function openInline(item) {
+    var id = Number(item.getAttribute("data-id"));
+    var row = PRICE_ROWS[id];
+    if (!row) return;
+    closeInlineHard();
+    var panel = item.querySelector(".fn-inline");
+    var head = item.querySelector(".fn-row");
+    panel.hidden = false;
+    panel.innerHTML = buildInlineHtml(row);
+    item.classList.add("is-open");
+    if (head) head.setAttribute("aria-expanded", "true");
+    var dur = durationDisplay(row[4] || 30);
+    inlineState.id = id;
+    inlineState.form = {
+      name: row[1],
+      cat: row[0],
+      price: String(row[2]),
+      duration: String(dur.value),
+      durUnit: dur.unit,
+      onSale: row[3] === "在售",
+      bookable: !!row[5] && row[3] === "在售"
+    };
+    inlineState.base = snapshotForm(inlineState.form);
+    inlineState.dirty = false;
+    bindInlineEvents(item);
+    requestAnimationFrame(function () {
+      try {
+        item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } catch (err) { /* ignore */ }
+      updateScrollHint();
+    });
+  }
+
+  function toggleInline(item) {
+    var id = Number(item.getAttribute("data-id"));
+    if (inlineState.id === id) {
+      requestCloseInline({ type: "close" });
+      return;
+    }
+    if (inlineState.id != null && inlineState.dirty) {
+      openDiscard({ type: "switch", id: id });
+      return;
+    }
+    openInline(item);
+  }
+
+  function saveInline(item) {
+    var panel = item.querySelector(".fn-inline");
+    syncFormFromDom(panel);
+    var f = inlineState.form;
+    if (!f || !f.name) {
+      showToast("请填写名称");
+      return;
+    }
+    var priceNum = Number(String(f.price).replace(/[¥￥,\s]/g, ""));
+    if (!isFinite(priceNum) || priceNum < 0) {
+      showToast("请填写有效价格");
+      return;
+    }
+    var mins = durationToMinutes(f.duration, f.durUnit);
+    if (mins < 1) {
+      showToast("请填写项目时长");
+      return;
+    }
+    var id = inlineState.id;
+    var row = PRICE_ROWS[id];
+    if (!row) return;
+    row[0] = f.cat;
+    row[1] = f.name;
+    row[2] = Math.round(priceNum * 100) / 100;
+    row[3] = f.onSale ? "在售" : "停售";
+    row[4] = mins;
+    row[5] = f.onSale ? !!f.bookable : false;
+    inlineState.dirty = false;
+    inlineState.base = snapshotForm(f);
+    closeInlineHard();
+    renderPriceCard();
+    var saved = fnList.querySelector('.fn-item[data-id="' + id + '"]');
+    if (saved) {
+      saved.classList.add("is-saved");
+      clearTimeout(glowTimer);
+      glowTimer = setTimeout(function () {
+        saved.classList.remove("is-saved");
+      }, 320);
+      try {
+        saved.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      } catch (err) { /* ignore */ }
+    }
+    showToast("保存成功");
+  }
+
   function renderPriceCard() {
+    var keepId = inlineState.id;
+    var keepDirty = inlineState.dirty;
+    var keepForm = inlineState.form ? snapshotForm(inlineState.form) : null;
+    var keepBase = inlineState.base ? snapshotForm(inlineState.base) : null;
+
     var all = countStats(PRICE_ROWS);
     fnPill.textContent = all.on + " 在售 · " + all.off + " 停售";
     fnTotal.textContent = String(all.total);
@@ -776,36 +1286,153 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var rows = filteredRows();
     if (!rows.length) {
       fnList.innerHTML = '<div class="fn-empty">当前筛选下暂无项目</div>';
+      inlineState.id = null;
+      inlineState.dirty = false;
+      inlineState.base = null;
+      inlineState.form = null;
       requestAnimationFrame(updateScrollHint);
       return;
     }
 
-    /* 全部：扁平打乱列表，无小类标签；分类 Tab：该类列表（无分组标题） */
-    fnList.innerHTML = rows.map(rowHtml).join("");
+    /* 全部：扁平打乱列表；分类 Tab：该类列表（无分组标题） */
+    fnList.innerHTML = rows.map(itemHtml).join("");
+
+    if (keepId != null && fnList.querySelector('.fn-item[data-id="' + keepId + '"]')) {
+      var item = fnList.querySelector('.fn-item[data-id="' + keepId + '"]');
+      openInline(item);
+      if (keepForm && keepDirty) {
+        inlineState.form = keepForm;
+        inlineState.base = keepBase;
+        inlineState.dirty = true;
+        var panel = item.querySelector(".fn-inline");
+        var nameEl = panel.querySelector('[data-f="name"]');
+        var catEl = panel.querySelector('[data-f="cat"]');
+        var priceEl = panel.querySelector('[data-f="price"]');
+        var durEl = panel.querySelector('[data-f="duration"]');
+        var units = panel.querySelector(".fn-dur-units");
+        var onBtn = panel.querySelector('[data-f="onSale"]');
+        var bookBtn = panel.querySelector('[data-f="bookable"]');
+        if (nameEl) nameEl.value = keepForm.name;
+        if (catEl) catEl.value = keepForm.cat;
+        if (priceEl) priceEl.value = keepForm.price !== "" ? "¥" + keepForm.price : "";
+        if (durEl) durEl.value = keepForm.duration;
+        if (units) {
+          units.setAttribute("data-unit", keepForm.durUnit);
+          panel.querySelectorAll(".fn-dur-unit").forEach(function (b) {
+            b.classList.toggle("is-on", b.getAttribute("data-unit") === keepForm.durUnit);
+          });
+        }
+        if (onBtn) {
+          onBtn.classList.toggle("is-on", keepForm.onSale);
+          onBtn.setAttribute("aria-pressed", keepForm.onSale ? "true" : "false");
+        }
+        if (bookBtn) {
+          bookBtn.classList.toggle("is-on", keepForm.bookable);
+          bookBtn.setAttribute("aria-pressed", keepForm.bookable ? "true" : "false");
+          bookBtn.disabled = !keepForm.onSale;
+        }
+      }
+    } else {
+      inlineState.id = null;
+      inlineState.dirty = false;
+      inlineState.base = null;
+      inlineState.form = null;
+    }
     requestAnimationFrame(updateScrollHint);
   }
+
+  function applyTab(cat) {
+    priceState.cat = cat;
+    fnTabs.querySelectorAll(".fn-tab").forEach(function (t) {
+      var on = t.dataset.cat === cat;
+      t.classList.toggle("is-on", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    closeInlineHard();
+    renderPriceCard();
+  }
+
+  function applyFilter(onlyOn) {
+    priceState.onlyOn = onlyOn;
+    btnFilterOff.classList.toggle("is-on", onlyOn);
+    btnFilterOff.textContent = onlyOn ? "查看全部" : "只看在售";
+    closeInlineHard();
+    renderPriceCard();
+  }
+
+  fnList.addEventListener("click", function (e) {
+    if (e.target.closest(".fn-inline")) return;
+    var item = e.target.closest(".fn-item");
+    if (!item || !fnList.contains(item)) return;
+    toggleInline(item);
+  });
 
   fnTabs.addEventListener("click", function (e) {
     var btn = e.target.closest(".fn-tab");
     if (!btn) return;
-    priceState.cat = btn.dataset.cat;
-    fnTabs.querySelectorAll(".fn-tab").forEach(function (t) {
-      var on = t === btn;
-      t.classList.toggle("is-on", on);
-      t.setAttribute("aria-selected", on ? "true" : "false");
-    });
-    renderPriceCard();
+    var cat = btn.dataset.cat;
+    if (cat === priceState.cat) return;
+    if (inlineState.id != null && inlineState.dirty) {
+      openDiscard({ type: "tab", cat: cat });
+      return;
+    }
+    applyTab(cat);
   });
 
   btnFilterOff.addEventListener("click", function () {
-    priceState.onlyOn = !priceState.onlyOn;
-    btnFilterOff.classList.toggle("is-on", priceState.onlyOn);
-    btnFilterOff.textContent = priceState.onlyOn ? "查看全部" : "只看在售";
-    renderPriceCard();
+    var next = !priceState.onlyOn;
+    if (inlineState.id != null && inlineState.dirty) {
+      openDiscard({ type: "filter", onlyOn: next });
+      return;
+    }
+    applyFilter(next);
   });
 
   btnGotoManage.addEventListener("click", function () {
     showToast("示意：将跳转「价目表管理」");
+  });
+
+  fnDiscardKeep.addEventListener("click", function () {
+    hideDiscard();
+  });
+
+  fnDiscardOk.addEventListener("click", function () {
+    var pending = inlineState.pending;
+    hideDiscard();
+    if (!pending) {
+      closeInlineHard();
+      return;
+    }
+    if (pending.type === "switch") {
+      closeInlineHard();
+      var next = fnList.querySelector('.fn-item[data-id="' + pending.id + '"]');
+      if (next) openInline(next);
+      return;
+    }
+    if (pending.type === "tab") {
+      applyTab(pending.cat);
+      return;
+    }
+    if (pending.type === "filter") {
+      applyFilter(pending.onlyOn);
+      return;
+    }
+    closeInlineHard();
+    requestAnimationFrame(updateScrollHint);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (inlineState.id == null) return;
+    if (fnDiscard.classList.contains("is-on")) return;
+    /* 点在当前展开项 / Tab / 底栏 / 弹层内：不收起 */
+    if (e.target.closest(".fn-item.is-open") ||
+        e.target.closest(".fn-tabs") ||
+        e.target.closest(".fn-foot") ||
+        e.target.closest(".fn-discard") ||
+        e.target.closest(".fn-toast")) return;
+    /* 点其它行：由列表 click 负责切换 */
+    if (e.target.closest(".fn-item")) return;
+    requestCloseInline({ type: "close" });
   });
 
   renderPriceCard();
