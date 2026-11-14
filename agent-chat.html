@@ -26,8 +26,25 @@
   --mobile-h:844px;
   --statusbar-h:0px;
   --ease:cubic-bezier(.37,0,.63,1);
+  /* iOS-inspired motion */
+  --ease-out:cubic-bezier(.32,.72,0,1);
+  --ease-spring:cubic-bezier(.22,1,.36,1);
+  --ease-press:cubic-bezier(.2,.8,.2,1);
+  --dur-press:.1s;
+  --dur-ui:.22s;
+  --dur-enter:.34s;
+  --dur-sheet:.42s;
   --p-rose:#F7B3C4;
   --p-berry:#E2879B;
+  /* Figma AI 按钮三态（node 80:50） */
+  --btn-blue:#496fc4;
+  --btn-stroke:#9fadca;
+  --btn-stroke-soft:#94a8cd;
+  --btn-muted:#a5bde1;
+  --btn-fill:#e9f3ff;
+  --btn-radius:6px;
+  --btn-h:34px;
+  --btn-fs:13px;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -49,8 +66,7 @@ button{font:inherit;color:inherit}
   border:1px solid rgba(255,255,255,.12);color:#f2f2f2;
   backdrop-filter:blur(12px);
 }
-.site-nav h1{margin:0 0 4px;font-size:13px;font-weight:600;letter-spacing:.02em}
-.site-nav p{margin:0 0 12px;font-size:11px;line-height:1.45;color:rgba(255,255,255,.58)}
+.site-nav h1{margin:0 0 12px;font-size:13px;font-weight:600;letter-spacing:.02em}
 .site-nav .nav-actions{display:flex;flex-direction:column;gap:8px}
 .site-nav button{
   appearance:none;border:1px solid rgba(255,255,255,.16);
@@ -77,10 +93,11 @@ button{font:inherit;color:inherit}
 .home-bg{
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:cover;object-position:top center;pointer-events:none;user-select:none;
+  transition:opacity var(--dur-sheet) var(--ease-out);
 }
 .scrim{
   position:absolute;inset:0;background:rgba(0,0,0,.75);pointer-events:none;
-  transition:opacity .28s ease;
+  transition:opacity var(--dur-sheet) var(--ease-out);
 }
 
 /* ---------- agent panel ---------- */
@@ -88,7 +105,11 @@ button{font:inherit;color:inherit}
   position:absolute;left:0;right:0;bottom:0;
   display:flex;flex-direction:column;
   overflow:visible;
-  transition:top .32s cubic-bezier(.22,1,.36,1), border-radius .32s ease, height .32s ease;
+  transition:
+    top var(--dur-sheet) var(--ease-spring),
+    border-radius var(--dur-sheet) var(--ease-out),
+    height var(--dur-sheet) var(--ease-spring),
+    background-color var(--dur-sheet) var(--ease-out);
 }
 .agent-surface{
   position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;
@@ -174,7 +195,15 @@ button{font:inherit;color:inherit}
   margin:-36px 0 -20px -14px;
   object-fit:contain;pointer-events:none;user-select:none;
   filter:drop-shadow(0 8px 14px rgba(120,40,70,.18));
+  transition:
+    margin var(--dur-sheet) var(--ease-spring),
+    width var(--dur-sheet) var(--ease-spring),
+    height var(--dur-sheet) var(--ease-spring),
+    filter var(--dur-sheet) var(--ease-out),
+    transform var(--dur-sheet) var(--ease-spring);
+  transform:translateZ(0);
 }
+#frame.is-mode-animating .robot{transform:translateZ(0) scale(1.02)}
 #frame.mode-fullscreen .robot{margin:-12px 0 -22px -10px;width:96px;height:96px}
 .greet{padding-top:18px;min-width:0}
 #frame.mode-fullscreen .greet{padding-top:22px}
@@ -228,6 +257,90 @@ button{font:inherit;color:inherit}
   scrollbar-width:thin;
 }
 .msg-user{display:flex;justify-content:flex-end;margin:4px 0 12px}
+/* ---------- motion system (iOS B pack) ---------- */
+@keyframes motion-rise{
+  from{opacity:0;transform:translateY(10px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes motion-reply{
+  from{opacity:0;transform:translateX(12px) scale(.97)}
+  to{opacity:1;transform:translateX(0) scale(1)}
+}
+@keyframes motion-exit{
+  from{opacity:1;transform:translateY(0) scale(1)}
+  to{opacity:0;transform:translateY(6px) scale(.985)}
+}
+@keyframes motion-pill-pop{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+@keyframes motion-success-flash{
+  0%{box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 28px -18px rgba(80,30,50,.28),0 2px 6px rgba(40,20,30,.05)}
+  40%{box-shadow:0 1px 0 rgba(255,255,255,.95) inset,0 0 0 1.5px rgba(52,199,89,.28),0 14px 32px -16px rgba(52,160,90,.28)}
+  100%{box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 28px -18px rgba(80,30,50,.28),0 2px 6px rgba(40,20,30,.05)}
+}
+@keyframes motion-chip-in{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.is-enter{animation:motion-rise var(--dur-enter) var(--ease-out) both}
+.is-enter-reply{animation:motion-reply var(--dur-enter) var(--ease-out) both}
+.is-exit{animation:motion-exit .2s var(--ease-out) both;pointer-events:none}
+.is-phase-pop{animation:motion-success-flash .55s var(--ease-out) both}
+.od-pill.is-pop{animation:motion-pill-pop .42s var(--ease-spring) both}
+.is-enter .od-chip,
+.is-enter .ask-pay{
+  animation:motion-chip-in .3s var(--ease-out) both;
+}
+.is-enter .od-chip:nth-child(1),.is-enter .ask-pay:nth-child(1){animation-delay:.04s}
+.is-enter .od-chip:nth-child(2),.is-enter .ask-pay:nth-child(2){animation-delay:.08s}
+.is-enter .od-chip:nth-child(3),.is-enter .ask-pay:nth-child(3){animation-delay:.12s}
+.is-enter .od-chip:nth-child(4),.is-enter .ask-pay:nth-child(4){animation-delay:.16s}
+.is-enter .od-chip:nth-child(5),.is-enter .ask-pay:nth-child(5){animation-delay:.2s}
+.is-enter .od-chip:nth-child(6),.is-enter .ask-pay:nth-child(6){animation-delay:.24s}
+
+.pressable:active,
+.fn-act:active,
+.fn-tab:active,
+.od-chip:active,
+.ask-pay:active,
+.pay-opt:active,
+.od-edit-done:active,
+.icon-btn:active,
+.scroll-hint:active{
+  transform:scale(.97);
+  filter:brightness(.97);
+  transition:transform var(--dur-press) var(--ease-press),filter var(--dur-press) ease;
+}
+.fn-act,.fn-tab,.od-chip,.ask-pay,.pay-opt,.od-edit-done,.icon-btn,.scroll-hint{
+  transition:
+    transform var(--dur-press) var(--ease-press),
+    filter var(--dur-press) ease,
+    background var(--dur-ui) var(--ease-out),
+    border-color var(--dur-ui) var(--ease-out),
+    color var(--dur-ui) var(--ease-out),
+    box-shadow var(--dur-ui) var(--ease-out);
+}
+.fn-act-primary:active,
+.od-foot-approve:active,
+.od-chip.is-primary:active{
+  box-shadow:0 1px 0 rgba(73,111,196,.12);
+}
+
+@media (prefers-reduced-motion:reduce){
+  :root{
+    --dur-press:0s;--dur-ui:.01s;--dur-enter:.01s;--dur-sheet:.01s;
+  }
+  .is-enter,.is-enter-reply,.is-exit,.is-phase-pop,.od-pill.is-pop,
+  .is-enter .od-chip,.is-enter .ask-pay{animation:none !important}
+  .pressable:active,.fn-act:active,.fn-tab:active,.od-chip:active,
+  .ask-pay:active,.pay-opt:active,.od-edit-done:active,
+  .icon-btn:active,.scroll-hint:active{transform:none;filter:none}
+  #frame.is-mode-animating .robot{transform:none}
+  .ask-more-panel{transition:none}
+}
+
 .bubble-user{
   max-width:78%;padding:10px 14px;border-radius:18px;
   background:#ffccd1;color:#2a2a2a;font-size:var(--fs-body);line-height:1.45;
@@ -269,9 +382,15 @@ button{font:inherit;color:inherit}
 .think-label.is-swap{opacity:0}
 
 /* ---------- P1 功能卡：轻拟物价目册（区别于聊天气泡） ---------- */
-.agent-note{
-  margin:0 0 10px;font-size:calc(var(--fs-body) - 1px);color:#6a6a72;line-height:1.45;
+.bubble-agent{
+  margin:0 0 10px;padding:12px 14px;border-radius:16px 16px 16px 6px;
+  background:#fff;border:1px solid rgba(80,40,70,.08);
+  box-shadow:0 8px 22px -16px rgba(80,30,50,.28);
+  font-size:calc(var(--fs-body) - 1px);color:#3a3a42;line-height:1.5;
 }
+.bubble-agent[hidden]{display:none !important}
+.bubble-agent b{color:#1a1a1a;font-weight:650}
+.agent-note{display:none !important}
 .session-card{
   position:relative;margin-bottom:10px;
   border-radius:18px;overflow:hidden;
@@ -320,16 +439,14 @@ button{font:inherit;color:inherit}
 }
 .fn-tabs::-webkit-scrollbar{display:none}
 .fn-tab{
-  appearance:none;border:1px solid rgba(26,26,26,.1);background:#fff;
-  border-radius:999px;padding:6px 11px;font-size:12.5px;color:#555;
-  white-space:nowrap;cursor:pointer;flex:none;
-  transition:background .15s ease,border-color .15s ease,color .15s ease;
+  appearance:none;cursor:pointer;flex:none;white-space:nowrap;
+  height:var(--btn-h);padding:0 12px;border-radius:var(--btn-radius);
+  font-size:var(--btn-fs);font-weight:500;font-family:inherit;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+  display:inline-flex;align-items:center;justify-content:center;
 }
 .fn-tab.is-on{
-  color:#fff;font-weight:600;
-  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
-  border-color:transparent;
-  box-shadow:0 4px 10px -4px rgba(160,80,140,.45);
+  background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
 
 .fn-list{padding:0 8px 4px;max-height:none}
@@ -452,23 +569,19 @@ button{font:inherit;color:inherit}
   border-radius:50%;background:#fff;transition:transform .18s ease;
   box-shadow:0 1px 3px rgba(0,0,0,.12);
 }
-.fn-switch.is-on{
-  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
-}
+.fn-switch.is-on{background:var(--btn-blue)}
 .fn-switch.is-on::after{transform:translateX(18px)}
 .fn-switch:disabled{opacity:.45;cursor:default}
 .fn-inline-foot{
   padding:12px 12px 0;border-top:1px solid #ebebeb;margin-top:0;
 }
 .fn-inline-save{
-  appearance:none;border:0;cursor:pointer;width:100%;height:48px;
-  border-radius:12px;font-size:16px;font-weight:500;font-family:inherit;
-  color:#7a3d6a;
-  background:linear-gradient(105deg,#f3f0ff,#fce8f3 55%,#fff0ea);
+  appearance:none;cursor:pointer;width:100%;height:48px;
+  border-radius:var(--btn-radius);font-size:16px;font-weight:500;font-family:inherit;
+  color:var(--btn-blue);background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  transition:background .15s ease,transform .12s ease;
 }
-.fn-inline-save:active{transform:scale(.985);background:#f8eaf2}
+.fn-inline-save:active{transform:scale(.985)}
 .fn-inline-save svg{flex:none}
 .fn-empty{
   margin:8px;padding:22px 12px;text-align:center;color:#8a8a8a;
@@ -495,15 +608,14 @@ button{font:inherit;color:inherit}
   display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;
 }
 .fn-discard-acts button{
-  appearance:none;height:40px;border-radius:10px;font-size:14px;font-weight:550;
-  font-family:inherit;cursor:pointer;
+  appearance:none;height:var(--btn-h);min-height:36px;border-radius:var(--btn-radius);
+  font-size:var(--btn-fs);font-weight:500;font-family:inherit;cursor:pointer;
 }
 .fn-discard-keep{
-  border:1px solid rgba(26,26,26,.12);background:#fff;color:#333;
+  background:transparent;border:.5px solid var(--btn-stroke);color:var(--btn-blue);
 }
 .fn-discard-ok{
-  border:0;color:#fff;
-  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
+  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
 
 .fn-foot{
@@ -513,28 +625,232 @@ button{font:inherit;color:inherit}
 }
 .fn-act{
   appearance:none;cursor:pointer;
-  height:38px;border-radius:12px;font-size:13px;font-weight:550;
-  display:grid;place-items:center;transition:transform .12s ease,background .15s ease;
+  height:var(--btn-h);min-height:36px;border-radius:var(--btn-radius);
+  font-size:var(--btn-fs);font-weight:500;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
 }
-.fn-act:active{transform:scale(.98)}
 .fn-act-ghost{
-  border:1px solid rgba(26,26,26,.12);background:#fff;color:#333;
+  background:transparent;border:.5px solid var(--btn-stroke);color:var(--btn-blue);
 }
 .fn-act-ghost.is-on{
-  border-color:rgba(193,99,188,.35);background:#faf4fa;color:#7a3d6a;
+  background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
 .fn-act-primary{
-  border:0;color:#fff;
-  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
-  box-shadow:0 6px 14px -8px rgba(160,80,140,.55);
+  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
-.fn-toast{
-  position:absolute;left:50%;bottom:54px;transform:translateX(-50%) translateY(6px);
-  padding:7px 12px;border-radius:999px;font-size:12px;color:#fff;
-  background:rgba(26,26,26,.82);white-space:nowrap;opacity:0;pointer-events:none;
-  transition:opacity .2s ease,transform .2s ease;z-index:3;
+.fn-toast,.od-toast{
+  position:absolute;left:50%;bottom:54px;
+  transform:translateX(-50%) translateY(12px) scale(.96);
+  padding:10px 16px;border-radius:14px;font-size:12.5px;font-weight:500;color:#fff;
+  background:rgba(28,28,30,.78);
+  -webkit-backdrop-filter:blur(16px) saturate(1.4);
+  backdrop-filter:blur(16px) saturate(1.4);
+  box-shadow:0 8px 28px rgba(0,0,0,.2), inset 0 .5px 0 rgba(255,255,255,.18);
+  white-space:nowrap;opacity:0;pointer-events:none;z-index:3;
+  transition:opacity .28s var(--ease-out),transform .28s var(--ease-spring);
 }
-.fn-toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+.fn-toast.is-on,.od-toast.is-on{
+  opacity:1;transform:translateX(-50%) translateY(0) scale(1);
+}
+
+/* ---------- 开单功能卡（草稿可编辑 → 成功回执） ---------- */
+.demo-panel[hidden]{display:none !important}
+.order-card{
+  position:relative;margin-bottom:10px;
+  border-radius:18px;overflow:hidden;
+  background:#fff;
+  border:1px solid rgba(80,40,70,.08);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 10px 28px -18px rgba(80,30,50,.28),
+    0 2px 6px rgba(40,20,30,.05);
+}
+.od-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px 10px;
+  background:linear-gradient(105deg,#f7f0ff 0%,#ffe9f0 48%,#fff6f0 100%);
+  border-bottom:1px solid rgba(80,40,70,.06);
+}
+.od-titles{flex:1;min-width:0}
+.od-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a}
+.od-sub{margin:2px 0 0;font-size:11.5px;color:#7a6f78}
+.od-pill{
+  flex:none;padding:4px 8px;border-radius:999px;
+  font-size:11px;font-weight:600;color:#7a3d6a;
+  background:rgba(255,255,255,.72);border:1px solid rgba(180,100,140,.22);
+  transition:color var(--dur-ui) var(--ease-out),background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out);
+}
+.order-card[data-phase="success"] .od-pill{
+  color:#1f7a45;border-color:rgba(52,199,89,.28);background:#f3faf5;
+}
+.od-fields{padding:4px 8px 6px}
+.od-item{margin:0 2px 4px;border-radius:12px;overflow:hidden}
+.od-pair{
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  margin:0 2px 4px;
+}
+.od-pair .od-item{margin:0}
+.od-pair .od-item.is-open{grid-column:1 / -1}
+.od-pair .od-row{grid-template-columns:1fr;gap:2px;min-height:52px}
+.od-pair .od-k{padding-top:0}
+.od-pair .od-v{font-weight:700;font-variant-numeric:tabular-nums}
+.od-v-input,.od-v-select{
+  width:100%;max-width:100%;border:0;background:transparent;
+  font:inherit;font-weight:700;color:#1a1a1a;text-align:right;
+  outline:none;padding:0;font-family:inherit;
+  border-bottom:1px solid rgba(141,138,237,.55);
+  box-sizing:border-box;
+}
+.od-v-select{appearance:none;-webkit-appearance:none;font-weight:500;cursor:pointer}
+.od-v-checkout{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;
+}
+.od-amt{
+  font-weight:700;font-variant-numeric:tabular-nums;
+  border-bottom:1px solid transparent;
+}
+.order-card[data-phase="draft"] .od-amt{cursor:text}
+.order-card[data-phase="draft"] .od-amt:hover{
+  border-bottom-color:rgba(141,138,237,.45);
+}
+.od-row{
+  width:100%;text-align:left;
+  display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:start;
+  padding:10px 12px;background:#faf9fb;font-family:inherit;
+  border:1px solid rgba(26,26,26,.04);border-radius:12px;
+  transition:background .15s ease,border-radius .15s ease;
+}
+.od-row.is-edit{cursor:pointer}
+.od-pay-chip[data-inline]{cursor:pointer}
+.od-k{font-size:12px;color:#8a7f88;padding-top:2px}
+.od-v{font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.35;min-width:0}
+.od-v small{display:block;margin-top:2px;font-size:11.5px;font-weight:400;color:#6a6a72}
+.od-v.od-money{font-weight:700;font-variant-numeric:tabular-nums}
+.od-pay-chip{
+  display:inline-flex;align-items:center;gap:5px;vertical-align:middle;
+  font-size:inherit;font-weight:600;color:#1a1a1a;margin-right:2px;
+}
+.od-pay-chip img,.ask-pay img,.pay-opt img{
+  width:18px;height:18px;display:block;flex:none;object-fit:contain;
+}
+.ask-card{
+  margin:0 0 10px;padding:12px 14px;border-radius:16px;
+  background:#fff;border:1px solid rgba(80,40,70,.08);
+  box-shadow:0 8px 22px -16px rgba(80,30,50,.28);
+}
+.ask-card p{margin:0;font-size:calc(var(--fs-body) - 1px);color:#3a3a42;line-height:1.5}
+.ask-chips{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;
+}
+.ask-pay,.pay-opt{
+  appearance:none;cursor:pointer;
+  height:var(--btn-h);padding:0 12px;border-radius:var(--btn-radius);
+  font-size:var(--btn-fs);font-weight:500;font-family:inherit;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.ask-pay.is-skip,.pay-opt.is-more{
+  color:var(--btn-muted);border-color:var(--btn-muted);background:transparent;
+}
+.ask-pay.is-picked,.pay-opt.is-picked{
+  background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
+  transform:scale(.97);
+}
+.ask-more-panel{
+  display:grid;grid-template-rows:0fr;opacity:0;
+  margin-top:0;padding-top:0;border-top:1px dashed transparent;
+  transition:
+    grid-template-rows .32s var(--ease-out),
+    opacity .24s var(--ease-out),
+    margin-top .32s var(--ease-out),
+    padding-top .32s var(--ease-out),
+    border-color .24s var(--ease-out);
+}
+.ask-more-panel > .ask-chips{overflow:hidden;min-height:0}
+.ask-card.is-more-on .ask-more-panel{
+  grid-template-rows:1fr;opacity:1;
+  margin-top:8px;padding-top:8px;
+  border-top-color:rgba(26,26,26,.08);
+}
+.ask-card[hidden],.msg-reply[hidden]{display:none !important}
+.msg-reply{display:flex;justify-content:flex-end;margin:0 0 10px}
+.bubble-reply{
+  max-width:86%;padding:9px 12px;border-radius:14px 14px 4px 14px;
+  background:linear-gradient(145deg,#ffe4ec,#ffd3df);
+  font-size:var(--fs-body);color:#1a1a1a;line-height:1.4;
+  display:inline-flex;align-items:center;gap:6px;
+  box-shadow:0 4px 14px -8px rgba(180,60,90,.35);
+}
+.bubble-reply img{width:18px;height:18px;object-fit:contain}
+.od-item.is-open .od-row{
+  background:#f7f7f7;border-color:transparent;border-radius:12px 12px 0 0;
+}
+.od-item.is-open .od-v{color:#929292;font-weight:500}
+.od-edit{
+  display:none;background:#f7f7f7;padding:0 0 10px;border-radius:0 0 12px 12px;
+}
+.od-item.is-open .od-edit{display:block}
+.od-edit .fn-frow{min-height:44px}
+.od-edit-done{
+  appearance:none;cursor:pointer;margin:8px 12px 0;width:calc(100% - 24px);
+  height:var(--btn-h);border-radius:var(--btn-radius);font-size:var(--btn-fs);font-weight:600;font-family:inherit;
+  color:var(--btn-blue);background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
+}
+.od-amount-block{display:none}
+.od-hint{
+  margin:0;padding:0 14px 10px;font-size:11.5px;color:#8a7f88;line-height:1.4;
+}
+.order-card[data-phase="success"] .od-hint{display:none}
+.od-foot{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
+  background:linear-gradient(180deg,#fff,#faf8fa);
+}
+.order-card[data-phase="success"] .od-foot,
+.order-card[data-phase="rejected"] .od-foot{display:none}
+.order-card[data-phase="rejected"]{opacity:.72}
+.od-foot .fn-act-danger{
+  background:transparent;border:.5px solid var(--btn-muted);color:var(--btn-muted);
+}
+.od-foot .fn-act-approve{
+  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
+}
+.od-follow-card{
+  display:flex;flex-direction:column;gap:10px;
+  margin:0 0 10px;padding:12px 14px;border-radius:16px 16px 16px 6px;
+  background:#fff;border:1px solid rgba(80,40,70,.08);
+  box-shadow:0 8px 22px -16px rgba(80,30,50,.28);
+}
+.od-follow-card[hidden]{display:none !important}
+.od-follow-card .od-follow{
+  margin:0;font-size:calc(var(--fs-body) - 1px);color:#3a3a42;line-height:1.5;
+}
+.od-follow-card .od-follow[hidden]{display:none !important}
+.od-follow-card .od-follow b{color:#1a1a1a;font-weight:650}
+.od-actions{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0;
+}
+.od-actions[hidden]{display:none !important}
+.od-chip{
+  appearance:none;cursor:pointer;
+  height:var(--btn-h);padding:0 12px;border-radius:var(--btn-radius);
+  font-size:var(--btn-fs);font-weight:500;font-family:inherit;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.od-chip svg{width:16px;height:16px;flex:none;display:block}
+.od-chip.is-primary{
+  background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
+}
+.od-chip.is-muted{
+  color:var(--btn-muted);border-color:var(--btn-muted);background:transparent;font-weight:500;
+}
+#panelOrder{position:relative}
+#orderFlowToast{
+  position:sticky;left:auto;right:auto;bottom:8px;margin:8px auto 0;width:max-content;
+  transform:translateY(12px) scale(.96);z-index:5;
+}
+#orderFlowToast.is-on{transform:translateY(0) scale(1)}
 
 /* 会话区底部 chevron：卡片未完整入屏时才显示 */
 .scroll-hint{
@@ -542,9 +858,14 @@ button{font:inherit;color:inherit}
   width:36px;height:36px;border-radius:999px;border:0;cursor:pointer;
   background:#fff;box-shadow:0 4px 14px rgba(40,20,40,.16);
   display:grid;place-items:center;z-index:4;
+  transition:opacity .22s var(--ease-out),transform .22s var(--ease-spring),box-shadow .22s ease;
 }
+.scroll-hint:active{transform:translateX(-50%) scale(.97)}
 .scroll-hint img{width:18px;height:18px}
 .scroll-hint[hidden]{display:none !important}
+.session-card.is-enter,.order-card.is-enter,.ask-card.is-enter,.od-follow-card.is-enter,.bubble-agent.is-enter{
+  will-change:transform,opacity;
+}
 
 /* ---------- composer：Figma 双态 ---------- */
 .composer{
@@ -676,11 +997,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 <div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
 <aside class="site-nav" id="siteNav" aria-label="原型控制">
   <h1>Agent 对话原型</h1>
-  <p>A3 双态 · 输入双态 · Solo Hop 思考</p>
   <div class="nav-actions">
-    <button type="button" id="navSheet" class="is-on">半屏（Figma 展开）</button>
-    <button type="button" id="navFull">全屏（截图态）</button>
-    <button type="button" id="navThink">演示思考 → 出表</button>
+    <button type="button" id="navDemoPrice" class="is-on">价目表</button>
+    <button type="button" id="navDemoOrder">开单</button>
+    <button type="button" id="navSheet" class="is-on">半屏</button>
+    <button type="button" id="navFull">全屏</button>
+    <button type="button" id="navThink">演示思考 → 出结果</button>
   </div>
   <p class="hint">真机自动预览；桌面 <code>?mobile=1</code>。左缘滑动打开本面板。</p>
 </aside>
@@ -719,6 +1041,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
         <div class="messages-shell">
           <div class="messages" id="messages">
+            <div class="demo-panel" id="panelPrice" data-demo="price">
             <div class="msg-user" id="userMsg">
               <div class="bubble-user">我想看一下价目表。</div>
             </div>
@@ -732,7 +1055,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               <span class="think-label" id="thinkLabel">思考中</span>
             </div>
 
-            <p class="agent-note" id="agentNote">已为你整理店内价目表，可按分类查看或筛选在售项。</p>
+            <div class="bubble-agent" id="agentNote">已为你整理店内价目表，可按分类查看或筛选在售项。</div>
 
             <article class="session-card" id="sessionCard" aria-label="店内价目表">
               <header class="fn-head">
@@ -780,6 +1103,62 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 </div>
               </div>
             </article>
+            </div><!-- #panelPrice -->
+
+            <div class="demo-panel" id="panelOrder" data-demo="order" hidden>
+              <div class="msg-user" id="orderUserMsg">
+                <div class="bubble-user">帮我开单，李女士泡泡染。托尼薛总监呃，现金支付宝。</div>
+              </div>
+
+              <div class="thinking" id="thinkingOrder" aria-live="polite">
+                <div class="think-bot" id="thinkBotOrder" aria-hidden="true">
+                  <span class="halo"></span>
+                  <span class="head"><img src="assets/robot.svg" alt=""></span>
+                  <span class="shadow"></span>
+                </div>
+                <span class="think-label" id="thinkLabelOrder">思考中</span>
+              </div>
+
+              <div class="ask-card" id="askCard" hidden>
+                <p id="askText">李女士泡泡染 298 元，业绩给 Tony薛（总监），收款方式选哪个？</p>
+                <div class="ask-chips" id="askChipsPrimary"></div>
+                <div class="ask-more-panel" id="askMorePanel">
+                  <div class="ask-chips" id="askChipsMore"></div>
+                </div>
+              </div>
+
+              <div class="msg-reply" id="orderReply" hidden>
+                <div class="bubble-reply" id="orderReplyBubble"></div>
+              </div>
+
+              <article class="order-card" id="orderCard" data-phase="draft" aria-label="开单确认" hidden>
+                <header class="od-head">
+                  <div class="fn-ico" aria-hidden="true">
+                    <img src="assets/robot.svg" alt="">
+                  </div>
+                  <div class="od-titles">
+                    <p class="od-title" id="odTitle">开单确认</p>
+                    <p class="od-sub" id="odSub">悦己美发沙龙 · 待批准</p>
+                  </div>
+                  <span class="od-pill" id="odPill">待批准</span>
+                </header>
+
+                <div class="od-fields" id="odFields"></div>
+                <div class="od-amount-block" id="odAmountBlock" hidden></div>
+                <p class="od-hint" id="odHint">可改员工、业绩、提成与支付金额；批准后才会真正提交，拒绝则取消本次操作。</p>
+
+                <footer class="od-foot">
+                  <button type="button" class="fn-act od-foot-reject fn-act-danger" id="btnOrderReject">拒绝</button>
+                  <button type="button" class="fn-act od-foot-approve fn-act-approve" id="btnOrderApprove">批准</button>
+                </footer>
+              </article>
+
+              <div class="od-follow-card" id="odFollowCard" hidden>
+                <div class="od-follow" id="odFollow"></div>
+                <div class="od-actions" id="odActions"></div>
+              </div>
+              <div class="od-toast" id="orderFlowToast" role="status"></div>
+            </div><!-- #panelOrder -->
           </div>
 
           <button type="button" class="scroll-hint" id="scrollHint" hidden aria-label="向下滚动查看完整会话">
@@ -853,6 +1232,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var navSheet = document.getElementById("navSheet");
   var navFull = document.getElementById("navFull");
   var navThink = document.getElementById("navThink");
+  var navDemoPrice = document.getElementById("navDemoPrice");
+  var navDemoOrder = document.getElementById("navDemoOrder");
+  var panelPrice = document.getElementById("panelPrice");
+  var panelOrder = document.getElementById("panelOrder");
   var btnExpand = document.getElementById("btnExpand");
   var btnClose = document.getElementById("btnClose");
   var hold = document.getElementById("holdTalk");
@@ -862,6 +1245,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var thinking = document.getElementById("thinking");
   var thinkLabel = document.getElementById("thinkLabel");
   var thinkBot = document.getElementById("thinkBot");
+  var thinkingOrder = document.getElementById("thinkingOrder");
+  var thinkLabelOrder = document.getElementById("thinkLabelOrder");
+  var thinkBotOrder = document.getElementById("thinkBotOrder");
   var composerBar = document.getElementById("composerBar");
   var btnModeToggle = document.getElementById("btnModeToggle");
   var fnList = document.getElementById("fnList");
@@ -877,6 +1263,28 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var fnDiscardKeep = document.getElementById("fnDiscardKeep");
   var fnDiscardOk = document.getElementById("fnDiscardOk");
   var agentNote = document.getElementById("agentNote");
+  var orderCard = document.getElementById("orderCard");
+  var odHint = document.getElementById("odHint");
+  var askCard = document.getElementById("askCard");
+  var askText = document.getElementById("askText");
+  var askChipsPrimary = document.getElementById("askChipsPrimary");
+  var askChipsMore = document.getElementById("askChipsMore");
+  var orderReply = document.getElementById("orderReply");
+  var orderReplyBubble = document.getElementById("orderReplyBubble");
+  var odTitle = document.getElementById("odTitle");
+  var odSub = document.getElementById("odSub");
+  var odPill = document.getElementById("odPill");
+  var odFields = document.getElementById("odFields");
+  var odAmountBlock = document.getElementById("odAmountBlock");
+  var odFollowCard = document.getElementById("odFollowCard");
+  var odFollow = document.getElementById("odFollow");
+  var odActions = document.getElementById("odActions");
+  var odToast = document.getElementById("orderFlowToast") || document.getElementById("odToast");
+  var btnOrderApprove = document.getElementById("btnOrderApprove");
+  var btnOrderReject = document.getElementById("btnOrderReject");
+  var demoMode = "price";
+  var odToastTimer = 0;
+  var orderStep = "idle"; /* ask | draft | success | rejected */
 
   var priceState = { cat: "全部", onlyOn: false };
   var toastTimer = 0;
@@ -930,9 +1338,60 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function showToast(msg) {
     fnToast.textContent = msg;
+    fnToast.classList.remove("is-on");
+    void fnToast.offsetWidth;
     fnToast.classList.add("is-on");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { fnToast.classList.remove("is-on"); }, 1600);
+    toastTimer = setTimeout(function () { fnToast.classList.remove("is-on"); }, 1800);
+  }
+
+  var MOTION_REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var motionTimers = typeof WeakMap !== "undefined" ? new WeakMap() : null;
+
+  function clearMotionClass(el) {
+    if (!el) return;
+    el.classList.remove("is-enter", "is-enter-reply", "is-exit", "is-phase-pop");
+  }
+
+  function motionEnter(el, variant) {
+    if (!el) return;
+    clearMotionClass(el);
+    if (MOTION_REDUCED) return;
+    void el.offsetWidth;
+    var cls = variant === "reply" ? "is-enter-reply" : "is-enter";
+    el.classList.add(cls);
+    if (motionTimers) {
+      var prev = motionTimers.get(el);
+      if (prev) clearTimeout(prev);
+    }
+    var t = setTimeout(function () { el.classList.remove(cls); }, 420);
+    if (motionTimers) motionTimers.set(el, t);
+  }
+
+  function motionExitThen(el, done, ms) {
+    if (!el || el.hidden) {
+      if (done) done();
+      return;
+    }
+    if (MOTION_REDUCED) {
+      clearMotionClass(el);
+      el.hidden = true;
+      if (done) done();
+      return;
+    }
+    el.classList.remove("is-enter", "is-enter-reply");
+    el.classList.add("is-exit");
+    setTimeout(function () {
+      el.classList.remove("is-exit");
+      el.hidden = true;
+      if (done) done();
+    }, ms || 200);
+  }
+
+  function revealWithEnter(el, variant) {
+    if (!el) return;
+    el.hidden = false;
+    motionEnter(el, variant);
   }
 
   function snapshotForm(f) {
@@ -1439,11 +1898,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function setMode(mode) {
     var isFull = mode === "fullscreen";
+    frame.classList.add("is-mode-animating");
     frame.classList.toggle("mode-fullscreen", isFull);
     frame.classList.toggle("mode-sheet", !isFull);
     frame.dataset.mode = isFull ? "fullscreen" : "sheet";
     navSheet.classList.toggle("is-on", !isFull);
     navFull.classList.toggle("is-on", isFull);
+    clearTimeout(setMode._t);
+    setMode._t = setTimeout(function () {
+      frame.classList.remove("is-mode-animating");
+    }, MOTION_REDUCED ? 0 : 450);
     requestAnimationFrame(updateScrollHint);
   }
 
@@ -1478,23 +1942,32 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   hold.addEventListener("touchend", pressOff);
   hold.addEventListener("touchcancel", pressOff);
 
-  /* ----- chevron：会话卡片未完整显示时出现在会话区底部 ----- */
+  /* ----- chevron：当前演示的结果卡未完整显示时出现 ----- */
+  function activeResultCard() {
+    if (demoMode === "order") {
+      if (orderStep === "ask" && askCard && !askCard.hidden) return askCard;
+      if (orderCard && !orderCard.hidden) return orderCard;
+      if (askCard && !askCard.hidden) return askCard;
+      return orderCard;
+    }
+    return sessionCard;
+  }
   function updateScrollHint() {
-    if (!messages || !scrollHint || !sessionCard || sessionCard.hidden) {
+    var card = activeResultCard();
+    if (!messages || !scrollHint || !card || card.hidden || (card.closest && card.closest(".demo-panel[hidden]"))) {
       if (scrollHint) scrollHint.hidden = true;
       return;
     }
     var mRect = messages.getBoundingClientRect();
-    var cRect = sessionCard.getBoundingClientRect();
-    /* 卡片底部仍在可视区之外 */
+    var cRect = card.getBoundingClientRect();
     var clippedBottom = cRect.bottom > mRect.bottom + 2;
-    /* 卡片顶部仍在可视区之上（已滚过）则不需要向下箭头 */
     var mostlyAbove = cRect.bottom <= mRect.top + 8;
     scrollHint.hidden = !(clippedBottom && !mostlyAbove);
   }
   messages.addEventListener("scroll", updateScrollHint, { passive: true });
   scrollHint.addEventListener("click", function () {
-    sessionCard.scrollIntoView({ behavior: "smooth", block: "end" });
+    var card = activeResultCard();
+    if (card) card.scrollIntoView({ behavior: "smooth", block: "end" });
   });
   window.addEventListener("resize", updateScrollHint, { passive: true });
   requestAnimationFrame(updateScrollHint);
@@ -1536,10 +2009,27 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     labelTimer: 0
   };
 
+  var hopUi = {
+    thinking: thinking,
+    thinkBot: thinkBot,
+    thinkLabel: thinkLabel
+  };
   function bindHop() {
-    hop.head = thinkBot.querySelector(".head");
-    hop.halo = thinkBot.querySelector(".halo");
-    hop.shadow = thinkBot.querySelector(".shadow");
+    hop.head = hopUi.thinkBot.querySelector(".head");
+    hop.halo = hopUi.thinkBot.querySelector(".halo");
+    hop.shadow = hopUi.thinkBot.querySelector(".shadow");
+  }
+  function useHopTarget(mode) {
+    if (mode === "order") {
+      hopUi.thinking = thinkingOrder;
+      hopUi.thinkBot = thinkBotOrder;
+      hopUi.thinkLabel = thinkLabelOrder;
+    } else {
+      hopUi.thinking = thinking;
+      hopUi.thinkBot = thinkBot;
+      hopUi.thinkLabel = thinkLabel;
+    }
+    bindHop();
   }
   bindHop();
 
@@ -1565,19 +2055,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function swapLabel() {
     hop.labelIdx = (hop.labelIdx + 1) % hop.labels.length;
-    thinkLabel.classList.add("is-swap");
+    hopUi.thinkLabel.classList.add("is-swap");
     setTimeout(function () {
-      thinkLabel.textContent = hop.labels[hop.labelIdx];
-      thinkLabel.classList.remove("is-swap");
+      hopUi.thinkLabel.textContent = hop.labels[hop.labelIdx];
+      hopUi.thinkLabel.classList.remove("is-swap");
     }, 180);
   }
 
   function startThinking() {
-    thinking.classList.add("is-on");
+    hopUi.thinking.classList.add("is-on");
     hop.playing = true;
     hop.t0 = 0;
     hop.labelIdx = 0;
-    thinkLabel.textContent = hop.labels[0];
+    hopUi.thinkLabel.textContent = hop.labels[0];
     cancelAnimationFrame(hop.raf);
     hop.raf = requestAnimationFrame(hopFrame);
     clearInterval(hop.labelTimer);
@@ -1585,15 +2075,516 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function stopThinking() {
+    hopUi.thinking.classList.remove("is-on");
     thinking.classList.remove("is-on");
+    if (thinkingOrder) thinkingOrder.classList.remove("is-on");
     hop.playing = false;
     cancelAnimationFrame(hop.raf);
     clearInterval(hop.labelTimer);
   }
 
+  /* ----- 开单：追问 → 确认草稿 → 批准/拒绝 → 成功 ----- */
+  var PAY_ICON = {
+    "支付宝": "assets/agent-chat/pay/alipay.svg",
+    "微信": "assets/agent-chat/pay/wechat.svg",
+    "银行卡": "assets/agent-chat/pay/bank.svg",
+    "会员卡": "assets/agent-chat/pay/member.svg",
+    "现金": "assets/agent-chat/pay/cash.svg",
+    "经理签单": "assets/agent-chat/pay/manager.svg",
+    "欠款": "assets/agent-chat/pay/arrears.svg",
+    "大众点评": "assets/agent-chat/pay/dianping.svg",
+    "美团": "assets/agent-chat/pay/meituan.svg",
+    "抖音": "assets/agent-chat/pay/douyin.svg",
+    "口碑": "assets/agent-chat/pay/koubei.svg"
+  };
+  var PAY_PRIMARY = ["支付宝", "现金", "微信", "银行卡"];
+  var PAY_MORE = ["会员卡", "经理签单", "欠款", "大众点评", "美团", "抖音", "口碑"];
+  var PAY_ALL = PAY_PRIMARY.concat(PAY_MORE);
+  var STAFF_OPTS = ["Tony薛（总监）", "Tony薛总监", "何苏叶店长", "林设计师"];
+  var SERVICE_OPTS = ["染发-泡泡染", "泡泡染", "洗剪吹经典", "全头单色染", "空气烫", "总监剪发"];
+  function seedOrderDraft() {
+    return {
+      name: "李女士",
+      phoneTail: "8903",
+      memberType: "持卡会员",
+      service: "染发-泡泡染",
+      serviceShort: "泡泡染",
+      staff: "Tony薛（总监）",
+      staffShort: "Tony薛",
+      payable: "298",
+      payMethod: "",
+      paid: "298",
+      performance: "298",
+      commission: "89.4"
+    };
+  }
+  var orderData = seedOrderDraft();
+  var orderPhase = "draft";
+  var orderOpenKey = null;
   var thinkDemoTimer = 0;
+
+  function payIconHtml(name) {
+    var src = PAY_ICON[name];
+    if (!src) return "";
+    return '<img src="' + src + '" alt="" width="18" height="18">';
+  }
+
+  function showOdToast(msg) {
+    if (!odToast) return;
+    odToast.textContent = msg;
+    odToast.classList.remove("is-on");
+    void odToast.offsetWidth;
+    odToast.classList.add("is-on");
+    clearTimeout(odToastTimer);
+    odToastTimer = setTimeout(function () { odToast.classList.remove("is-on"); }, 1800);
+  }
+
+  function closeOrderEdits() {
+    orderOpenKey = null;
+  }
+
+  function moneyText(v) {
+    var n = Number(String(v).replace(/[¥￥,\s]/g, ""));
+    if (!isFinite(n)) return String(v);
+    return n.toFixed(2);
+  }
+
+  function normalizeMoneyInput(raw) {
+    var v = String(raw).replace(/[¥￥,\s]/g, "");
+    var n = Number(v);
+    if (!isFinite(n) || n < 0) return null;
+    return String(Math.round(n * 100) / 100);
+  }
+
+  function checkoutValueHtml(pay, amt, amountEditable) {
+    return (
+      '<span class="od-v-checkout">' +
+        '<span class="od-pay-chip">' +
+          payIconHtml(pay) + escapeHtml(pay) +
+        "</span>" +
+        '<span class="od-amt"' + (amountEditable ? ' data-inline="paid"' : "") + ">¥" + amt + "</span>" +
+      "</span>"
+    );
+  }
+
+  function startMoneyInline(host, fieldKey) {
+    if (host.querySelector(".od-v-input")) return;
+    var cur = orderData[fieldKey] || "0";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.inputMode = "decimal";
+    input.className = "od-v-input";
+    input.value = moneyText(cur);
+    host.textContent = "";
+    host.appendChild(input);
+    input.focus();
+    input.select();
+    function commit() {
+      var next = normalizeMoneyInput(input.value);
+      if (next == null) {
+        showOdToast("请输入有效金额");
+        input.focus();
+        return;
+      }
+      orderData[fieldKey] = next;
+      if (fieldKey === "paid") orderData.payable = next;
+      renderOrderCard();
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commit();
+      }
+      if (e.key === "Escape") {
+        e.preventDefault();
+        renderOrderCard();
+      }
+    });
+    input.addEventListener("blur", function () { commit(); });
+  }
+
+  function startTextInline(host, fieldKey, opts) {
+    if (host.querySelector("input,select")) return;
+    if (opts && opts.options) {
+      var sel = document.createElement("select");
+      sel.className = "od-v-select";
+      opts.options.forEach(function (name) {
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        if (name === orderData[fieldKey]) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      host.textContent = "";
+      host.appendChild(sel);
+      sel.focus();
+      function commitSel() {
+        orderData[fieldKey] = sel.value;
+        if (fieldKey === "service") {
+          orderData.serviceShort = String(sel.value).indexOf("泡泡染") >= 0 ? "泡泡染" : sel.value;
+        }
+        if (fieldKey === "staff") {
+          orderData.staffShort = String(sel.value).replace(/[（(].*?[）)]/g, "").replace(/总监|店长/g, "").trim() || sel.value;
+        }
+        renderOrderCard();
+      }
+      sel.addEventListener("change", commitSel);
+      sel.addEventListener("blur", commitSel);
+      return;
+    }
+    var input = document.createElement("input");
+    input.type = "text";
+    input.className = "od-v-input";
+    input.value = orderData[fieldKey] || "";
+    if (opts && opts.maxLength) input.maxLength = opts.maxLength;
+    host.textContent = "";
+    host.appendChild(input);
+    input.focus();
+    input.select();
+    function commit() {
+      orderData[fieldKey] = input.value.trim() || orderData[fieldKey];
+      renderOrderCard();
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); commit(); }
+      if (e.key === "Escape") { e.preventDefault(); renderOrderCard(); }
+    });
+    input.addEventListener("blur", commit);
+  }
+
+  function bindOrderItem(item) {
+    var key = item.getAttribute("data-key");
+    var row = item.querySelector(".od-row");
+    if (!row) return;
+    row.addEventListener("click", function (e) {
+      if (orderPhase !== "draft") return;
+      /* 仅员工 / 业绩 / 提成 / 支付金额可编辑 */
+      if (key === "checkout") {
+        var inline = e.target.closest("[data-inline='paid']");
+        if (inline) {
+          e.preventDefault();
+          startMoneyInline(inline, "paid");
+        }
+        return;
+      }
+      if (key === "performance" || key === "commission") {
+        var host = row.querySelector(".od-v");
+        if (host) startMoneyInline(host, key);
+        return;
+      }
+      if (key === "staff") {
+        var vHost = row.querySelector(".od-v");
+        if (vHost) startTextInline(vHost, "staff", { options: STAFF_OPTS });
+      }
+    });
+  }
+
+  function rowHtml(key, label, mainHtml, editable) {
+    return (
+      '<div class="od-item" data-key="' + key + '">' +
+        '<div class="od-row' + (editable ? " is-edit" : "") + '"' +
+          (editable ? ' role="button" tabindex="0"' : "") + ">" +
+          '<span class="od-k">' + label + "</span>" +
+          '<span class="od-v">' + mainHtml + "</span>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function showFollowCard(showText, withEnter) {
+    if (odFollow) odFollow.hidden = !showText;
+    if (odActions) odActions.hidden = false;
+    if (!odFollowCard) return;
+    if (withEnter !== false) revealWithEnter(odFollowCard);
+    else odFollowCard.hidden = false;
+  }
+
+  function hideFollowCard() {
+    if (odFollowCard) {
+      clearMotionClass(odFollowCard);
+      odFollowCard.hidden = true;
+    }
+    if (odFollow) {
+      odFollow.hidden = true;
+      odFollow.innerHTML = "";
+    }
+    if (odActions) {
+      odActions.hidden = true;
+      odActions.innerHTML = "";
+    }
+  }
+
+  function renderSuccessActions(withEnter) {
+    odActions.innerHTML =
+      '<button type="button" class="od-chip" data-act="flow">核对今日流水</button>' +
+      '<button type="button" class="od-chip" data-act="today">看今日业绩</button>' +
+      '<button type="button" class="od-chip is-primary" data-act="again">继续开下一单</button>' +
+      '<button type="button" class="od-chip" data-act="month">看本月收款构成</button>' +
+      '<button type="button" class="od-chip is-muted" data-act="skip">跳过</button>';
+    showFollowCard(true, withEnter !== false);
+  }
+
+  function renderRejectActions(withEnter) {
+    odFollow.innerHTML = "已取消本次开单。需要的话可以重新开一单。";
+    odActions.innerHTML =
+      '<button type="button" class="od-chip is-primary" data-act="again">' +
+        '<svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">' +
+          '<path d="M14.2 9a5.2 5.2 0 1 1-1.4-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+          '<path d="M14.5 3.8v3.2h-3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        "</svg>重新开单</button>";
+    showFollowCard(true, withEnter !== false);
+  }
+
+  function perfPairHtml(editable) {
+    var d = orderData;
+    return (
+      '<div class="od-pair">' +
+        rowHtml("performance", "业绩", "¥" + moneyText(d.performance), editable) +
+        rowHtml("commission", "提成", "¥" + moneyText(d.commission), editable) +
+      "</div>"
+    );
+  }
+
+  function renderOrderCard() {
+    var d = orderData;
+    var editable = orderPhase === "draft";
+    var pay = d.payMethod || "支付宝";
+    var amt = moneyText(d.paid || d.payable);
+
+    if (orderPhase === "success") {
+      odTitle.textContent = "开单成功";
+      odSub.textContent = "悦己美发沙龙 · 收款完成";
+      odPill.textContent = "已收款";
+      orderCard.setAttribute("data-phase", "success");
+      odFields.innerHTML =
+        rowHtml("customer", "顾客", escapeHtml(d.name) + "<small>尾号 " + escapeHtml(d.phoneTail) + "</small>", false) +
+        rowHtml("service", "项目", escapeHtml(d.serviceShort || d.service), false) +
+        rowHtml("amount", "金额", '<span class="od-money">¥' + amt + "</span>", false) +
+        rowHtml("staff", "业绩归属", escapeHtml(d.staff), false) +
+        perfPairHtml(false) +
+        rowHtml("collect", "收款", checkoutValueHtml(pay, amt, false), false);
+      if (odHint) odHint.hidden = true;
+      odFollow.innerHTML =
+        "这单没有用卡抵扣，按原价收取。今天累计已开 <b>5</b> 单服务，加上一张储值卡，收款合计 <b>1366</b> 元。" +
+        "<br>这单开好了，接下来?";
+      renderSuccessActions();
+    } else if (orderPhase === "rejected") {
+      odTitle.textContent = "已拒绝";
+      odSub.textContent = "悦己美发沙龙 · 已取消";
+      odPill.textContent = "已取消";
+      orderCard.setAttribute("data-phase", "rejected");
+      odFields.innerHTML =
+        rowHtml("customer", "顾客", escapeHtml(d.name), false) +
+        rowHtml("service", "项目", escapeHtml(d.service), false) +
+        rowHtml("staff", "员工", escapeHtml(d.staffShort || d.staff), false) +
+        perfPairHtml(false) +
+        rowHtml("checkout", "结账", checkoutValueHtml(pay, amt, false), false);
+      if (odHint) odHint.hidden = true;
+      renderRejectActions();
+    } else {
+      odTitle.textContent = "开单确认";
+      odSub.textContent = "悦己美发沙龙 · 待批准";
+      odPill.textContent = "待批准";
+      orderCard.setAttribute("data-phase", "draft");
+      odFields.innerHTML =
+        rowHtml("customer", "顾客", escapeHtml(d.name), false) +
+        rowHtml("service", "项目", escapeHtml(d.service), false) +
+        rowHtml("staff", "员工", escapeHtml(d.staffShort || d.staff), editable) +
+        perfPairHtml(editable) +
+        rowHtml("checkout", "结账", checkoutValueHtml(pay, amt, editable), editable);
+      if (odHint) {
+        odHint.hidden = false;
+        odHint.textContent = "可改员工、业绩、提成与支付金额；批准后才会真正提交，拒绝则取消本次操作。";
+      }
+      hideFollowCard();
+    }
+
+    odFields.querySelectorAll(".od-item").forEach(bindOrderItem);
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  function renderAskChips() {
+    function chip(name, extraClass) {
+      return (
+        '<button type="button" class="ask-pay' + (extraClass ? " " + extraClass : "") + '" data-pay="' + name + '">' +
+          payIconHtml(name) + "<span>" + name + "</span>" +
+        "</button>"
+      );
+    }
+    askChipsPrimary.innerHTML =
+      PAY_PRIMARY.map(function (n) { return chip(n); }).join("") +
+      '<button type="button" class="ask-pay is-skip" data-pay="跳过">跳过</button>' +
+      '<button type="button" class="ask-pay is-skip pay-opt is-more" data-pay="更多">更多</button>';
+    askChipsMore.innerHTML = PAY_MORE.map(function (n) { return chip(n); }).join("");
+    askCard.classList.remove("is-more-on");
+  }
+
+  function hideOrderStages() {
+    askCard.hidden = true;
+    orderReply.hidden = true;
+    orderCard.hidden = true;
+    hideFollowCard();
+    closeOrderEdits();
+  }
+
+  function showAskStage() {
+    orderStep = "ask";
+    orderPhase = "draft";
+    hideOrderStages();
+    askText.textContent = "李女士泡泡染 298 元，业绩给 Tony薛（总监），收款方式选哪个？";
+    renderAskChips();
+    revealWithEnter(askCard);
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  function showDraftStage() {
+    orderStep = "draft";
+    orderPhase = "draft";
+    function revealDraft() {
+      orderReplyBubble.innerHTML = payIconHtml(orderData.payMethod) + "<span>" + escapeHtml(orderData.payMethod) + "</span>";
+      revealWithEnter(orderReply, "reply");
+      orderCard.hidden = false;
+      renderOrderCard();
+      motionEnter(orderCard);
+      requestAnimationFrame(function () {
+        try { orderCard.scrollIntoView({ behavior: MOTION_REDUCED ? "auto" : "smooth", block: "nearest" }); } catch (e) { /* */ }
+        updateScrollHint();
+      });
+    }
+    if (askCard && !askCard.hidden) motionExitThen(askCard, revealDraft);
+    else revealDraft();
+  }
+
+  function approveOrder() {
+    closeOrderEdits();
+    orderStep = "success";
+    orderPhase = "success";
+    renderOrderCard();
+    if (orderCard) {
+      orderCard.classList.remove("is-phase-pop");
+      void orderCard.offsetWidth;
+      if (!MOTION_REDUCED) orderCard.classList.add("is-phase-pop");
+      setTimeout(function () { orderCard.classList.remove("is-phase-pop"); }, 600);
+    }
+    if (odPill) {
+      odPill.classList.remove("is-pop");
+      void odPill.offsetWidth;
+      if (!MOTION_REDUCED) odPill.classList.add("is-pop");
+      setTimeout(function () { odPill.classList.remove("is-pop"); }, 450);
+    }
+    showOdToast("开单成功");
+    requestAnimationFrame(function () {
+      try { orderCard.scrollIntoView({ behavior: MOTION_REDUCED ? "auto" : "smooth", block: "nearest" }); } catch (e) { /* */ }
+      updateScrollHint();
+    });
+  }
+
+  function rejectOrder() {
+    closeOrderEdits();
+    orderStep = "rejected";
+    orderPhase = "rejected";
+    showOdToast("已取消开单");
+    motionExitThen(orderCard, function () {
+      renderRejectActions(true);
+      requestAnimationFrame(updateScrollHint);
+    });
+  }
+
+  function startOrderFlow(playThink) {
+    orderData = seedOrderDraft();
+    orderPhase = "draft";
+    orderStep = "ask";
+    hideOrderStages();
+    if (!playThink) {
+      showAskStage();
+      return;
+    }
+    useHopTarget("order");
+    messages.scrollTop = 0;
+    startThinking();
+    clearTimeout(thinkDemoTimer);
+    thinkDemoTimer = setTimeout(function () {
+      stopThinking();
+      showAskStage();
+    }, 2600);
+  }
+
+  askCard.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-pay]");
+    if (!btn || orderStep !== "ask") return;
+    var pay = btn.getAttribute("data-pay");
+    if (pay === "更多") {
+      askCard.classList.toggle("is-more-on");
+      requestAnimationFrame(updateScrollHint);
+      return;
+    }
+    askCard.querySelectorAll(".is-picked").forEach(function (el) { el.classList.remove("is-picked"); });
+    btn.classList.add("is-picked");
+    if (pay === "跳过") {
+      orderData.payMethod = "现金";
+      showOdToast("已跳过，默认现金");
+    } else {
+      orderData.payMethod = pay;
+    }
+    orderData.paid = orderData.payable;
+    setTimeout(function () { showDraftStage(); }, MOTION_REDUCED ? 0 : 160);
+  });
+
+  btnOrderApprove.addEventListener("click", function () {
+    if (orderPhase !== "draft") return;
+    approveOrder();
+  });
+  btnOrderReject.addEventListener("click", function () {
+    if (orderPhase !== "draft") return;
+    rejectOrder();
+  });
+
+  odActions.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-act]");
+    if (!btn) return;
+    var act = btn.getAttribute("data-act");
+    if (act === "again") {
+      startOrderFlow(true);
+      return;
+    }
+    if (act === "flow") { showOdToast("示意：核对今日流水"); return; }
+    if (act === "today") { showOdToast("示意：看今日业绩"); return; }
+    if (act === "month") { showOdToast("示意：看本月收款构成"); return; }
+    if (act === "skip") { showOdToast("已跳过"); }
+  });
+
+  function setDemoMode(mode, opts) {
+    opts = opts || {};
+    demoMode = mode;
+    var isOrder = mode === "order";
+    panelPrice.hidden = isOrder;
+    panelOrder.hidden = !isOrder;
+    navDemoPrice.classList.toggle("is-on", !isOrder);
+    navDemoOrder.classList.toggle("is-on", isOrder);
+    stopThinking();
+    messages.scrollTop = 0;
+    if (isOrder) {
+      if (opts.replay !== false) startOrderFlow(true);
+      else showAskStage();
+    } else {
+      sessionCard.hidden = false;
+      if (agentNote) agentNote.hidden = false;
+      renderPriceCard();
+      motionEnter(sessionCard);
+    }
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  navDemoPrice.addEventListener("click", function () { setDemoMode("price"); });
+  navDemoOrder.addEventListener("click", function () { setDemoMode("order"); });
+
   function runThinkDemo() {
     clearTimeout(thinkDemoTimer);
+    if (demoMode === "order") {
+      startOrderFlow(true);
+      return;
+    }
+    useHopTarget("price");
     sessionCard.hidden = true;
     if (agentNote) agentNote.hidden = true;
     updateScrollHint();
@@ -1604,14 +2595,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       sessionCard.hidden = false;
       if (agentNote) agentNote.hidden = false;
       renderPriceCard();
+      motionEnter(sessionCard);
       requestAnimationFrame(updateScrollHint);
     }, 3200);
   }
 
   navThink.addEventListener("click", runThinkDemo);
 
-  /* 初始：有完整卡片时按可视裁切决定 chevron */
+  /* 初始：价目表演示 */
   sessionCard.hidden = false;
+  motionEnter(sessionCard);
   requestAnimationFrame(updateScrollHint);
 })();
 
