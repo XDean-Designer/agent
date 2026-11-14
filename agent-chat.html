@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Agent · 对话窗口原型</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lw:390px;
+  --lh:844px;
+  --ink:#1a1a1a;
+  --muted:#626262;
+  --line:#ededed;
+  --line-2:#e8e8e8;
+  --sheet-top:194px;
+  --sheet-h:650px;
+  --radius-sheet:16px;
+  --font:"Noto Sans SC",sans-serif;
+  --fs-body:15px; /* 默认「中」 */
+  --kb-h:0px;
+  --mobile-scale:1;
+  --mobile-h:844px;
+  --statusbar-h:0px;
+  --ease:cubic-bezier(.37,0,.63,1);
+  --p-rose:#F7B3C4;
+  --p-berry:#E2879B;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  min-height:100vh;
+  font-family:var(--font);
+  color:var(--ink);
+  background:#2a2a2a;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit}
+
+/* ---------- desktop chrome ---------- */
+.site-nav-scrim{display:none}
+.site-nav{
+  position:fixed;left:20px;top:24px;z-index:40;
+  width:200px;padding:14px 14px 16px;
+  border-radius:16px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);color:#f2f2f2;
+  backdrop-filter:blur(12px);
+}
+.site-nav h1{margin:0 0 4px;font-size:13px;font-weight:600;letter-spacing:.02em}
+.site-nav p{margin:0 0 12px;font-size:11px;line-height:1.45;color:rgba(255,255,255,.58)}
+.site-nav .nav-actions{display:flex;flex-direction:column;gap:8px}
+.site-nav button{
+  appearance:none;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);border-radius:10px;
+  padding:8px 10px;text-align:left;cursor:pointer;font-size:12px;
+  transition:background .18s ease,border-color .18s ease;
+}
+.site-nav button:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28)}
+.site-nav button.is-on{background:rgba(161,162,252,.28);border-color:rgba(161,162,252,.55)}
+.site-nav .hint{margin-top:12px;font-size:10.5px;line-height:1.4;color:rgba(255,255,255,.42)}
+
+.stage{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  margin-left:220px;padding:28px 24px;
+}
+
+#frame{
+  width:var(--lw);height:var(--lh);position:relative;overflow:hidden;
+  border-radius:36px;background:#1a0a0c;
+  box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.home-bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top center;pointer-events:none;user-select:none;
+}
+.scrim{
+  position:absolute;inset:0;background:rgba(0,0,0,.75);pointer-events:none;
+  transition:opacity .28s ease;
+}
+
+/* ---------- agent panel ---------- */
+.agent{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;flex-direction:column;
+  overflow:visible;
+  transition:top .32s cubic-bezier(.22,1,.36,1), border-radius .32s ease, height .32s ease;
+}
+.agent-surface{
+  position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0;
+}
+.agent-glow{
+  position:absolute;inset:0;
+}
+
+/* 半屏：实底不透明（勿用 rgba 面板底，否则会透出首页） */
+#frame.mode-sheet .agent{
+  top:var(--sheet-top);height:var(--sheet-h);
+  border-radius:var(--radius-sheet) var(--radius-sheet) 0 0;
+  background-color:#ffffff;
+  background-image:linear-gradient(180deg,
+    #f5f3f1 0%,
+    #f6f1f3 8%,
+    #f1f1f3 22%,
+    #ebebed 42%,
+    #e8e8ec 58%,
+    #efeff1 78%,
+    #faf7f8 92%,
+    #ffffff 100%);
+}
+#frame.mode-sheet .agent-glow{
+  /* 光斑叠在实色底上，边缘透明不影响面板不透明度 */
+  background:
+    radial-gradient(190px 122px at 33% -2%, #FFE9F0 0%, rgba(255,233,240,0) 72%),
+    radial-gradient(142px 122px at 114% 0%, #F3E6FA 0%, rgba(243,230,250,0) 72%),
+    radial-gradient(238px 238px at 84% 118%, #F6DBE4 0%, rgba(246,219,228,0) 72%),
+    radial-gradient(164px 94px at 15% 92%, #F3E6FA 0%, rgba(243,230,250,0) 75%);
+  opacity:1;
+}
+#frame.mode-sheet .scrim{opacity:1}
+#frame.mode-sheet .home-bg{opacity:1}
+
+#frame.mode-fullscreen .agent{
+  top:0;height:100%;border-radius:0;
+  background:
+    linear-gradient(165deg,
+      #fae7ed 0%,
+      #f7eef8 14%,
+      #f1f1f3 32%,
+      #ececef 52%,
+      #f0f0f2 72%,
+      #f8eef5 100%);
+}
+#frame.mode-fullscreen{
+  background:
+    linear-gradient(165deg,
+      #fae7ed 0%,
+      #f7eef8 14%,
+      #f1f1f3 32%,
+      #ececef 52%,
+      #f0f0f2 72%,
+      #f8eef5 100%);
+}
+#frame.mode-fullscreen .scrim{opacity:0;pointer-events:none;visibility:hidden}
+#frame.mode-fullscreen .home-bg{opacity:0;pointer-events:none;visibility:hidden}
+#frame.mode-fullscreen .agent-glow{
+  background:
+    radial-gradient(240px 170px at 10% -2%, rgba(255,210,220,.9) 0%, transparent 62%),
+    radial-gradient(280px 190px at 94% 6%, rgba(230,210,245,.75) 0%, transparent 58%),
+    radial-gradient(300px 220px at 70% 108%, rgba(246,219,228,.5) 0%, transparent 62%);
+}
+
+.agent-inner{
+  position:relative;z-index:1;flex:1;min-height:0;
+  display:flex;flex-direction:column;
+  overflow:visible;
+}
+
+/* ---------- header ---------- */
+.agent-header{
+  position:relative;flex:none;z-index:3;
+  padding:18px 16px 10px;
+  display:grid;grid-template-columns:1fr auto;align-items:start;gap:8px;
+}
+#frame.mode-sheet .agent-header{padding:16px 16px 8px}
+.header-main{display:flex;align-items:flex-start;gap:6px;min-width:0;padding-top:2px}
+.robot{
+  width:100px;height:100px;flex:none;
+  /* 半屏：头部上探出 sheet 顶边（对齐 Figma 约 20px+） */
+  margin:-36px 0 -20px -14px;
+  object-fit:contain;pointer-events:none;user-select:none;
+  filter:drop-shadow(0 8px 14px rgba(120,40,70,.18));
+}
+#frame.mode-fullscreen .robot{margin:-12px 0 -22px -10px;width:96px;height:96px}
+.greet{padding-top:18px;min-width:0}
+#frame.mode-fullscreen .greet{padding-top:22px}
+.greet-title{
+  margin:0;font-size:18px;font-weight:600;line-height:1.25;
+  background:linear-gradient(90deg,#6088f1 4.7%,#c163bc 57.8%,#ed8954 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  white-space:nowrap;
+}
+.greet-sub{
+  margin:6px 0 0;font-size:12px;font-weight:400; /* +1 相对原 Light */
+  color:var(--muted);line-height:1.3;
+}
+
+.header-actions{
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;padding-top:2px;
+}
+.icon-btn{
+  appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
+  width:24px;height:24px;display:grid;place-items:center;border-radius:999px;
+}
+.icon-btn img{width:24px;height:24px;display:block}
+.icon-btn:focus-visible{outline:2px solid rgba(161,162,252,.55);outline-offset:2px}
+
+.fs-ctrl{
+  display:flex;align-items:center;gap:10px;font-size:13px;color:#4a4a4a;user-select:none;
+}
+#frame.mode-sheet .btn-expand{display:grid}
+#frame.mode-fullscreen .btn-expand{display:none}
+#frame.mode-sheet .btn-close{display:none}
+#frame.mode-fullscreen .btn-close{display:grid}
+.fs-ctrl button{
+  appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
+  font-size:13px;color:#8a8a8a;line-height:1;
+}
+.fs-ctrl button.is-on{color:var(--ink);font-weight:600;font-size:15px;transform:translateY(-.5px)}
+
+/* ---------- messages：透明会话层，浅灰来自面板渐变本身 ---------- */
+.messages-shell{
+  position:relative;flex:1;min-height:0;
+  display:flex;flex-direction:column;
+  /* 不再做成独立浅灰卡片 */
+  background:transparent;
+  overflow:hidden;
+}
+.messages{
+  flex:1;min-height:0;overflow:auto;
+  padding:6px 16px 28px;
+  background:transparent;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+.msg-user{display:flex;justify-content:flex-end;margin:4px 0 12px}
+.bubble-user{
+  max-width:78%;padding:10px 14px;border-radius:18px;
+  background:#ffccd1;color:#2a2a2a;font-size:var(--fs-body);line-height:1.45;
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset;
+}
+
+/* T1 思考：无卡片，仅机器人 + 文案 */
+.thinking{
+  display:none;align-items:flex-end;gap:10px;
+  margin:4px 0 14px;min-height:44px;padding:2px 0 4px;
+}
+.thinking.is-on{display:flex}
+.think-bot{
+  --s:36px;
+  position:relative;width:var(--s);height:calc(var(--s) * .8787);
+  flex:none;isolation:isolate;
+}
+.think-bot .halo{
+  position:absolute;inset:-26%;border-radius:50%;pointer-events:none;z-index:-1;
+  background:radial-gradient(50% 50% at 50% 44%, rgba(249,160,146,.28), rgba(247,179,196,0) 70%);
+  filter:blur(calc(var(--s) * .07));will-change:opacity,transform;
+}
+.think-bot .head{
+  position:absolute;inset:0;transform-origin:50% 100%;will-change:transform;
+}
+.think-bot .head img{display:block;width:100%;height:100%}
+.think-bot .shadow{
+  position:absolute;left:50%;bottom:-13%;width:64%;height:15%;transform:translateX(-50%);
+  border-radius:50%;pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(150,78,74,.30), rgba(150,78,74,0) 72%);
+  filter:blur(calc(var(--s) * .022));
+}
+.think-label{
+  font-size:calc(var(--fs-body) - 1px);font-weight:500;color:#6a6a72;
+  line-height:1.3;padding-bottom:6px;
+  letter-spacing:.02em;
+  transition:opacity .22s var(--ease);
+}
+.think-label.is-swap{opacity:0}
+
+.session-card{
+  position:relative;background:#fff;border-radius:12px;
+  padding:14px 12px 12px;box-shadow:0 1px 2px rgba(40,20,30,.04);
+  border:1px solid rgba(0,0,0,.04);margin-bottom:8px;
+}
+.session-card[hidden]{display:none !important}
+.card-summary{
+  margin:0 0 10px;font-size:var(--fs-body);line-height:1.5;color:#333;font-weight:400;
+}
+.table-shell{border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.price-table{
+  width:100%;border-collapse:collapse;table-layout:fixed;
+  font-size:calc(var(--fs-body) - 1px);color:#222;
+}
+.price-table th,.price-table td{
+  border-bottom:1px solid var(--line-2);border-right:1px solid var(--line-2);
+  padding:9px 8px;text-align:left;vertical-align:middle;word-break:break-all;
+}
+.price-table th:last-child,.price-table td:last-child{border-right:0}
+.price-table tr:last-child td{border-bottom:0}
+.price-table th{background:#f5f5f5;font-weight:600;color:#1a1a1a}
+.price-table col.c-cat{width:18%}
+.price-table col.c-item{width:42%}
+.price-table col.c-price{width:18%}
+.price-table col.c-status{width:22%}
+
+/* 会话区底部 chevron：卡片未完整入屏时才显示 */
+.scroll-hint{
+  position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  width:36px;height:36px;border-radius:999px;border:0;cursor:pointer;
+  background:#fff;box-shadow:0 4px 14px rgba(40,20,40,.16);
+  display:grid;place-items:center;z-index:4;
+}
+.scroll-hint img{width:18px;height:18px}
+.scroll-hint[hidden]{display:none !important}
+
+/* ---------- composer：Figma 双态 ---------- */
+.composer{
+  flex:none;padding:10px 12px calc(12px + var(--kb-h));
+  background:transparent;
+}
+#frame.mode-fullscreen .composer{
+  background:linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 55%, rgba(255,255,255,.82) 100%);
+}
+.composer-bar{
+  position:relative;
+  width:366px;max-width:100%;margin:0 auto;
+  height:52px;border-radius:25px;background:#fff;
+  border:.5px solid var(--line);
+  display:flex;align-items:center;
+  padding:0 15px;
+}
+.composer-bar .side{
+  width:26px;height:26px;flex:none;border:0;background:transparent;
+  display:grid;place-items:center;cursor:pointer;padding:0;
+}
+.composer-bar .side img{width:21.5px;height:21.5px;display:block}
+.composer-bar .side .ico-on{display:block}
+.composer-bar .side .ico-off{display:none}
+
+/* 发消息态（默认） */
+.composer-bar[data-mode="text"] .hold-label{display:none}
+.composer-bar[data-mode="text"] .text-ph{display:block}
+.composer-bar[data-mode="text"] .ico-voice{display:block}
+.composer-bar[data-mode="text"] .ico-kbd{display:none}
+
+/* 按住说话态 */
+.composer-bar[data-mode="voice"] .hold-label{display:block}
+.composer-bar[data-mode="voice"] .text-ph{display:none}
+.composer-bar[data-mode="voice"] .ico-voice{display:none}
+.composer-bar[data-mode="voice"] .ico-kbd{display:block}
+
+.composer-mid{flex:1;min-width:0;position:relative;height:100%;margin:0 12px}
+.text-ph{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);
+  font-size:16px;font-weight:400;color:#b2b2b2;line-height:normal;
+  pointer-events:none;white-space:nowrap;
+}
+.hold-label{
+  appearance:none;border:0;background:transparent;cursor:pointer;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:16px;font-weight:500;color:var(--ink);line-height:normal;
+  padding:8px 16px;border-radius:20px;white-space:nowrap;
+}
+.hold-label:active,.hold-label.is-press{
+  background:rgba(255,180,190,.22);
+}
+
+/* ---------- run-on-phone ---------- */
+.site-nav-scrim {
+  display: none;position: fixed;inset: 0;z-index: 250;
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-tap-highlight-color: transparent;
+}
+html.is-mobile { --statusbar-h: 0px; }
+html.is-mobile, html.is-mobile body { height: 100%; overflow: hidden; }
+html.is-mobile body {
+  background: #000;
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+  box-sizing: border-box;
+}
+html.is-mobile .stage {
+  margin-left: 0;padding: 0;width: 100%;height: 100%;
+  align-items: flex-start;justify-content: center;overflow: hidden;
+}
+html.is-mobile #frame {
+  transform: scale(var(--mobile-scale));
+  transform-origin: top center;margin: 0;
+  height: var(--mobile-h, 844px);box-shadow: none;border-radius: 0;
+}
+html.is-mobile .composer { padding-bottom: calc(12px + var(--kb-h, 0px)); }
+html.is-mobile .site-nav {
+  display: flex;flex-direction: column;
+  position: fixed;left: 0; top: 0; bottom: 0;
+  width: min(78vw, 280px);margin: 0; border-radius: 0;z-index: 260;
+  transform: translateX(-105%);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;box-shadow: 8px 0 28px rgba(0, 0, 0, 0.28);
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);background: #1c1c1e;
+}
+html.is-mobile.is-nav-open .site-nav { transform: translateX(0); }
+html.is-mobile .site-nav-scrim {
+  display: block; opacity: 0; pointer-events: none; transition: opacity 0.22s ease;
+}
+html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
+<aside class="site-nav" id="siteNav" aria-label="原型控制">
+  <h1>Agent 对话原型</h1>
+  <p>A3 双态 · 输入双态 · Solo Hop 思考</p>
+  <div class="nav-actions">
+    <button type="button" id="navSheet" class="is-on">半屏（Figma 展开）</button>
+    <button type="button" id="navFull">全屏（截图态）</button>
+    <button type="button" id="navThink">演示思考 → 出表</button>
+  </div>
+  <p class="hint">真机自动预览；桌面 <code>?mobile=1</code>。左缘滑动打开本面板。</p>
+</aside>
+
+<div class="stage">
+  <div id="frame" class="mode-sheet" data-mode="sheet">
+    <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
+    <div class="scrim" aria-hidden="true"></div>
+
+    <section class="agent" aria-label="AI Agent 对话窗口">
+      <div class="agent-surface" aria-hidden="true"><div class="agent-glow"></div></div>
+      <div class="agent-inner">
+        <header class="agent-header">
+          <div class="header-main">
+            <img class="robot" src="assets/agent-chat/robot@3x.png" width="100" height="100" alt="AI 助手">
+            <div class="greet">
+              <p class="greet-title">Hi，何苏叶店主您好！</p>
+              <p class="greet-sub">内容由Ai生成，请注意核实</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <button type="button" class="icon-btn btn-expand" id="btnExpand" title="展开全屏" aria-label="展开全屏">
+              <img src="assets/agent-chat/icon-expand.svg" alt="">
+            </button>
+            <button type="button" class="icon-btn btn-close" id="btnClose" title="关闭全屏" aria-label="关闭全屏">
+              <img src="assets/agent-chat/icon-close.svg" alt="">
+            </button>
+            <div class="fs-ctrl" role="group" aria-label="字号">
+              <button type="button" data-fs="13">小</button>
+              <button type="button" data-fs="15" class="is-on">中</button>
+              <button type="button" data-fs="17">大</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="messages-shell">
+          <div class="messages" id="messages">
+            <div class="msg-user" id="userMsg">
+              <div class="bubble-user">我想看一下价目表。</div>
+            </div>
+
+            <div class="thinking" id="thinking" aria-live="polite">
+              <div class="think-bot" id="thinkBot" aria-hidden="true">
+                <span class="halo"></span>
+                <span class="head"><img src="assets/robot.svg" alt=""></span>
+                <span class="shadow"></span>
+              </div>
+              <span class="think-label" id="thinkLabel">思考中</span>
+            </div>
+
+            <article class="session-card" id="sessionCard" aria-label="价目表">
+              <p class="card-summary" id="cardSummary">价目表共 22 项，其中 18 项在售、4 项已停售。</p>
+              <div class="table-shell">
+                <table class="price-table" id="priceTable">
+                  <colgroup>
+                    <col class="c-cat"><col class="c-item"><col class="c-price"><col class="c-status">
+                  </colgroup>
+                  <thead>
+                    <tr><th>小类</th><th>项目</th><th>价格</th><th>状态</th></tr>
+                  </thead>
+                  <tbody id="priceBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <button type="button" class="scroll-hint" id="scrollHint" hidden aria-label="向下滚动查看完整会话">
+            <img src="assets/agent-chat/icon-chevron-down.svg" alt="">
+          </button>
+        </div>
+
+        <footer class="composer">
+          <div class="composer-bar" id="composerBar" data-mode="text">
+            <button type="button" class="side" id="btnModeToggle" aria-label="切换输入方式">
+              <img class="ico-voice" src="assets/agent-chat/icon-voice-figma.svg" alt="">
+              <img class="ico-kbd" src="assets/agent-chat/icon-keyboard-figma.svg" alt="">
+            </button>
+            <div class="composer-mid">
+              <span class="text-ph">发消息</span>
+              <button type="button" class="hold-label" id="holdTalk">按住说话</button>
+            </div>
+            <button type="button" class="side" aria-label="更多">
+              <img src="assets/agent-chat/icon-plus-figma.svg" alt="">
+            </button>
+          </div>
+        </footer>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  var PRICE_ROWS = [
+    /* 洗吹 6 */
+    ["洗吹", "洗剪吹经典", 88, "在售"],
+    ["洗吹", "洗剪吹精修", 68, "在售"],
+    ["洗吹", "洗吹造型", 49, "在售"],
+    ["洗吹", "头皮护理洗", 128, "在售"],
+    ["洗吹", "吹发（造型）", 10, "停售"],
+    ["洗吹", "儿童洗剪吹", 58, "在售"],
+    /* 剪发 6 */
+    ["剪发", "总监剪发", 198, "在售"],
+    ["剪发", "设计总监剪发", 168, "在售"],
+    ["剪发", "设计师剪发", 128, "在售"],
+    ["剪发", "高级发型师剪发", 98, "在售"],
+    ["剪发", "修剪刘海", 30, "在售"],
+    ["剪发", "男士商务剪", 80, "停售"],
+    /* 染发 5 */
+    ["染发", "泡泡染", 298, "在售"],
+    ["染发", "全头单色染", 388, "在售"],
+    ["染发", "北极星潮色", 688, "在售"],
+    ["染发", "局部挑染", 268, "在售"],
+    ["染发", "漂发护理套餐", 458, "停售"],
+    /* 烫护 5 */
+    ["烫护", "空气烫", 498, "在售"],
+    ["烫护", "卷发拉直", 398, "在售"],
+    ["烫护", "羊毛卷烫", 568, "在售"],
+    ["烫护", "蛋白矫正", 628, "在售"],
+    ["烫护", "热玛吉护理", 880, "停售"]
+  ];
+
+  var frame = document.getElementById("frame");
+  var navSheet = document.getElementById("navSheet");
+  var navFull = document.getElementById("navFull");
+  var navThink = document.getElementById("navThink");
+  var btnExpand = document.getElementById("btnExpand");
+  var btnClose = document.getElementById("btnClose");
+  var hold = document.getElementById("holdTalk");
+  var messages = document.getElementById("messages");
+  var scrollHint = document.getElementById("scrollHint");
+  var sessionCard = document.getElementById("sessionCard");
+  var thinking = document.getElementById("thinking");
+  var thinkLabel = document.getElementById("thinkLabel");
+  var thinkBot = document.getElementById("thinkBot");
+  var composerBar = document.getElementById("composerBar");
+  var btnModeToggle = document.getElementById("btnModeToggle");
+  var priceBody = document.getElementById("priceBody");
+  var cardSummary = document.getElementById("cardSummary");
+
+  function fillTable() {
+    var on = 0, off = 0;
+    priceBody.innerHTML = PRICE_ROWS.map(function (r) {
+      if (r[3] === "在售") on++; else off++;
+      return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>";
+    }).join("");
+    cardSummary.textContent =
+      "价目表共 " + PRICE_ROWS.length + " 项，其中 " + on + " 项在售、" + off + " 项已停售。";
+  }
+  fillTable();
+
+  function setMode(mode) {
+    var isFull = mode === "fullscreen";
+    frame.classList.toggle("mode-fullscreen", isFull);
+    frame.classList.toggle("mode-sheet", !isFull);
+    frame.dataset.mode = isFull ? "fullscreen" : "sheet";
+    navSheet.classList.toggle("is-on", !isFull);
+    navFull.classList.toggle("is-on", isFull);
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  navSheet.addEventListener("click", function () { setMode("sheet"); });
+  navFull.addEventListener("click", function () { setMode("fullscreen"); });
+  btnExpand.addEventListener("click", function () { setMode("fullscreen"); });
+  btnClose.addEventListener("click", function () { setMode("sheet"); });
+
+  document.querySelectorAll(".fs-ctrl button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".fs-ctrl button").forEach(function (b) { b.classList.remove("is-on"); });
+      btn.classList.add("is-on");
+      document.documentElement.style.setProperty("--fs-body", btn.dataset.fs + "px");
+    });
+  });
+
+  btnModeToggle.addEventListener("click", function () {
+    var next = composerBar.dataset.mode === "text" ? "voice" : "text";
+    composerBar.dataset.mode = next;
+    btnModeToggle.setAttribute(
+      "aria-label",
+      next === "text" ? "切换到语音输入" : "切换到键盘输入"
+    );
+  });
+
+  function pressOn() { hold.classList.add("is-press"); }
+  function pressOff() { hold.classList.remove("is-press"); }
+  hold.addEventListener("mousedown", pressOn);
+  hold.addEventListener("mouseup", pressOff);
+  hold.addEventListener("mouseleave", pressOff);
+  hold.addEventListener("touchstart", pressOn, { passive: true });
+  hold.addEventListener("touchend", pressOff);
+  hold.addEventListener("touchcancel", pressOff);
+
+  /* ----- chevron：会话卡片未完整显示时出现在会话区底部 ----- */
+  function updateScrollHint() {
+    if (!messages || !scrollHint || !sessionCard || sessionCard.hidden) {
+      if (scrollHint) scrollHint.hidden = true;
+      return;
+    }
+    var mRect = messages.getBoundingClientRect();
+    var cRect = sessionCard.getBoundingClientRect();
+    /* 卡片底部仍在可视区之外 */
+    var clippedBottom = cRect.bottom > mRect.bottom + 2;
+    /* 卡片顶部仍在可视区之上（已滚过）则不需要向下箭头 */
+    var mostlyAbove = cRect.bottom <= mRect.top + 8;
+    scrollHint.hidden = !(clippedBottom && !mostlyAbove);
+  }
+  messages.addEventListener("scroll", updateScrollHint, { passive: true });
+  scrollHint.addEventListener("click", function () {
+    sessionCard.scrollIntoView({ behavior: "smooth", block: "end" });
+  });
+  window.addEventListener("resize", updateScrollHint, { passive: true });
+  requestAnimationFrame(updateScrollHint);
+
+  /* ----- Solo Hop（B）思考动效 ----- */
+  var TAU = Math.PI * 2;
+  function mod1(x) { return ((x % 1) + 1) % 1; }
+  function bounceCurve(p, H, squash, t0, t1, settle) {
+    var dy = 0, sy = 1, sx = 1;
+    if (p < t0) {
+      var k = p / t0;
+      var s = Math.sin(Math.PI * k);
+      sy = 1 - squash * s;
+      sx = 1 + squash * 0.62 * s;
+    } else if (p < t1) {
+      var u = (p - t0) / (t1 - t0);
+      dy = -H * 4 * u * (1 - u);
+      var st = Math.pow(Math.sin(TAU * u), 2);
+      sy = 1 + squash * 0.5 * st;
+      sx = 1 - squash * 0.37 * st;
+    } else if (p < t1 + settle) {
+      var k2 = (p - t1) / settle;
+      var env = Math.exp(-4.6 * k2) * Math.sin(Math.PI * 2.6 * k2);
+      sy = 1 - squash * 1.32 * env;
+      sx = 1 + squash * 0.92 * env;
+    }
+    return { dy: dy, sx: sx, sy: sy };
+  }
+
+  var hop = {
+    playing: false,
+    raf: 0,
+    t0: 0,
+    head: null,
+    halo: null,
+    shadow: null,
+    labels: ["思考中", "获取数据", "分析中", "整理结果"],
+    labelIdx: 0,
+    labelTimer: 0
+  };
+
+  function bindHop() {
+    hop.head = thinkBot.querySelector(".head");
+    hop.halo = thinkBot.querySelector(".halo");
+    hop.shadow = thinkBot.querySelector(".shadow");
+  }
+  bindHop();
+
+  function hopFrame(now) {
+    if (!hop.playing) return;
+    if (!hop.t0) hop.t0 = now;
+    var t = (now - hop.t0) / 1000;
+    var p = mod1(t / 1.0);
+    var b = bounceCurve(p, 12, 0.07, 0.07, 0.34, 0.45);
+    var lift = Math.max(0, Math.min(1, -b.dy / 12));
+    hop.head.style.transform =
+      "translateY(" + b.dy.toFixed(3) + "%) scale(" + b.sx.toFixed(4) + "," + b.sy.toFixed(4) + ")";
+    if (hop.shadow) {
+      hop.shadow.style.transform = "translateX(-50%) scale(" + (1 - 0.52 * lift).toFixed(3) + ")";
+      hop.shadow.style.opacity = (0.92 - 0.62 * lift).toFixed(3);
+    }
+    if (hop.halo) {
+      hop.halo.style.opacity = ((0.72) * (1 - 0.16 * lift)).toFixed(3);
+      hop.halo.style.transform = "scale(" + (1 + 0.07 * lift).toFixed(4) + ")";
+    }
+    hop.raf = requestAnimationFrame(hopFrame);
+  }
+
+  function swapLabel() {
+    hop.labelIdx = (hop.labelIdx + 1) % hop.labels.length;
+    thinkLabel.classList.add("is-swap");
+    setTimeout(function () {
+      thinkLabel.textContent = hop.labels[hop.labelIdx];
+      thinkLabel.classList.remove("is-swap");
+    }, 180);
+  }
+
+  function startThinking() {
+    thinking.classList.add("is-on");
+    hop.playing = true;
+    hop.t0 = 0;
+    hop.labelIdx = 0;
+    thinkLabel.textContent = hop.labels[0];
+    cancelAnimationFrame(hop.raf);
+    hop.raf = requestAnimationFrame(hopFrame);
+    clearInterval(hop.labelTimer);
+    hop.labelTimer = setInterval(swapLabel, 900);
+  }
+
+  function stopThinking() {
+    thinking.classList.remove("is-on");
+    hop.playing = false;
+    cancelAnimationFrame(hop.raf);
+    clearInterval(hop.labelTimer);
+  }
+
+  var thinkDemoTimer = 0;
+  function runThinkDemo() {
+    clearTimeout(thinkDemoTimer);
+    sessionCard.hidden = true;
+    updateScrollHint();
+    messages.scrollTop = 0;
+    startThinking();
+    thinkDemoTimer = setTimeout(function () {
+      stopThinking();
+      sessionCard.hidden = false;
+      requestAnimationFrame(function () {
+        updateScrollHint();
+        /* 半屏下一屏往往裁切卡片，chevron 应出现 */
+      });
+    }, 3200);
+  }
+
+  navThink.addEventListener("click", runThinkDemo);
+
+  /* 初始：有完整卡片时按可视裁切决定 chevron */
+  sessionCard.hidden = false;
+  requestAnimationFrame(updateScrollHint);
+})();
+
+/* run-on-phone */
+(function () {
+  var CONFIG = {
+    logicalWidth: 390,
+    logicalHeightFallback: 844,
+    minLogicalHeight: 500,
+    frameSelector: "#frame",
+    stageSelector: ".stage",
+    navSelector: "#siteNav",
+    scrimSelector: "#siteNavScrim",
+    edge: 24,
+    openDx: 56,
+    closeDx: -48,
+    kbJitterPx: 80
+  };
+
+  var root = document.documentElement;
+  var nav = document.querySelector(CONFIG.navSelector);
+  var scrim = document.querySelector(CONFIG.scrimSelector);
+  var stage = document.querySelector(CONFIG.stageSelector);
+
+  function queryForce() {
+    try {
+      var q = new URLSearchParams(location.search).get("mobile");
+      if (q === "1" || q === "true") return true;
+      if (q === "0" || q === "false") return false;
+    } catch (e) {}
+    return null;
+  }
+  function isRealPhone() {
+    var ua = navigator.userAgent || "";
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+      if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false;
+      return true;
+    }
+    if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) return true;
+    return false;
+  }
+  function shouldMobile() {
+    var force = queryForce();
+    if (force !== null) return force;
+    return isRealPhone();
+  }
+  function isNavOpen() { return root.classList.contains("is-nav-open"); }
+  function openSiteNav() {
+    if (!root.classList.contains("is-mobile")) return;
+    root.classList.add("is-nav-open");
+    if (scrim) scrim.setAttribute("aria-hidden", "false");
+  }
+  function closeSiteNav() {
+    root.classList.remove("is-nav-open");
+    if (scrim) scrim.setAttribute("aria-hidden", "true");
+  }
+  window.openSiteNav = openSiteNav;
+  window.closeSiteNav = closeSiteNav;
+
+  function updateScale() {
+    if (!root.classList.contains("is-mobile") || !stage) return;
+    var w = stage.clientWidth || window.innerWidth;
+    var h = stage.clientHeight || window.innerHeight;
+    var lw = CONFIG.logicalWidth;
+    var lh0 = CONFIG.logicalHeightFallback;
+    var scale = w / lw;
+    var logicalH = scale > 0 ? h / scale : h;
+    if (!isFinite(logicalH) || logicalH < CONFIG.minLogicalHeight) {
+      scale = Math.min(w / lw, h / lh0);
+      logicalH = lh0;
+    }
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    root.style.setProperty("--mobile-scale", String(Math.round(scale * 1000) / 1000));
+    root.style.setProperty("--mobile-h", Math.round(logicalH) + "px");
+  }
+  function updateKeyboardInset() {
+    if (!root.classList.contains("is-mobile")) return;
+    var vv = window.visualViewport;
+    if (!vv) { root.style.setProperty("--kb-h", "0px"); return; }
+    var overlap = window.innerHeight - vv.height - (vv.offsetTop || 0);
+    if (!isFinite(overlap) || overlap < 0) overlap = 0;
+    var scale = parseFloat(root.style.getPropertyValue("--mobile-scale")) || 1;
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    var logical = overlap > CONFIG.kbJitterPx ? overlap / scale : 0;
+    root.style.setProperty("--kb-h", Math.round(logical) + "px");
+  }
+  function applyMode() {
+    var on = shouldMobile();
+    root.classList.toggle("is-mobile", on);
+    if (!on) {
+      closeSiteNav();
+      root.style.removeProperty("--mobile-scale");
+      root.style.removeProperty("--mobile-h");
+      root.style.removeProperty("--kb-h");
+      return;
+    }
+    updateScale();
+    updateKeyboardInset();
+  }
+  if (scrim) scrim.addEventListener("click", closeSiteNav);
+
+  var track = null;
+  function onTouchStart(e) {
+    if (!root.classList.contains("is-mobile") || !nav) return;
+    if (e.touches.length !== 1) return;
+    var t = e.touches[0];
+    var open = isNavOpen();
+    if (!open && t.clientX > CONFIG.edge) return;
+    track = { x0: t.clientX, y0: t.clientY, open: open, locked: false, axis: null };
+  }
+  function onTouchMove(e) {
+    if (!track) return;
+    var t = e.touches[0];
+    var dx = t.clientX - track.x0;
+    var dy = t.clientY - track.y0;
+    if (!track.locked) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      track.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+      track.locked = true;
+      if (track.axis === "y") { track = null; return; }
+    }
+    if (track.axis === "x" && e.cancelable) e.preventDefault();
+  }
+  function onTouchEnd(e) {
+    if (!track) return;
+    var t = (e.changedTouches && e.changedTouches[0]) || null;
+    var dx = t ? t.clientX - track.x0 : 0;
+    var open = track.open;
+    var axis = track.axis;
+    track = null;
+    if (axis !== "x") return;
+    if (!open && dx >= CONFIG.openDx) openSiteNav();
+    else if (open && dx <= CONFIG.closeDx) closeSiteNav();
+  }
+  document.addEventListener("touchstart", onTouchStart, { passive: true, capture: true });
+  document.addEventListener("touchmove", onTouchMove, { passive: false, capture: true });
+  document.addEventListener("touchend", onTouchEnd, { passive: true, capture: true });
+  document.addEventListener("touchcancel", function () { track = null; }, { passive: true });
+
+  applyMode();
+  window.addEventListener("resize", function () {
+    if (root.classList.contains("is-mobile")) { updateScale(); updateKeyboardInset(); }
+  }, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", function () {
+      updateScale(); updateKeyboardInset();
+    }, { passive: true });
+    window.visualViewport.addEventListener("scroll", updateKeyboardInset, { passive: true });
+  }
+})();
+</script>
+</body>
+</html>
