@@ -266,31 +266,134 @@ button{font:inherit;color:inherit}
 }
 .think-label.is-swap{opacity:0}
 
+/* ---------- P1 功能卡：轻拟物价目册（区别于聊天气泡） ---------- */
+.agent-note{
+  margin:0 0 10px;font-size:calc(var(--fs-body) - 1px);color:#6a6a72;line-height:1.45;
+}
 .session-card{
-  position:relative;background:#fff;border-radius:12px;
-  padding:14px 12px 12px;box-shadow:0 1px 2px rgba(40,20,30,.04);
-  border:1px solid rgba(0,0,0,.04);margin-bottom:8px;
+  position:relative;margin-bottom:10px;
+  border-radius:18px;overflow:hidden;
+  background:#fff;
+  border:1px solid rgba(80,40,70,.08);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 10px 28px -18px rgba(80,30,50,.28),
+    0 2px 6px rgba(40,20,30,.05);
 }
 .session-card[hidden]{display:none !important}
-.card-summary{
-  margin:0 0 10px;font-size:var(--fs-body);line-height:1.5;color:#333;font-weight:400;
+
+.fn-head{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px 10px;
+  background:linear-gradient(105deg,#f7f0ff 0%,#ffe9f0 48%,#fff6f0 100%);
+  border-bottom:1px solid rgba(80,40,70,.06);
 }
-.table-shell{border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
-.price-table{
-  width:100%;border-collapse:collapse;table-layout:fixed;
-  font-size:calc(var(--fs-body) - 1px);color:#222;
+.fn-ico{
+  width:34px;height:34px;border-radius:10px;flex:none;
+  display:grid;place-items:center;overflow:hidden;
+  background:linear-gradient(145deg,#fff,#f8eef5);
+  border:1px solid rgba(80,40,70,.08);
+  box-shadow:0 2px 6px rgba(120,50,80,.08);
 }
-.price-table th,.price-table td{
-  border-bottom:1px solid var(--line-2);border-right:1px solid var(--line-2);
-  padding:9px 8px;text-align:left;vertical-align:middle;word-break:break-all;
+.fn-ico img{
+  width:30px;height:26px;object-fit:contain;display:block;
+  transform:translateY(1px);
 }
-.price-table th:last-child,.price-table td:last-child{border-right:0}
-.price-table tr:last-child td{border-bottom:0}
-.price-table th{background:#f5f5f5;font-weight:600;color:#1a1a1a}
-.price-table col.c-cat{width:18%}
-.price-table col.c-item{width:42%}
-.price-table col.c-price{width:18%}
-.price-table col.c-status{width:22%}
+.fn-titles{flex:1;min-width:0}
+.fn-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a;letter-spacing:.01em}
+.fn-sub{margin:2px 0 0;font-size:11.5px;color:#7a6f78;font-weight:400}
+.fn-pill{
+  flex:none;padding:4px 8px;border-radius:999px;
+  font-size:11px;font-weight:600;color:#7a3d6a;
+  background:rgba(255,255,255,.72);border:1px solid rgba(180,100,140,.22);
+  white-space:nowrap;
+}
+
+.fn-meta{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:8px 14px 0;font-size:12px;color:#6a6a72;
+}
+.fn-meta b{color:#1a1a1a;font-weight:600}
+
+.fn-tabs{
+  display:flex;gap:6px;padding:10px 12px 8px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.fn-tabs::-webkit-scrollbar{display:none}
+.fn-tab{
+  appearance:none;border:1px solid rgba(26,26,26,.1);background:#fff;
+  border-radius:999px;padding:6px 11px;font-size:12.5px;color:#555;
+  white-space:nowrap;cursor:pointer;flex:none;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.fn-tab.is-on{
+  color:#fff;font-weight:600;
+  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
+  border-color:transparent;
+  box-shadow:0 4px 10px -4px rgba(160,80,140,.45);
+}
+
+.fn-list{padding:0 8px 4px;max-height:none}
+.fn-group{margin:0 0 6px}
+.fn-group-title{
+  margin:0;padding:8px 8px 4px;font-size:11.5px;font-weight:650;
+  color:#8a7f88;letter-spacing:.04em;
+}
+.fn-row{
+  display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
+  margin:0 2px 6px;padding:10px 12px;
+  border-radius:12px;background:#faf9fb;
+  border:1px solid rgba(26,26,26,.04);
+}
+.fn-row.is-off{opacity:.55;background:#f5f5f6}
+.fn-row-name{font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3}
+.fn-row-price{
+  font-size:calc(var(--fs-body) + 1px);font-weight:700;color:#1a1a1a;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+.fn-row-price small{font-size:11px;font-weight:500;color:#8a8a8a;margin-right:1px}
+.fn-row-status{
+  grid-column:1 / -1;display:flex;align-items:center;gap:6px;
+  font-size:11.5px;color:#6a6a72;
+}
+.fn-dot{
+  width:6px;height:6px;border-radius:50%;background:#3cbc6e;flex:none;
+}
+.fn-row.is-off .fn-dot{background:#b0b0b0}
+.fn-empty{
+  margin:8px;padding:22px 12px;text-align:center;color:#8a8a8a;
+  font-size:13px;border-radius:12px;background:#faf9fb;
+}
+
+.fn-foot{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
+  background:linear-gradient(180deg,#fff,#faf8fa);
+}
+.fn-act{
+  appearance:none;cursor:pointer;
+  height:38px;border-radius:12px;font-size:13px;font-weight:550;
+  display:grid;place-items:center;transition:transform .12s ease,background .15s ease;
+}
+.fn-act:active{transform:scale(.98)}
+.fn-act-ghost{
+  border:1px solid rgba(26,26,26,.12);background:#fff;color:#333;
+}
+.fn-act-ghost.is-on{
+  border-color:rgba(193,99,188,.35);background:#faf4fa;color:#7a3d6a;
+}
+.fn-act-primary{
+  border:0;color:#fff;
+  background:linear-gradient(105deg,#8d8aed,#c163bc 55%,#e8877a);
+  box-shadow:0 6px 14px -8px rgba(160,80,140,.55);
+}
+.fn-toast{
+  position:absolute;left:50%;bottom:54px;transform:translateX(-50%) translateY(6px);
+  padding:7px 12px;border-radius:999px;font-size:12px;color:#fff;
+  background:rgba(26,26,26,.82);white-space:nowrap;opacity:0;pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;z-index:3;
+}
+.fn-toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* 会话区底部 chevron：卡片未完整入屏时才显示 */
 .scroll-hint{
@@ -457,19 +560,43 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               <span class="think-label" id="thinkLabel">思考中</span>
             </div>
 
-            <article class="session-card" id="sessionCard" aria-label="价目表">
-              <p class="card-summary" id="cardSummary">价目表共 22 项，其中 18 项在售、4 项已停售。</p>
-              <div class="table-shell">
-                <table class="price-table" id="priceTable">
-                  <colgroup>
-                    <col class="c-cat"><col class="c-item"><col class="c-price"><col class="c-status">
-                  </colgroup>
-                  <thead>
-                    <tr><th>小类</th><th>项目</th><th>价格</th><th>状态</th></tr>
-                  </thead>
-                  <tbody id="priceBody"></tbody>
-                </table>
+            <p class="agent-note" id="agentNote">已为你整理店内价目表，可按分类查看或筛选在售项。</p>
+
+            <article class="session-card" id="sessionCard" aria-label="店内价目表">
+              <header class="fn-head">
+                <div class="fn-ico" aria-hidden="true">
+                  <img src="assets/robot.svg" alt="">
+                </div>
+                <div class="fn-titles">
+                  <p class="fn-title">店内价目表</p>
+                  <p class="fn-sub" id="fnSub">悦己美发沙龙 · 功能结果</p>
+                </div>
+                <span class="fn-pill" id="fnPill">18 在售 · 4 停售</span>
+              </header>
+
+              <div class="fn-meta" id="fnMeta">
+                <span>共 <b id="fnTotal">22</b> 项</span>
+                <span>·</span>
+                <span><b id="fnCats">4</b> 个小类</span>
+                <span>·</span>
+                <span id="fnFilterHint">全部</span>
               </div>
+
+              <div class="fn-tabs" id="fnTabs" role="tablist" aria-label="价目分类">
+                <button type="button" class="fn-tab is-on" data-cat="全部" role="tab" aria-selected="true">全部</button>
+                <button type="button" class="fn-tab" data-cat="洗吹" role="tab" aria-selected="false">洗吹</button>
+                <button type="button" class="fn-tab" data-cat="剪发" role="tab" aria-selected="false">剪发</button>
+                <button type="button" class="fn-tab" data-cat="染发" role="tab" aria-selected="false">染发</button>
+                <button type="button" class="fn-tab" data-cat="烫护" role="tab" aria-selected="false">烫护</button>
+              </div>
+
+              <div class="fn-list" id="fnList"></div>
+
+              <footer class="fn-foot">
+                <button type="button" class="fn-act fn-act-ghost" id="btnFilterOff">只看在售</button>
+                <button type="button" class="fn-act fn-act-primary" id="btnGotoManage">去价目表管理</button>
+              </footer>
+              <div class="fn-toast" id="fnToast" role="status"></div>
             </article>
           </div>
 
@@ -544,19 +671,110 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var thinkBot = document.getElementById("thinkBot");
   var composerBar = document.getElementById("composerBar");
   var btnModeToggle = document.getElementById("btnModeToggle");
-  var priceBody = document.getElementById("priceBody");
-  var cardSummary = document.getElementById("cardSummary");
+  var fnList = document.getElementById("fnList");
+  var fnPill = document.getElementById("fnPill");
+  var fnTotal = document.getElementById("fnTotal");
+  var fnCats = document.getElementById("fnCats");
+  var fnFilterHint = document.getElementById("fnFilterHint");
+  var fnTabs = document.getElementById("fnTabs");
+  var btnFilterOff = document.getElementById("btnFilterOff");
+  var btnGotoManage = document.getElementById("btnGotoManage");
+  var fnToast = document.getElementById("fnToast");
+  var agentNote = document.getElementById("agentNote");
 
-  function fillTable() {
-    var on = 0, off = 0;
-    priceBody.innerHTML = PRICE_ROWS.map(function (r) {
-      if (r[3] === "在售") on++; else off++;
-      return "<tr><td>" + r[0] + "</td><td>" + r[1] + "</td><td>" + r[2] + "</td><td>" + r[3] + "</td></tr>";
-    }).join("");
-    cardSummary.textContent =
-      "价目表共 " + PRICE_ROWS.length + " 项，其中 " + on + " 项在售、" + off + " 项已停售。";
+  var priceState = { cat: "全部", onlyOn: false };
+  var toastTimer = 0;
+  /* 「全部」打乱顺序：进入时打一次，切回全部不重打乱 */
+  var shuffledAll = PRICE_ROWS.slice();
+  for (var si = shuffledAll.length - 1; si > 0; si--) {
+    var sj = Math.floor(Math.random() * (si + 1));
+    var tmp = shuffledAll[si];
+    shuffledAll[si] = shuffledAll[sj];
+    shuffledAll[sj] = tmp;
   }
-  fillTable();
+
+  function countStats(rows) {
+    var on = 0, off = 0, cats = {};
+    rows.forEach(function (r) {
+      if (r[3] === "在售") on++; else off++;
+      cats[r[0]] = true;
+    });
+    return { on: on, off: off, catN: Object.keys(cats).length, total: rows.length };
+  }
+
+  function filteredRows() {
+    var base = priceState.cat === "全部" ? shuffledAll : PRICE_ROWS;
+    return base.filter(function (r) {
+      if (priceState.cat !== "全部" && r[0] !== priceState.cat) return false;
+      if (priceState.onlyOn && r[3] !== "在售") return false;
+      return true;
+    });
+  }
+
+  function showToast(msg) {
+    fnToast.textContent = msg;
+    fnToast.classList.add("is-on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { fnToast.classList.remove("is-on"); }, 1600);
+  }
+
+  function rowHtml(r) {
+    var off = r[3] === "停售";
+    return (
+      '<div class="fn-row' + (off ? " is-off" : "") + '">' +
+        '<div class="fn-row-name">' + r[1] + "</div>" +
+        '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
+        '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+      "</div>"
+    );
+  }
+
+  function renderPriceCard() {
+    var all = countStats(PRICE_ROWS);
+    fnPill.textContent = all.on + " 在售 · " + all.off + " 停售";
+    fnTotal.textContent = String(all.total);
+    fnCats.textContent = String(all.catN);
+
+    var hint = priceState.cat === "全部" ? "全部" : priceState.cat;
+    if (priceState.onlyOn) hint += " · 仅在售";
+    fnFilterHint.textContent = hint;
+
+    var rows = filteredRows();
+    if (!rows.length) {
+      fnList.innerHTML = '<div class="fn-empty">当前筛选下暂无项目</div>';
+      requestAnimationFrame(updateScrollHint);
+      return;
+    }
+
+    /* 全部：扁平打乱列表，无小类标签；分类 Tab：该类列表（无分组标题） */
+    fnList.innerHTML = rows.map(rowHtml).join("");
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  fnTabs.addEventListener("click", function (e) {
+    var btn = e.target.closest(".fn-tab");
+    if (!btn) return;
+    priceState.cat = btn.dataset.cat;
+    fnTabs.querySelectorAll(".fn-tab").forEach(function (t) {
+      var on = t === btn;
+      t.classList.toggle("is-on", on);
+      t.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    renderPriceCard();
+  });
+
+  btnFilterOff.addEventListener("click", function () {
+    priceState.onlyOn = !priceState.onlyOn;
+    btnFilterOff.classList.toggle("is-on", priceState.onlyOn);
+    btnFilterOff.textContent = priceState.onlyOn ? "查看全部" : "只看在售";
+    renderPriceCard();
+  });
+
+  btnGotoManage.addEventListener("click", function () {
+    showToast("示意：将跳转「价目表管理」");
+  });
+
+  renderPriceCard();
 
   function setMode(mode) {
     var isFull = mode === "fullscreen";
@@ -716,16 +934,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function runThinkDemo() {
     clearTimeout(thinkDemoTimer);
     sessionCard.hidden = true;
+    if (agentNote) agentNote.hidden = true;
     updateScrollHint();
     messages.scrollTop = 0;
     startThinking();
     thinkDemoTimer = setTimeout(function () {
       stopThinking();
       sessionCard.hidden = false;
-      requestAnimationFrame(function () {
-        updateScrollHint();
-        /* 半屏下一屏往往裁切卡片，chevron 应出现 */
-      });
+      if (agentNote) agentNote.hidden = false;
+      renderPriceCard();
+      requestAnimationFrame(updateScrollHint);
     }, 3200);
   }
 
