@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=overlays-content">
 <title>AI Agent · 对话窗口原型</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -479,6 +479,42 @@ button{font:inherit;color:inherit}
   color:#8a7f88;letter-spacing:.04em;
 }
 .fn-item{margin:0 2px 6px;border-radius:12px;overflow:hidden}
+/* ---------- 左滑删除：动作块藏在行下方，只有滑开才可见 ---------- */
+/* touch-action:pan-y 让竖滑交给浏览器、横滑交给我们；鼠标拖拽同样走 Pointer Events */
+/* user-select:none 常驻：PC 上鼠标长拖不会拖出蓝色选区，也不会触发原生拖拽打断手势 */
+.fn-swipe{
+  position:relative;overflow:hidden;border-radius:12px;
+  touch-action:pan-y;
+  -webkit-user-select:none;user-select:none;
+}
+.fn-item.is-open .fn-swipe{border-radius:12px 12px 0 0}
+.fn-swipe-track{
+  position:relative;z-index:1;
+  transform:translateX(0);
+  transition:transform .26s var(--ease-out);
+  will-change:transform;
+}
+/* 拖拽过程中禁止选中文本，鼠标长按拖动不会拖出蓝色选区 */
+.fn-swipe.is-dragging .fn-swipe-track{
+  transition:none;
+  -webkit-user-select:none;user-select:none;
+}
+.fn-swipe.is-open .fn-swipe-track{transform:translateX(-84px)}
+/* 未滑开时动作块完全不参与视觉，避免行圆角处透出红色 */
+.fn-swipe:not(.is-open):not(.is-dragging) .fn-del{visibility:hidden}
+.fn-del{
+  position:absolute;top:0;right:0;bottom:0;width:84px;z-index:0;
+  appearance:none;border:0;margin:0;padding:0;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:#c2506a;color:#fff;
+  font-size:12px;font-weight:600;line-height:1.1;
+  -webkit-tap-highlight-color:transparent;
+}
+.fn-del-ico{display:block;width:17px;height:17px}
+.fn-del-ico svg{display:block;width:17px;height:17px}
+.fn-del:active{background:#b0465e}
+.fn-del.is-locked{background:#c9c6ce;color:#fff}
+.fn-del.is-locked:active{background:#c9c6ce}
 .fn-row{
   display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
   padding:10px 12px;cursor:pointer;
@@ -635,6 +671,9 @@ button{font:inherit;color:inherit}
 .fn-discard-ok{
   background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
+.fn-discard-ok.is-danger{
+  background:#fdf3f5;border-color:rgba(194,80,106,.3);color:#c2506a;font-weight:600;
+}
 
 .fn-foot{
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
@@ -670,6 +709,16 @@ button{font:inherit;color:inherit}
 .fn-toast.is-on,.od-toast.is-on{
   opacity:1;transform:translateX(-50%) translateY(0) scale(1);
 }
+/* 带「撤销」的 Toast：允许点击，横向排布 */
+.fn-toast.has-undo{
+  pointer-events:auto;display:flex;align-items:center;gap:12px;
+  padding-right:12px;
+}
+.fn-toast-undo{
+  appearance:none;border:0;padding:2px 0;margin:0;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:12.5px;font-weight:650;color:#9ad4ff;letter-spacing:.02em;
+}
+.fn-toast-undo:active{opacity:.55}
 
 /* ---------- 开单功能卡（草稿可编辑 → 成功回执） ---------- */
 .demo-panel[hidden]{display:none !important}
@@ -731,12 +780,20 @@ button{font:inherit;color:inherit}
   letter-spacing:-.02em;font-variant-numeric:tabular-nums;
 }
 .od-hero-coupon{
-  flex:none;align-self:center;padding:4px 9px;border-radius:999px;
+  flex:none;align-self:flex-start;margin-top:2px;padding:4px 9px;border-radius:999px;
   font-size:10.5px;font-weight:600;color:#c2506a;
   background:#fdf3f5;border:.5px solid rgba(194,80,106,.25);
   font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-.od-hero-meta{margin:5px 0 0;font-size:11.5px;color:#8a7f88;line-height:1.4}
+/* Hero 三层权重：金额（22/700）→ 项目（15/650 黑）→ 顾客（12.5/600 深灰 + 灰尾注） */
+.od-hero-service{
+  margin:7px 0 0;font-size:15px;font-weight:650;line-height:1.35;
+  color:#1a1a1a;letter-spacing:-.01em;overflow-wrap:anywhere;
+}
+.od-hero-customer{
+  margin:4px 0 0;font-size:12.5px;font-weight:600;color:#4a4550;line-height:1.4;
+}
+.od-hero-sub{font-size:12px;font-weight:500;color:#8a7f88}
 
 /* 手风琴分区：一次只开一个 */
 .od-sec{
@@ -917,6 +974,12 @@ button{font:inherit;color:inherit}
   font-size:12px;font-weight:500;color:var(--btn-blue);
   background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
   display:inline-flex;align-items:center;gap:4px;
+}
+/* 全部收款方式已添加：入口收成一行说明，不再可点 */
+.pay-add.is-done{
+  margin:10px 0 0;height:auto;padding:0;
+  font-size:11.5px;color:#9a9099;background:none;border:0;
+  cursor:default;display:block;
 }
 .pay-picks{
   display:flex;flex-wrap:wrap;gap:6px;
@@ -1206,7 +1269,7 @@ html.is-mobile #frame {
   flex: none;
 }
 html.is-mobile .composer {
-  padding-bottom: calc(12px + var(--kb-h, 0px) + var(--safe-bottom, 0px));
+  padding-bottom: calc(12px + var(--kb-h, 0px) + var(--safe-pad, var(--safe-bottom, 0px)));
   background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 28%);
 }
 html.is-mobile .site-nav {
@@ -1329,6 +1392,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                   </div>
                 </div>
               </div>
+              <div class="fn-discard" id="fnDelete" role="dialog" aria-modal="true" aria-labelledby="fnDeleteTitle" hidden>
+                <div class="fn-discard-card">
+                  <h3 id="fnDeleteTitle">删除此项目？</h3>
+                  <p id="fnDeleteText">删除后该项目将从价目表移除。</p>
+                  <div class="fn-discard-acts">
+                    <button type="button" class="fn-discard-keep" id="fnDeleteCancel">取消</button>
+                    <button type="button" class="fn-discard-ok is-danger" id="fnDeleteOk">删除</button>
+                  </div>
+                </div>
+              </div>
             </article>
             </div><!-- #panelPrice -->
 
@@ -1418,32 +1491,32 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   /* [分类, 名称, 价格, 状态, 时长分钟, 可预约] */
   var CATS = ["洗吹", "剪发", "染发", "烫护"];
   var PRICE_ROWS = [
-    /* 洗吹 6 */
-    ["洗吹", "洗剪吹经典", 88, "在售", 45, true],
-    ["洗吹", "洗剪吹精修", 68, "在售", 40, true],
-    ["洗吹", "洗吹造型", 49, "在售", 30, true],
-    ["洗吹", "头皮护理洗", 128, "在售", 50, true],
-    ["洗吹", "吹发（造型）", 10, "停售", 20, false],
-    ["洗吹", "儿童洗剪吹", 58, "在售", 35, true],
+    /* 洗吹 6 · 第 7 位为绑定的会员卡数量，> 0 表示不可删除 */
+    ["洗吹", "洗剪吹经典", 88, "在售", 45, true, 2],
+    ["洗吹", "洗剪吹精修", 68, "在售", 40, true, 0],
+    ["洗吹", "洗吹造型", 49, "在售", 30, true, 0],
+    ["洗吹", "头皮护理洗", 128, "在售", 50, true, 0],
+    ["洗吹", "吹发（造型）", 10, "停售", 20, false, 0],
+    ["洗吹", "儿童洗剪吹", 58, "在售", 35, true, 0],
     /* 剪发 6 */
-    ["剪发", "总监剪发", 198, "在售", 60, true],
-    ["剪发", "设计总监剪发", 168, "在售", 55, true],
-    ["剪发", "设计师剪发", 128, "在售", 50, true],
-    ["剪发", "高级发型师剪发", 98, "在售", 45, true],
-    ["剪发", "修剪刘海", 30, "在售", 15, true],
-    ["剪发", "男士商务剪", 80, "停售", 40, false],
+    ["剪发", "总监剪发", 198, "在售", 60, true, 1],
+    ["剪发", "设计总监剪发", 168, "在售", 55, true, 0],
+    ["剪发", "设计师剪发", 128, "在售", 50, true, 0],
+    ["剪发", "高级发型师剪发", 98, "在售", 45, true, 0],
+    ["剪发", "修剪刘海", 30, "在售", 15, true, 0],
+    ["剪发", "男士商务剪", 80, "停售", 40, false, 0],
     /* 染发 5 */
-    ["染发", "泡泡染", 298, "在售", 90, true],
-    ["染发", "全头单色染", 388, "在售", 120, true],
-    ["染发", "北极星潮色", 688, "在售", 150, true],
-    ["染发", "局部挑染", 268, "在售", 90, true],
-    ["染发", "漂发护理套餐", 458, "停售", 150, false],
+    ["染发", "泡泡染", 298, "在售", 90, true, 0],
+    ["染发", "全头单色染", 388, "在售", 120, true, 1],
+    ["染发", "北极星潮色", 688, "在售", 150, true, 0],
+    ["染发", "局部挑染", 268, "在售", 90, true, 0],
+    ["染发", "漂发护理套餐", 458, "停售", 150, false, 0],
     /* 烫护 5 */
-    ["烫护", "空气烫", 498, "在售", 120, true],
-    ["烫护", "卷发拉直", 398, "在售", 100, true],
-    ["烫护", "羊毛卷烫", 568, "在售", 130, true],
-    ["烫护", "蛋白矫正", 628, "在售", 140, true],
-    ["烫护", "热玛吉护理", 880, "停售", 90, false]
+    ["烫护", "空气烫", 498, "在售", 120, true, 0],
+    ["烫护", "卷发拉直", 398, "在售", 100, true, 0],
+    ["烫护", "羊毛卷烫", 568, "在售", 130, true, 0],
+    ["烫护", "蛋白矫正", 628, "在售", 140, true, 0],
+    ["烫护", "热玛吉护理", 880, "停售", 90, false, 0]
   ];
   var PENCIL_SVG =
     '<svg class="fn-pencil" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
@@ -1453,6 +1526,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var SAVE_SVG =
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M12 3.4v11.2"/><path d="M6.6 9.6l5.4 5.4 5.4-5.4"/><path d="M3.4 21h17.2"/></svg>';
+  var TRASH_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M4.2 6.6h15.6"/><path d="M9.4 6.6V4.8a1.2 1.2 0 011.2-1.2h2.8a1.2 1.2 0 011.2 1.2v1.8"/>' +
+    '<path d="M6.4 6.6l.9 12.2a1.6 1.6 0 001.6 1.5h5.8a1.6 1.6 0 001.6-1.5l.9-12.2"/>' +
+    '<path d="M10.4 10.4v6M13.6 10.4v6"/></svg>';
+  var LOCK_SVG =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="4.6" y="10.2" width="14.8" height="10" rx="2.2"/><path d="M8.2 10.2V7.6a3.8 3.8 0 017.6 0v2.6"/></svg>';
 
   var frame = document.getElementById("frame");
   var navSheet = document.getElementById("navSheet");
@@ -1487,6 +1568,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var fnDiscard = document.getElementById("fnDiscard");
   var fnDiscardKeep = document.getElementById("fnDiscardKeep");
   var fnDiscardOk = document.getElementById("fnDiscardOk");
+  var fnDelete = document.getElementById("fnDelete");
+  var fnDeleteTitle = document.getElementById("fnDeleteTitle");
+  var fnDeleteText = document.getElementById("fnDeleteText");
+  var fnDeleteCancel = document.getElementById("fnDeleteCancel");
+  var fnDeleteOk = document.getElementById("fnDeleteOk");
   var agentNote = document.getElementById("agentNote");
   var orderCard = document.getElementById("orderCard");
   var odHint = document.getElementById("odHint");
@@ -1560,13 +1646,185 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return PRICE_ROWS.indexOf(r);
   }
 
-  function showToast(msg) {
-    fnToast.textContent = msg;
+  var toastUndoHandler = null;
+  function showToast(msg, onUndo, duration) {
+    var undo = typeof onUndo === "function" ? onUndo : null;
+    toastUndoHandler = undo;
+    clearTimeout(toastTimer);
+    fnToast.innerHTML =
+      "<span>" + escapeHtml(msg) + "</span>" +
+      (undo ? '<button type="button" class="fn-toast-undo" data-undo="1">撤销</button>' : "");
+    fnToast.classList.toggle("has-undo", !!undo);
     fnToast.classList.remove("is-on");
     void fnToast.offsetWidth;
     fnToast.classList.add("is-on");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { fnToast.classList.remove("is-on"); }, 1800);
+    toastTimer = setTimeout(function () {
+      fnToast.classList.remove("is-on");
+      toastUndoHandler = null;
+      setTimeout(function () {
+        if (!fnToast.classList.contains("is-on")) fnToast.classList.remove("has-undo");
+      }, 320);
+    }, duration || (undo ? 5000 : 1800));
+  }
+
+  /* ---------- 左滑删除：入口完全藏在行下方，不占常驻 UI ----------
+     用 Pointer Events 统一接管手指 / 鼠标 / 触控笔：PC 上按住鼠标左拖与手机左滑一致 */
+  var SWIPE_W = 84;
+  var swipeGesture = null;
+  var swipeOpenId = null;
+  var pendingDelete = null;
+  var swipeSuppressUntil = 0; /* 拖拽结束后短暂吞掉紧随其后的 click，避免连带展开编辑 */
+
+  function closeSwipe() {
+    fnList.querySelectorAll(".fn-swipe.is-open").forEach(function (s) {
+      s.classList.remove("is-open");
+    });
+    swipeOpenId = null;
+  }
+
+  function swipeTargetOf(target) {
+    var swipe = target && target.closest ? target.closest(".fn-swipe") : null;
+    if (!swipe || !fnList.contains(swipe)) return null;
+    /* 任一行处于编辑态时整体禁用左滑，避免删除时静默丢弃未保存改动 */
+    if (fnList.querySelector(".fn-item.is-open")) return null;
+    return swipe;
+  }
+
+  fnList.addEventListener("pointerdown", function (e) {
+    /* 新手势开始：清掉上一次拖拽留下的 click 抑制窗口 */
+    swipeSuppressUntil = 0;
+    /* 只响应主键；右键 / 中键不参与 */
+    if (e.pointerType === "mouse" && e.button !== 0) { swipeGesture = null; return; }
+    /* 左缘 24px 留给导航手势；编辑面板与删除按钮内部不接管 */
+    if (e.clientX <= 24 ||
+        (e.target.closest && (e.target.closest(".fn-inline") || e.target.closest("[data-del]")))) {
+      swipeGesture = null;
+      return;
+    }
+    var swipe = swipeTargetOf(e.target);
+    swipeGesture = {
+      swipe: swipe,
+      track: swipe ? swipe.querySelector(".fn-swipe-track") : null,
+      id: e.pointerId,
+      x0: e.clientX,
+      y0: e.clientY,
+      base: swipe && swipe.classList.contains("is-open") ? -SWIPE_W : 0,
+      wasOpen: !!(swipe && swipe.classList.contains("is-open")),
+      dx: null,
+      axis: null,
+      moved: false
+    };
+  });
+
+  fnList.addEventListener("pointermove", function (e) {
+    var g = swipeGesture;
+    if (!g || e.pointerId !== g.id) return;
+    var dx = e.clientX - g.x0;
+    var dy = e.clientY - g.y0;
+    if (!g.axis) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+      g.moved = true;
+      g.axis = Math.abs(dx) > Math.abs(dy) * 1.15 ? "x" : "y";
+      if (g.axis === "y" || !g.swipe) { swipeGesture = null; return; }
+      closeSwipe();
+      g.swipe.classList.add("is-dragging");
+      /* 捕获指针：手指/鼠标移出行外也能继续跟手，并保证拿到 pointerup */
+      try { fnList.setPointerCapture(e.pointerId); } catch (err) { /* */ }
+    }
+    if (!g.track) return;
+    var next = g.base + dx;
+    if (next > 0) next *= 0.22;                                   /* 向右阻尼 */
+    if (next < -SWIPE_W) next = -SWIPE_W + (next + SWIPE_W) * 0.18; /* 超拉阻尼 */
+    g.dx = next;
+    g.track.style.transform = "translateX(" + Math.round(next) + "px)";
+  });
+
+  function endSwipe(e) {
+    var g = swipeGesture;
+    if (!g) return;
+    if (e && typeof e.pointerId === "number" && e.pointerId !== g.id) return;
+    swipeGesture = null;
+    /* 只吞掉拖拽尾随的那一次 click，窗口必须极短，否则会连带吞掉用户随后点「删除」 */
+    if (g.moved) swipeSuppressUntil = Date.now() + 150;
+    if (g.axis !== "x") {
+      if (!g.moved) {
+        /* 点在已滑开的行上：本次只负责收起，不连带展开编辑 */
+        if (g.wasOpen) swipeSuppressUntil = Date.now() + 150;
+        closeSwipe();
+      }
+      return;
+    }
+    if (!g.swipe || !g.track) return;
+    g.swipe.classList.remove("is-dragging");
+    g.track.style.transform = "";
+    var landed = g.dx == null ? g.base : g.dx;
+    var id = Number(g.swipe.getAttribute("data-swipe"));
+    if (landed <= -SWIPE_W / 2) {
+      g.swipe.classList.add("is-open");
+      swipeOpenId = id;
+    } else {
+      g.swipe.classList.remove("is-open");
+      if (swipeOpenId === id) swipeOpenId = null;
+    }
+  }
+
+  fnList.addEventListener("pointerup", endSwipe);
+  fnList.addEventListener("pointercancel", function (e) {
+    var g = swipeGesture;
+    if (!g) return;
+    if (typeof e.pointerId === "number" && e.pointerId !== g.id) return;
+    /* 真实鼠标长拖时浏览器可能因原生拖拽/选区接管而发 pointercancel；
+       此时不能把已拖开的行弹回，按当前位移照常吸附（与 pointerup 同路径） */
+    endSwipe(e);
+  });
+  /* 鼠标长按拖动在 PC 上会触发原生拖拽（拖出链接/文本幽灵图），必须拦掉，
+     否则浏览器会在手势中途接管并让后续 pointer 事件序列中断 */
+  fnList.addEventListener("dragstart", function (e) {
+    if (e.target.closest && e.target.closest(".fn-swipe")) e.preventDefault();
+  });
+
+  function requestDelete(id) {
+    var row = PRICE_ROWS[id];
+    if (!row) return;
+    var cards = cardCountOf(row);
+    if (cards > 0) {
+      showToast("「" + row[1] + "」已被 " + cards + " 张会员卡使用，不能删除");
+      closeSwipe();
+      return;
+    }
+    pendingDelete = { id: id, name: row[1] };
+    fnDeleteTitle.textContent = "删除「" + row[1] + "」？";
+    fnDeleteText.textContent = "删除后该项目将从价目表移除，5 秒内可撤销。";
+    fnDelete.hidden = false;
+    fnDelete.classList.add("is-on");
+  }
+
+  function hideDeleteConfirm() {
+    fnDelete.classList.remove("is-on");
+    fnDelete.hidden = true;
+    pendingDelete = null;
+  }
+
+  function confirmDelete() {
+    var p = pendingDelete;
+    hideDeleteConfirm();
+    if (!p) return;
+    var row = PRICE_ROWS[p.id];
+    if (!row) return;
+    var index = PRICE_ROWS.indexOf(row);
+    if (index < 0) return;
+    var shuffleIndex = shuffledAll.indexOf(row);
+    PRICE_ROWS.splice(index, 1);
+    if (shuffleIndex >= 0) shuffledAll.splice(shuffleIndex, 1);
+    closeInlineHard();
+    closeSwipe();
+    renderPriceCard();
+    showToast("已删除「" + p.name + "」", function () {
+      PRICE_ROWS.splice(index, 0, row);
+      if (shuffleIndex >= 0) shuffledAll.splice(shuffleIndex, 0, row);
+      renderPriceCard();
+      showToast("已恢复「" + p.name + "」");
+    });
   }
 
   var MOTION_REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -1705,15 +1963,34 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     );
   }
 
+  function cardCountOf(r) {
+    return Number(r && r[6]) || 0;
+  }
+
   function itemHtml(r) {
     var id = rowIdOf(r);
     var off = r[3] === "停售";
+    var cards = cardCountOf(r);
+    var locked = cards > 0;
     return (
       '<div class="fn-item" data-id="' + id + '">' +
-        '<div class="fn-row' + (off ? " is-off" : "") + '" role="button" tabindex="0" aria-expanded="false">' +
-          '<div class="fn-row-name">' + escapeHtml(r[1]) + "</div>" +
-          '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
-          '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+        '<div class="fn-swipe" data-swipe="' + id + '">' +
+          '<button type="button" class="fn-del' + (locked ? " is-locked" : "") + '" data-del="' + id + '"' +
+            ' aria-label="' +
+              (locked
+                ? "「" + escapeHtml(r[1]) + "」已绑定 " + cards + " 张会员卡，不可删除"
+                : "删除「" + escapeHtml(r[1]) + "」") +
+            '">' +
+            '<span class="fn-del-ico">' + (locked ? LOCK_SVG : TRASH_SVG) + "</span>" +
+            "<span>" + (locked ? "不可删" : "删除") + "</span>" +
+          "</button>" +
+          '<div class="fn-swipe-track">' +
+            '<div class="fn-row' + (off ? " is-off" : "") + '" role="button" tabindex="0" aria-expanded="false">' +
+              '<div class="fn-row-name">' + escapeHtml(r[1]) + "</div>" +
+              '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
+              '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+            "</div>" +
+          "</div>" +
         "</div>" +
         '<div class="fn-inline" hidden></div>' +
       "</div>"
@@ -1966,6 +2243,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var keepDirty = inlineState.dirty;
     var keepForm = inlineState.form ? snapshotForm(inlineState.form) : null;
     var keepBase = inlineState.base ? snapshotForm(inlineState.base) : null;
+    swipeOpenId = null;
 
     var all = countStats(PRICE_ROWS);
     fnPill.textContent = all.on + " 在售 · " + all.off + " 停售";
@@ -2068,11 +2346,65 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     renderPriceCard();
   }
 
+  /* 拖拽结束后的尾随 click 一律忽略；但动作块（删除）必须放行，
+     否则「拖开→立刻点删除」会被吞掉。抑制窗口在下一次 pointerdown 时清空。 */
+  function swipeClickSuppressed(e) {
+    if (Date.now() >= swipeSuppressUntil) return false;
+    if (e.target.closest && e.target.closest("[data-del]")) return false;
+    return true;
+  }
+
   fnList.addEventListener("click", function (e) {
+    if (swipeClickSuppressed(e)) return;
     if (e.target.closest(".fn-inline")) return;
+    var delBtn = e.target.closest("[data-del]");
+    if (delBtn) {
+      requestDelete(Number(delBtn.getAttribute("data-del")));
+      return;
+    }
     var item = e.target.closest(".fn-item");
     if (!item || !fnList.contains(item)) return;
+    /* 任一行动作块已滑开：本次点击只负责收起 */
+    if (swipeOpenId != null) {
+      closeSwipe();
+      return;
+    }
+    var swipe = item.querySelector(".fn-swipe");
+    if (swipe && swipe.classList.contains("is-open")) {
+      closeSwipe();
+      return;
+    }
     toggleInline(item);
+  });
+
+  fnDeleteCancel.addEventListener("click", hideDeleteConfirm);
+  fnDeleteOk.addEventListener("click", confirmDelete);
+  fnDelete.addEventListener("click", function (e) {
+    if (e.target === fnDelete) hideDeleteConfirm();
+  });
+  fnToast.addEventListener("click", function (e) {
+    if (!e.target.closest("[data-undo]")) return;
+    var fn = toastUndoHandler;
+    toastUndoHandler = null;
+    clearTimeout(toastTimer);
+    fnToast.classList.remove("is-on");
+    if (fn) fn();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (swipeOpenId == null) return;
+    /* 指针捕获会把拖拽尾随 click 的 target 变成列表容器本身（不再是行内元素），
+       若只按 target 判断，这个 click 会被误判成「点空白」而把刚滑开的行弹回。
+       因此先用抑制窗口挡掉这一次，再退回 target 判定。 */
+    if (swipeClickSuppressed(e)) return;
+    if (e.target.closest && (e.target.closest(".fn-swipe.is-open") || e.target.closest(".fn-del"))) return;
+    closeSwipe();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (fnDelete.classList.contains("is-on")) { hideDeleteConfirm(); return; }
+    if (swipeOpenId != null) closeSwipe();
   });
 
   fnTabs.addEventListener("click", function (e) {
@@ -2543,14 +2875,21 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return n ? "未用券 <span class=\"is-muted\">· 可用 " + n + " 张</span>" : "未用券";
   }
 
-  /* 应付价变化后：收满则同步最后一笔，未手改的员工重算 */
+  /* 应付价变化后：收满则由金额最大的一笔吸收差额，其余笔保持不变 */
   function syncPaymentsToPayable(before) {
     if (!orderData.payments.length) return;
     if (Math.abs(paidTotal() - before) >= 0.005) return;
-    var after = payableNum();
-    var last = orderData.payments[orderData.payments.length - 1];
-    var next = Math.round((moneyNum(last.amount) + (after - before)) * 100) / 100;
-    last.amount = String(Math.max(0, next));
+    var payable = payableNum();
+    var idx = 0;
+    orderData.payments.forEach(function (p, i) {
+      if (moneyNum(p.amount) > moneyNum(orderData.payments[idx].amount)) idx = i;
+    });
+    var others = 0;
+    orderData.payments.forEach(function (p, i) {
+      if (i !== idx) others += moneyNum(p.amount);
+    });
+    var next = Math.max(0, Math.round((payable - others) * 100) / 100);
+    orderData.payments[idx].amount = String(next);
   }
   function applyPayableChange(fn) {
     var before = payableNum();
@@ -2583,10 +2922,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       '<div class="od-hero">' +
         '<div class="od-hero-main">' +
           '<p class="od-hero-amt-row">' + amtHtml + "</p>" +
-          '<p class="od-hero-meta">' +
-            escapeHtml(orderData.serviceShort) + " · " + escapeHtml(orderData.name) +
-            " · 尾号 " + escapeHtml(orderData.phoneTail) +
-          "</p>" +
+          '<p class="od-hero-service">' + escapeHtml(orderData.serviceShort) + "</p>" +
+          '<p class="od-hero-customer">' + escapeHtml(orderData.name) +
+            '<span class="od-hero-sub"> · 尾号 ' + escapeHtml(orderData.phoneTail) +
+            (orderData.memberType ? " · " + escapeHtml(orderData.memberType) : "") +
+            "</span></p>" +
         "</div>" +
         couponChip +
       "</div>"
@@ -2772,30 +3112,36 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         "</p>" +
       "</div>";
 
-    var picks =
-      '<div class="pay-picks" data-picks hidden>' +
-        PAY_ALL.map(function (m) {
-          return (
-            '<button type="button" class="pay-pick" data-method="' + m + '">' +
-              payIconHtml(m) + "<span>" + m + "</span>" +
-            "</button>"
-          );
-        }).join("") +
-      "</div>";
+    /* 同一收款方式不可重复添加：选择器只列尚未使用的方式 */
+    var usedMethods = orderData.payments.map(function (p) { return p.method; });
+    var availableMethods = PAY_ALL.filter(function (m) {
+      return usedMethods.indexOf(m) < 0;
+    });
 
-    var addLabel = full
-      ? "拆分收款"
-      : rem > 0.005
-        ? "＋ 再收 ¥" + moneyText(rem)
-        : "＋ 再收一笔";
+    var picks =
+      availableMethods.length
+        ? '<div class="pay-picks" data-picks hidden>' +
+            availableMethods.map(function (m) {
+              return (
+                '<button type="button" class="pay-pick" data-method="' + m + '">' +
+                  payIconHtml(m) + "<span>" + m + "</span>" +
+                "</button>"
+              );
+            }).join("") +
+          "</div>"
+        : "";
+
+    /* 新增项恒为 0 元，因此按钮文案固定，不再出现「再收 ¥xx」或「拆分收款」 */
+    var addLabel = "＋ 添加收款方式";
+    var addHtml = availableMethods.length
+      ? '<button type="button" class="pay-add" data-add="1">' + addLabel + "</button>"
+      : '<p class="pay-add is-done">已添加全部收款方式</p>';
 
     return sectionHtml(
       "pay",
       "收款",
       paySummaryText(),
-      '<div class="pay-list">' + lines + "</div>" +
-        '<button type="button" class="pay-add" data-add="1">' + addLabel + "</button>" +
-        picks + prog,
+      '<div class="pay-list">' + lines + "</div>" + addHtml + picks + prog,
       open
     );
   }
@@ -2984,23 +3330,82 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
   }
 
-  function addPayment(method) {
-    var rem = remainingAmount();
-    if (rem > 0.005) {
-      orderData.payments.push({ method: method, amount: rem });
-    } else if (orderData.payments.length) {
-      /* 已收满：把最后一笔对半拆开，一半换成所选方式 */
-      var last = orderData.payments[orderData.payments.length - 1];
-      var lastTotal = moneyNum(last.amount);
-      var half = Math.round((lastTotal / 2) * 100) / 100;
-      last.amount = half;
-      orderData.payments.push({ method: method, amount: Math.round((lastTotal - half) * 100) / 100 });
-      showOdToast("已拆分为 " + last.method + " + " + method);
-    } else {
-      orderData.payments.push({ method: method, amount: payableNum() });
+  /* ---------- 混合收款自动补齐：改一笔，另一笔自动吸收差额，总额始终等于应付 ---------- */
+  function absorbIndexFor(editedIdx) {
+    /* 由「除当前项外金额最大的一笔」吸收差额：大额笔稳定，小额笔浮动 */
+    var best = -1;
+    var bestVal = -Infinity;
+    orderData.payments.forEach(function (p, i) {
+      if (i === editedIdx) return;
+      var v = moneyNum(p.amount);
+      if (v > bestVal) { bestVal = v; best = i; }
+    });
+    return best;
+  }
+  function payInputAt(idx) {
+    return odFields.querySelector('[data-pay-amt="' + idx + '"]');
+  }
+  function writePayInput(idx, value) {
+    var el = payInputAt(idx);
+    if (!el) return;
+    var text = moneyText(value);
+    if (el.value === text) return;
+    el.value = text;
+    try { el.setSelectionRange(text.length, text.length); } catch (err) { /* */ }
+  }
+  /* 把编辑后的金额补平到应付；返回被吸收的那一笔索引（无则 -1） */
+  function balancePayments(editedIdx, clampEdited) {
+    var payments = orderData.payments;
+    /* 只有一笔时不联动：保留原有「欠款 / 超收」校验路径 */
+    if (payments.length < 2) return -1;
+    var payable = payableNum();
+    var other = absorbIndexFor(editedIdx);
+    if (other < 0) return -1;
+    /* 其余笔（吸收方以外）的存量，决定编辑项的上限 */
+    var fixedSum = 0;
+    payments.forEach(function (p, i) {
+      if (i === editedIdx || i === other) return;
+      fixedSum += moneyNum(p.amount);
+    });
+    fixedSum = Math.round(fixedSum * 100) / 100;
+    var ceiling = Math.max(0, Math.round((payable - fixedSum) * 100) / 100);
+    var edited = moneyNum(payments[editedIdx].amount);
+    /* 上限锁定：编辑值最多只到「应付 − 其余笔合计」 */
+    if (clampEdited && edited > ceiling) {
+      edited = ceiling;
+      payments[editedIdx].amount = String(edited);
+      writePayInput(editedIdx, edited);
     }
+    /* 吸收方 = 应付 − 编辑项 − 其余笔，保证任意笔数下三者相加恒等于应付 */
+    var rest = Math.max(0, Math.round((payable - edited - fixedSum) * 100) / 100);
+    payments[other].amount = String(rest);
+    writePayInput(other, rest);
+    return other;
+  }
+
+  function hasPaymentMethod(method) {
+    return orderData.payments.some(function (p) { return p.method === method; });
+  }
+
+  function addPayment(method) {
+    /* 同一收款方式不可重复添加 */
+    if (hasPaymentMethod(method)) {
+      showOdToast(method + " 已添加，请换一种收款方式");
+      renderOrderCard();
+      return;
+    }
+    var isFirst = !orderData.payments.length;
+    /* 首笔来自追问卡选择，直接按应付全额带入；后续「添加收款方式」恒为 0 元，由用户填写 */
+    orderData.payments.push({ method: method, amount: isFirst ? String(payableNum()) : "0" });
     orderOpenSec = "pay";
     renderOrderCard();
+    if (isFirst) return;
+    requestAnimationFrame(function () {
+      var idx = orderData.payments.length - 1;
+      var el = payInputAt(idx);
+      if (!el) return;
+      try { el.focus(); el.select(); } catch (err) { /* */ }
+    });
   }
 
   odFields.addEventListener("click", function (e) {
@@ -3092,6 +3497,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var del = e.target.closest("[data-del]");
     if (del) {
       orderData.payments.splice(Number(del.getAttribute("data-del")), 1);
+      /* 删掉一笔后把剩余应付款补到最后一笔，总额仍与应付持平 */
+      if (orderData.payments.length) {
+        var lastIdx = orderData.payments.length - 1;
+        var rest = Math.round((payableNum() - paidTotal()) * 100) / 100;
+        orderData.payments[lastIdx].amount = String(
+          Math.max(0, Math.round((moneyNum(orderData.payments[lastIdx].amount) + rest) * 100) / 100)
+        );
+      }
       renderOrderCard();
     }
   });
@@ -3102,6 +3515,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var i = Number(input.getAttribute("data-pay-amt"));
     if (!orderData.payments[i]) return;
     orderData.payments[i].amount = input.value;
+    /* 实时联动：另一笔立即吸收差额，总额始终等于应付 */
+    balancePayments(i, true);
     refreshDerived();
   });
 
@@ -3112,6 +3527,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!orderData.payments[i]) return;
     var next = normalizeMoneyInput(input.value);
     orderData.payments[i].amount = next == null ? "0" : next;
+    balancePayments(i, true);
     requestAnimationFrame(renderOrderCard);
   });
 
@@ -3418,7 +3834,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     edge: 24,
     openDx: 56,
     closeDx: -48,
-    kbJitterPx: 80
+    /* 收缩量超过该值才判定为「软键盘」，否则视为地址栏/浏览器 UI 变化 */
+    kbMinPx: 140
   };
 
   var root = document.documentElement;
@@ -3479,26 +3896,87 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       left: 0
     };
   }
+  function layoutSize() {
+    /* 布局视口：软键盘不改变它（overlays-content），可作稳定基准 */
+    return {
+      w: window.innerWidth || (stage && stage.clientWidth) || CONFIG.logicalWidth,
+      h: window.innerHeight || (stage && stage.clientHeight) || CONFIG.logicalHeightFallback
+    };
+  }
+  /* 当前可用高度；键盘弹出时会明显变小 */
+  function usableHeight() {
+    var vis = visibleSize();
+    var lay = layoutSize();
+    var h = Math.min(vis.h, lay.h);
+    return isFinite(h) && h > 0 ? h : CONFIG.logicalHeightFallback;
+  }
+  /* 基线高：窗体尺寸只跟它走，键盘弹出时保持不变，避免整窗被压扁 */
+  var baseline = { key: "", h: 0 };
+  var kbState = { active: false };
+  function orientationKey() {
+    var lay = layoutSize();
+    return lay.w > lay.h ? "landscape" : "portrait";
+  }
+  function isEditingNow() {
+    var a = document.activeElement;
+    if (!a || !a.matches) return false;
+    return a.matches("input, textarea, select") || a.isContentEditable === true;
+  }
+  function baselineHeight() {
+    var key = orientationKey();
+    var h = usableHeight();
+    if (baseline.key !== key) {
+      /* 方向变了：重新采样，旧值不可用 */
+      baseline.key = key;
+      baseline.h = h;
+      kbState.active = false;
+      return baseline.h;
+    }
+    if (!baseline.h) baseline.h = h;
+    if (h >= baseline.h - 40) {
+      /* 高度已恢复：解除键盘锁定，重新跟随（可增可减） */
+      kbState.active = false;
+      baseline.h = Math.max(baseline.h, h);
+    } else if (!kbState.active) {
+      if (isEditingNow() && baseline.h - h >= CONFIG.kbMinPx) {
+        /* 正在编辑且明显收缩 → 判定为软键盘，冻结基线 */
+        kbState.active = true;
+      } else {
+        /* 地址栏 / 窗口尺寸正常变化 */
+        baseline.h = h;
+      }
+    }
+    return baseline.h;
+  }
+  /* 键盘遮挡高度（物理像素）；stage 已贴合可视视口顶部，故不再叠加 offsetTop */
+  function keyboardPx() {
+    var baseH = baselineHeight();
+    if (!kbState.active) return 0;
+    var kb = baseH - visibleSize().h;
+    if (!isFinite(kb) || kb < CONFIG.kbMinPx) return 0;
+    return kb;
+  }
   function updateScale() {
     if (!root.classList.contains("is-mobile") || !stage) return;
     var vis = visibleSize();
     var w = vis.w;
-    var h = vis.h;
     var lw = CONFIG.logicalWidth;
     var lh0 = CONFIG.logicalHeightFallback;
-    /* 宽铺满；高度跟可见视口，保证输入条落在屏内 */
+    /* 宽铺满；高度用基线（不含键盘），保证输入条落在屏内且窗体不被压缩 */
+    var baseH = baselineHeight();
     var scale = w / lw;
-    var logicalH = scale > 0 ? h / scale : h;
+    var logicalH = scale > 0 ? baseH / scale : baseH;
     if (!isFinite(logicalH) || logicalH < CONFIG.minLogicalHeight) {
-      scale = Math.min(w / lw, h / lh0);
-      logicalH = scale > 0 ? h / scale : lh0;
+      scale = Math.min(w / lw, baseH / lh0);
+      logicalH = scale > 0 ? baseH / scale : lh0;
     }
     if (!isFinite(scale) || scale <= 0) scale = 1;
     if (!isFinite(logicalH) || logicalH <= 0) logicalH = lh0;
     root.style.setProperty("--mobile-scale", String(Math.round(scale * 1000) / 1000));
     root.style.setProperty("--mobile-h", Math.round(logicalH) + "px");
     root.style.setProperty("--vv-width", Math.round(w) + "px");
-    root.style.setProperty("--vv-height", Math.round(h) + "px");
+    /* 舞台同样锁定基线高度：键盘只「覆盖」，不参与布局 */
+    root.style.setProperty("--vv-height", Math.round(baseH) + "px");
     root.style.setProperty("--vv-top", Math.round(vis.top) + "px");
     root.style.setProperty("--vv-left", Math.round(vis.left) + "px");
     stage.style.left = Math.round(vis.left) + "px";
@@ -3533,15 +4011,71 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
   function updateKeyboardInset() {
     if (!root.classList.contains("is-mobile")) return;
-    var vv = window.visualViewport;
-    if (!vv) { root.style.setProperty("--kb-h", "0px"); return; }
-    var overlap = window.innerHeight - vv.height - (vv.offsetTop || 0);
-    if (!isFinite(overlap) || overlap < 0) overlap = 0;
     var scale = parseFloat(root.style.getPropertyValue("--mobile-scale")) || 1;
     if (!isFinite(scale) || scale <= 0) scale = 1;
-    var logical = overlap > CONFIG.kbJitterPx ? overlap / scale : 0;
-    root.style.setProperty("--kb-h", Math.round(logical) + "px");
+    var kb = keyboardPx();
+    var logical = kb > 0 ? Math.round(kb / scale) : 0;
+    root.style.setProperty("--kb-h", logical + "px");
+    /* 键盘已盖住 Home 条，此时不再叠加安全区，避免输入条与键盘之间多出空隙 */
+    root.style.setProperty(
+      "--safe-pad",
+      logical > 0 ? "0px" : "var(--safe-bottom, 0px)"
+    );
+    /* iOS 键盘弹出会滚动可视视口：舞台跟随，始终保持钉在屏幕顶部 */
+    var vis = visibleSize();
+    root.style.setProperty("--vv-top", Math.round(vis.top) + "px");
+    root.style.setProperty("--vv-left", Math.round(vis.left) + "px");
+    if (stage) stage.style.left = Math.round(vis.left) + "px";
+    if (logical > 0) scheduleEditorReveal();
   }
+  /* ---------- 输入框避让键盘：只滚会话区，不动整窗 ---------- */
+  var EDITOR_SELECTOR =
+    ".od-hero-input, .st-input, [data-price-input], [data-perf-input], [data-pay-amt], .fn-ffield input";
+  var activeEditor = null;
+  var revealTimer = 0;
+  function scheduleEditorReveal() {
+    if (revealTimer) clearTimeout(revealTimer);
+    revealTimer = setTimeout(function () {
+      revealTimer = 0;
+      revealEditor(true);
+      /* 键盘动画收尾再校一次，避免被残余位移顶回去 */
+      setTimeout(function () { revealEditor(false); }, 280);
+    }, 90);
+  }
+  function revealEditor(force) {
+    /* 优先取当前焦点：不依赖 focusin 是否被捕获，任何一次 resize 都能自我纠正 */
+    var el = document.activeElement;
+    if (!el || !el.matches || !el.matches(EDITOR_SELECTOR)) el = activeEditor;
+    if (!el || !el.isConnected) return;
+    if (!root.classList.contains("is-mobile")) return;
+    var scroller = document.getElementById("messages");
+    if (!scroller || !scroller.contains(el)) return;
+    var sBox = scroller.getBoundingClientRect();
+    var eBox = el.getBoundingClientRect();
+    if (sBox.height < 48 || eBox.height <= 0) return;
+    var limitTop = sBox.top + 24;
+    var limitBottom = sBox.bottom - 24;
+    var delta = 0;
+    if (force && (eBox.bottom > limitBottom || eBox.top < limitTop)) {
+      /* 被键盘遮挡或贴边：滚到可视区中部，保留上下文 */
+      delta = eBox.top - (sBox.top + (sBox.height - eBox.height) / 2);
+    } else if (eBox.bottom > limitBottom) {
+      delta = eBox.bottom - limitBottom;
+    } else if (eBox.top < limitTop) {
+      delta = eBox.top - limitTop;
+    }
+    if (Math.abs(delta) < 2) return;
+    scroller.scrollTop += delta;
+  }
+  document.addEventListener("focusin", function (e) {
+    var t = e.target;
+    if (!t || !t.matches || !t.matches(EDITOR_SELECTOR)) return;
+    activeEditor = t;
+    scheduleEditorReveal();
+  }, true);
+  document.addEventListener("focusout", function (e) {
+    if (activeEditor && e.target === activeEditor) activeEditor = null;
+  }, true);
   function applyMode() {
     var on = shouldMobile();
     root.classList.toggle("is-mobile", on);
@@ -3550,6 +4084,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       root.style.removeProperty("--mobile-scale");
       root.style.removeProperty("--mobile-h");
       root.style.removeProperty("--kb-h");
+      root.style.removeProperty("--safe-pad");
       root.style.removeProperty("--safe-bottom");
       root.style.removeProperty("--vv-width");
       root.style.removeProperty("--vv-height");
@@ -3563,6 +4098,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       }
       return;
     }
+    /* 重新进入手机态：基线需要重新采样 */
+    baseline.key = "";
+    baseline.h = 0;
+    kbState.active = false;
     updateScale();
     updateKeyboardInset();
   }
