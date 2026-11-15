@@ -419,19 +419,12 @@ button{font:inherit;color:inherit}
 }
 .fn-titles{flex:1;min-width:0}
 .fn-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a;letter-spacing:.01em}
-.fn-sub{margin:2px 0 0;font-size:11.5px;color:#7a6f78;font-weight:400}
 .fn-pill{
   flex:none;padding:4px 8px;border-radius:999px;
   font-size:11px;font-weight:600;color:#7a3d6a;
   background:rgba(255,255,255,.72);border:1px solid rgba(180,100,140,.22);
   white-space:nowrap;
 }
-
-.fn-meta{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:8px 14px 0;font-size:12px;color:#6a6a72;
-}
-.fn-meta b{color:#1a1a1a;font-weight:600}
 
 .fn-tabs{
   display:flex;gap:6px;padding:10px 12px 8px;overflow-x:auto;
@@ -449,8 +442,38 @@ button{font:inherit;color:inherit}
   background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
 
-.fn-list{padding:0 8px 4px;max-height:none}
+.fn-list{padding:0 8px 4px;max-height:none;position:relative}
+.session-card.is-expanded .fn-list{
+  max-height:min(52vh,420px);overflow:auto;-webkit-overflow-scrolling:touch;
+}
+.session-card.is-expanded .fn-list::-webkit-scrollbar{width:0}
 .fn-group{margin:0 0 6px}
+
+/* 一屏优先：默认 4 行 + 底部渐隐 + 展开按钮 */
+.fn-more-wrap{padding:2px 8px 8px;display:flex;justify-content:center}
+.fn-more-wrap[hidden]{display:none !important}
+.fn-more{
+  appearance:none;cursor:pointer;font-family:inherit;
+  height:30px;padding:0 14px;border-radius:999px;
+  font-size:12px;font-weight:500;color:var(--btn-blue);
+  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
+  display:inline-flex;align-items:center;gap:4px;
+  transition:transform var(--dur-press) var(--ease-press),background var(--dur-ui) var(--ease-out);
+}
+.fn-more:active{transform:scale(.97)}
+
+/* 分类选择的 Chip 组（替代下拉） */
+.fn-chip-group{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.fn-chip{
+  appearance:none;cursor:pointer;font-family:inherit;
+  height:28px;padding:0 10px;border-radius:6px;
+  font-size:12px;font-weight:500;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+  display:inline-flex;align-items:center;
+}
+.fn-chip.is-on{
+  background:var(--btn-fill);border-color:var(--btn-stroke-soft);font-weight:600;
+}
 .fn-group-title{
   margin:0;padding:8px 8px 4px;font-size:11.5px;font-weight:650;
   color:#8a7f88;letter-spacing:.04em;
@@ -513,15 +536,10 @@ button{font:inherit;color:inherit}
   flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:4px;
 }
 .fn-ffield input[type="text"],
-.fn-ffield input[type="number"],
-.fn-ffield select{
+.fn-ffield input[type="number"]{
   appearance:none;-webkit-appearance:none;border:0;background:transparent;
   width:100%;max-width:100%;text-align:right;font-size:14px;font-weight:500;
   color:#1a1a1a;outline:none;padding:0;font-family:inherit;
-}
-.fn-ffield select{
-  padding-right:14px;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23929292' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right center;
 }
 .fn-ffield input::placeholder{color:#929292;font-weight:400}
 .fn-pencil{
@@ -673,7 +691,6 @@ button{font:inherit;color:inherit}
 }
 .od-titles{flex:1;min-width:0}
 .od-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a}
-.od-sub{margin:2px 0 0;font-size:11.5px;color:#7a6f78}
 .od-pill{
   flex:none;padding:4px 8px;border-radius:999px;
   font-size:11px;font-weight:600;color:#7a3d6a;
@@ -683,56 +700,276 @@ button{font:inherit;color:inherit}
 .order-card[data-phase="success"] .od-pill{
   color:#1f7a45;border-color:rgba(52,199,89,.28);background:#f3faf5;
 }
-.od-fields{padding:4px 8px 6px}
-.od-item{margin:0 2px 4px;border-radius:12px;overflow:hidden}
-.od-pair{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px;
-  margin:0 2px 4px;
+/* ---------- 开单卡：三层信息（金额 → 工位 → 收款） ---------- */
+.od-fields{padding:0}
+
+.od-hero{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  padding:12px 14px 10px;
 }
-.od-pair .od-item{margin:0}
-.od-pair .od-item.is-open{grid-column:1 / -1}
-.od-pair .od-row{grid-template-columns:1fr;gap:2px;min-height:52px}
-.od-pair .od-k{padding-top:0}
-.od-pair .od-v{font-weight:700;font-variant-numeric:tabular-nums}
-.od-v-input,.od-v-select{
-  width:100%;max-width:100%;border:0;background:transparent;
-  font:inherit;font-weight:700;color:#1a1a1a;text-align:right;
-  outline:none;padding:0;font-family:inherit;
-  border-bottom:1px solid rgba(141,138,237,.55);
-  box-sizing:border-box;
+.od-hero-main{min-width:0}
+.od-hero-amt-row{margin:0;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+/* 总价：默认可改（常驻虚线下划线），按下转浅蓝底 */
+.od-hero-amt{
+  appearance:none;cursor:text;font-family:inherit;text-align:left;
+  margin:0;padding:0 2px 1px;border:0;background:transparent;border-radius:4px;
+  font-size:22px;font-weight:700;line-height:1.15;color:#1a1a1a;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  border-bottom:1px dashed rgba(141,138,237,.65);
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out);
 }
-.od-v-select{appearance:none;-webkit-appearance:none;font-weight:500;cursor:pointer}
-.od-v-checkout{
-  display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;
+.od-hero-amt:active{background:rgba(141,138,237,.1);border-bottom-style:solid}
+.od-hero-amt.is-static{
+  cursor:default;border-bottom:0;background:transparent;padding-left:0;
 }
-.od-amt{
-  font-weight:700;font-variant-numeric:tabular-nums;
-  border-bottom:1px solid transparent;
+.od-hero-amt small{font-size:13px;font-weight:600;margin-right:1px;color:#6a6a72}
+.od-hero-input{
+  appearance:none;border:0;outline:none;background:rgba(141,138,237,.1);
+  width:120px;padding:0 2px 1px;border-radius:4px;
+  border-bottom:1px solid rgba(141,138,237,.7);
+  font-family:inherit;font-size:22px;font-weight:700;line-height:1.15;color:#1a1a1a;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums;
 }
-.order-card[data-phase="draft"] .od-amt{cursor:text}
-.order-card[data-phase="draft"] .od-amt:hover{
-  border-bottom-color:rgba(141,138,237,.45);
+.od-hero-coupon{
+  flex:none;align-self:center;padding:4px 9px;border-radius:999px;
+  font-size:10.5px;font-weight:600;color:#c2506a;
+  background:#fdf3f5;border:.5px solid rgba(194,80,106,.25);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-.od-row{
-  width:100%;text-align:left;
-  display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:start;
-  padding:10px 12px;background:#faf9fb;font-family:inherit;
-  border:1px solid rgba(26,26,26,.04);border-radius:12px;
-  transition:background .15s ease,border-radius .15s ease;
+.od-hero-meta{margin:5px 0 0;font-size:11.5px;color:#8a7f88;line-height:1.4}
+
+/* 手风琴分区：一次只开一个 */
+.od-sec{
+  margin:0 8px 6px;border-radius:12px;overflow:hidden;
+  background:#faf9fb;border:1px solid rgba(26,26,26,.04);
+  transition:background var(--dur-ui) var(--ease-out);
 }
-.od-row.is-edit{cursor:pointer}
-.od-pay-chip[data-inline]{cursor:pointer}
-.od-k{font-size:12px;color:#8a7f88;padding-top:2px}
-.od-v{font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.35;min-width:0}
-.od-v small{display:block;margin-top:2px;font-size:11.5px;font-weight:400;color:#6a6a72}
-.od-v.od-money{font-weight:700;font-variant-numeric:tabular-nums}
+.od-sec-head{
+  appearance:none;width:100%;cursor:pointer;font-family:inherit;text-align:left;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;
+  padding:10px 12px;background:transparent;border:0;
+}
+/* 摘要需要完整显示时：标题一行，摘要独占第二行 */
+.od-sec-head.is-stack{
+  grid-template-columns:1fr auto;
+  grid-template-areas:"title chev" "sum sum";
+  row-gap:4px;
+}
+.od-sec-head.is-stack .od-sec-title{grid-area:title}
+.od-sec-head.is-stack .od-sec-sum{grid-area:sum}
+.od-sec-head.is-stack .od-sec-chev{grid-area:chev}
+.od-sec-title{font-size:12px;font-weight:500;color:#8a7f88;white-space:nowrap}
+.od-sec-sum{
+  font-size:12.5px;font-weight:500;color:#1a1a1a;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.od-sec-sum .is-warn{color:#c2506a}
+.od-sec-sum .is-muted{color:#a09aa2;font-weight:400}
+/* 服务员工摘要：标签 + 姓名，完整显示、可换行 */
+.od-sec-sum.is-wrap{
+  white-space:normal;overflow:visible;text-overflow:clip;
+  display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;
+  line-height:1.6;padding:1px 0;
+}
+.st-sum{display:inline-flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap}
+.st-sum-name{font-size:12.5px;font-weight:500;color:#1a1a1a;min-width:0;overflow-wrap:anywhere}
+.st-sum-empty{font-size:11.5px;color:#a09aa2}
+.od-stag{
+  flex:none;display:inline-block;padding:1px 6px;border-radius:5px;
+  font-size:10px;font-weight:500;color:#7a7480;
+  background:rgba(26,26,26,.045);border:.5px solid rgba(26,26,26,.06);
+}
+.od-sec-chev{
+  width:14px;height:14px;flex:none;color:#c0bcc4;
+  transition:transform .22s var(--ease-out);
+}
+.od-sec.is-open{
+  background:#fff;border-color:rgba(26,26,26,.07);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 7px 18px -16px rgba(80,30,50,.4);
+}
+.od-sec.is-open .od-sec-chev{transform:rotate(180deg)}
+.od-sec-body{padding:0 12px 12px}
+.od-sec-body[hidden]{display:none !important}
+
+/* 服务员工：只标「谁在哪个工位」+ 每人本单业绩/提成 */
+.st-list{display:flex;flex-direction:column}
+.st-item{padding:9px 0;border-top:1px solid rgba(26,26,26,.05)}
+.st-item:first-child{border-top:0;padding-top:2px}
+.st-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.st-name{font-size:13px;font-weight:600;color:#1a1a1a;flex:none;letter-spacing:.01em}
+.st-empty{font-size:11.5px;color:#a09aa2}
+.st-picks{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.st-staff{
+  appearance:none;cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;gap:5px;
+  height:28px;padding:0 11px;border-radius:999px;
+  font-size:12px;font-weight:500;color:#5f5f68;
+  background:#fff;border:.5px solid rgba(26,26,26,.1);
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out),color var(--dur-ui) var(--ease-out);
+}
+.st-staff.is-on{background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600}
+.st-add{
+  appearance:none;cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;gap:4px;
+  height:28px;min-width:28px;padding:0 9px;border-radius:999px;
+  font-size:12px;font-weight:500;color:#8a7f88;
+  background:transparent;border:.5px dashed rgba(26,26,26,.18);
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out),color var(--dur-ui) var(--ease-out);
+}
+.st-add.is-open{border-style:solid;border-color:var(--btn-stroke-soft);color:var(--btn-blue);background:rgba(233,243,255,.5)}
+.st-roster{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+  padding:8px;border-radius:10px;background:#f4f3f6;
+  animation:motion-chip-in .24s var(--ease-out) both;
+}
+.st-roster .st-staff{background:#fff}
+
+/* 每人一行：业绩 · 提成（均可就地改） */
+.st-person{
+  display:flex;align-items:center;gap:8px;
+  margin-top:7px;padding-top:7px;font-size:12px;
+  border-top:1px dashed rgba(26,26,26,.07);
+}
+.st-person-name{
+  flex:none;font-size:12px;font-weight:600;color:#1a1a1a;
+}
+.st-metrics{margin-left:auto;display:flex;align-items:baseline;gap:12px}
+.st-metric{display:inline-flex;align-items:baseline;gap:3px}
+.st-metric > i{
+  font-style:normal;font-size:10.5px;font-weight:400;color:#a09aa2;letter-spacing:.02em;
+}
+.st-val{
+  appearance:none;border:0;background:transparent;padding:0 1px 2px;cursor:text;
+  font-family:inherit;font-size:12.5px;font-weight:650;color:#1a1a1a;
+  font-variant-numeric:tabular-nums;line-height:1.2;
+  border-bottom:.5px dashed rgba(141,138,237,.55);border-radius:3px;
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out);
+}
+.st-val:active{background:rgba(141,138,237,.12);border-bottom-style:solid}
+.st-input{
+  appearance:none;border:0;outline:none;
+  width:58px;padding:0 1px 2px;text-align:right;border-radius:3px;
+  background:rgba(141,138,237,.12);
+  font-family:inherit;font-size:12.5px;font-weight:650;color:#1a1a1a;
+  font-variant-numeric:tabular-nums;line-height:1.2;
+  border-bottom:.5px solid rgba(141,138,237,.7);
+}
+.st-dup{
+  display:flex;align-items:center;gap:5px;
+  margin-top:7px;padding-top:7px;font-size:11.5px;color:#a09aa2;
+  border-top:1px dashed rgba(26,26,26,.07);
+}
+.st-dup b{font-weight:600;color:#7a7480}
+.st-dup em{font-style:normal;color:#c0bcc4}
+
+/* 优惠：固定金额券 */
+.cp-list{display:flex;flex-wrap:wrap;gap:6px}
+.cp-chip{
+  appearance:none;cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;gap:6px;
+  height:30px;padding:0 11px;border-radius:8px;
+  font-size:12px;font-weight:500;color:var(--btn-blue);
+  background:#fff;border:.5px solid var(--btn-stroke);
+  transition:background var(--dur-ui) var(--ease-out),border-color var(--dur-ui) var(--ease-out);
+}
+.cp-chip.is-on{background:var(--btn-fill);border-color:var(--btn-stroke-soft);font-weight:600}
+.cp-chip[disabled]{opacity:.42;cursor:default;color:var(--btn-muted);border-color:var(--btn-muted)}
+
+/* 成功态：员工名后的工位标签 */
+.od-tag{
+  display:inline-block;margin-left:5px;padding:1px 6px;border-radius:5px;
+  font-size:10px;font-weight:500;color:#7a3d6a;
+  background:rgba(180,100,140,.1);border:.5px solid rgba(180,100,140,.16);
+  vertical-align:1px;
+}
+
+/* 收款：分摊行 */
+.pay-list{display:flex;flex-direction:column}
+.pay-line{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 0;border-top:1px solid rgba(26,26,26,.05);
+}
+.pay-line:first-child{border-top:0;padding-top:2px}
+.pay-main{
+  display:inline-flex;align-items:center;gap:6px;min-width:0;
+  font-size:12.5px;font-weight:500;color:#1a1a1a;
+}
+.pay-amt{
+  margin-left:auto;display:inline-flex;align-items:center;gap:1px;
+  font-size:13px;font-weight:600;color:#1a1a1a;font-variant-numeric:tabular-nums;
+}
+.pay-amt i{font-style:normal;font-size:11px;font-weight:500;color:#8a7f88}
+.pay-amt input{
+  appearance:none;border:0;background:transparent;padding:0 2px 1px;
+  width:66px;text-align:right;font:inherit;color:inherit;outline:none;
+  border-bottom:.5px dashed rgba(141,138,237,.6);font-variant-numeric:tabular-nums;
+}
+.pay-del{
+  appearance:none;cursor:pointer;padding:0;flex:none;
+  width:20px;height:20px;border-radius:999px;border:0;background:transparent;
+  font-size:11px;line-height:1;color:#c0bcc4;display:grid;place-items:center;
+  transition:color var(--dur-ui) var(--ease-out);
+}
+.pay-del:active{color:#c2506a}
+.pay-add{
+  appearance:none;cursor:pointer;font-family:inherit;
+  margin-top:10px;height:30px;padding:0 12px;border-radius:999px;
+  font-size:12px;font-weight:500;color:var(--btn-blue);
+  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
+  display:inline-flex;align-items:center;gap:4px;
+}
+.pay-picks{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-top:8px;padding-top:8px;border-top:1px dashed rgba(26,26,26,.1);
+}
+.pay-picks[hidden]{display:none !important}
+.pay-pick{
+  appearance:none;cursor:pointer;font-family:inherit;
+  height:30px;padding:0 10px;border-radius:6px;
+  font-size:12px;font-weight:500;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.pay-progress{margin-top:10px}
+.pay-bar{height:4px;border-radius:999px;background:rgba(26,26,26,.08);overflow:hidden}
+.pay-bar span{
+  display:block;height:100%;border-radius:999px;background:var(--btn-blue);
+  transition:width .28s var(--ease-out),background var(--dur-ui) var(--ease-out);
+}
+.pay-prog-txt{
+  margin:6px 0 0;font-size:11px;color:#8a7f88;
+  font-variant-numeric:tabular-nums;
+}
+.pay-progress.is-full .pay-bar span{background:#34c759}
+.pay-progress.is-full .pay-prog-txt{color:#1f7a45}
+.pay-progress.is-over .pay-bar span{background:#c2506a}
+.pay-progress.is-over .pay-prog-txt{color:#c2506a}
+
+/* 成功态：只读行 */
+.od-lines{padding:0 8px 6px}
+.od-line{
+  display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;
+  padding:7px 6px;border-top:1px solid rgba(26,26,26,.05);
+}
+.od-line:first-child{border-top:0}
+.od-line > span:first-child{
+  font-size:11.5px;color:#8a7f88;white-space:nowrap;
+}
+.od-line.is-staff > span:first-child{font-size:12.5px;font-weight:600;color:#1a1a1a}
+.od-line > span:last-child{
+  text-align:right;font-size:12.5px;font-weight:500;color:#1a1a1a;line-height:1.5;
+}
+.od-line em{font-style:normal;color:#8a7f88;font-weight:400}
+.od-line img{width:16px;height:16px;vertical-align:-3px;margin-right:3px}
+
 .od-pay-chip{
   display:inline-flex;align-items:center;gap:5px;vertical-align:middle;
   font-size:inherit;font-weight:600;color:#1a1a1a;margin-right:2px;
 }
-.od-pay-chip img,.ask-pay img,.pay-opt img{
+.od-pay-chip img,.ask-pay img,.pay-opt img,.pay-main img,.pay-pick img{
   width:18px;height:18px;display:block;flex:none;object-fit:contain;
 }
+
 .ask-card{
   margin:0 0 10px;padding:12px 14px;border-radius:16px;
   background:#fff;border:1px solid rgba(80,40,70,.08);
@@ -782,24 +1019,11 @@ button{font:inherit;color:inherit}
   box-shadow:0 4px 14px -8px rgba(180,60,90,.35);
 }
 .bubble-reply img{width:18px;height:18px;object-fit:contain}
-.od-item.is-open .od-row{
-  background:#f7f7f7;border-color:transparent;border-radius:12px 12px 0 0;
-}
-.od-item.is-open .od-v{color:#929292;font-weight:500}
-.od-edit{
-  display:none;background:#f7f7f7;padding:0 0 10px;border-radius:0 0 12px 12px;
-}
-.od-item.is-open .od-edit{display:block}
-.od-edit .fn-frow{min-height:44px}
-.od-edit-done{
-  appearance:none;cursor:pointer;margin:8px 12px 0;width:calc(100% - 24px);
-  height:var(--btn-h);border-radius:var(--btn-radius);font-size:var(--btn-fs);font-weight:600;font-family:inherit;
-  color:var(--btn-blue);background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
-}
 .od-amount-block{display:none}
 .od-hint{
   margin:0;padding:0 14px 10px;font-size:11.5px;color:#8a7f88;line-height:1.4;
 }
+.od-hint[hidden]{display:none !important}
 .order-card[data-phase="success"] .od-hint{display:none}
 .od-foot{
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
@@ -815,6 +1039,10 @@ button{font:inherit;color:inherit}
 .od-foot .fn-act-approve{
   background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
+.od-foot .fn-act-approve[disabled]{
+  background:transparent;border-color:var(--btn-muted);color:var(--btn-muted);
+  font-weight:500;cursor:default;box-shadow:none;
+}
 .od-follow-card{
   display:flex;flex-direction:column;gap:10px;
   margin:0 0 10px;padding:12px 14px;border-radius:16px 16px 16px 6px;
@@ -824,7 +1052,12 @@ button{font:inherit;color:inherit}
 .od-follow-card[hidden]{display:none !important}
 .od-follow-card .od-follow{
   margin:0;font-size:calc(var(--fs-body) - 1px);color:#3a3a42;line-height:1.5;
+  display:flex;flex-direction:column;gap:2px;
 }
+.od-follow-card .od-follow p{margin:0}
+.od-follow-card .od-fl-title{font-weight:650;color:#1a1a1a}
+.od-follow-card .od-fl-line b{font-variant-numeric:tabular-nums}
+.od-follow-card .od-fl-line.is-ask{margin-top:3px;color:#7a7480}
 .od-follow-card .od-follow[hidden]{display:none !important}
 .od-follow-card .od-follow b{color:#1a1a1a;font-weight:650}
 .od-actions{
@@ -1064,18 +1297,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 </div>
                 <div class="fn-titles">
                   <p class="fn-title">店内价目表</p>
-                  <p class="fn-sub" id="fnSub">悦己美发沙龙 · 功能结果</p>
                 </div>
                 <span class="fn-pill" id="fnPill">18 在售 · 4 停售</span>
               </header>
-
-              <div class="fn-meta" id="fnMeta">
-                <span>共 <b id="fnTotal">22</b> 项</span>
-                <span>·</span>
-                <span><b id="fnCats">4</b> 个分类</span>
-                <span>·</span>
-                <span id="fnFilterHint">全部</span>
-              </div>
 
               <div class="fn-tabs" id="fnTabs" role="tablist" aria-label="价目分类">
                 <button type="button" class="fn-tab is-on" data-cat="全部" role="tab" aria-selected="true">全部</button>
@@ -1086,6 +1310,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               </div>
 
               <div class="fn-list" id="fnList"></div>
+              <div class="fn-more-wrap" id="fnMoreWrap" hidden>
+                <button type="button" class="fn-more" id="fnMore" aria-expanded="false">展开剩余</button>
+              </div>
 
               <footer class="fn-foot">
                 <button type="button" class="fn-act fn-act-ghost" id="btnFilterOff">只看在售</button>
@@ -1120,7 +1347,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               </div>
 
               <div class="ask-card" id="askCard" hidden>
-                <p id="askText">李女士泡泡染 298 元，业绩给 Tony薛（总监），收款方式选哪个？</p>
+                <p id="askText">李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？</p>
                 <div class="ask-chips" id="askChipsPrimary"></div>
                 <div class="ask-more-panel" id="askMorePanel">
                   <div class="ask-chips" id="askChipsMore"></div>
@@ -1138,7 +1365,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                   </div>
                   <div class="od-titles">
                     <p class="od-title" id="odTitle">开单确认</p>
-                    <p class="od-sub" id="odSub">悦己美发沙龙 · 待批准</p>
                   </div>
                   <span class="od-pill" id="odPill">待批准</span>
                 </header>
@@ -1251,10 +1477,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var composerBar = document.getElementById("composerBar");
   var btnModeToggle = document.getElementById("btnModeToggle");
   var fnList = document.getElementById("fnList");
+  var fnMore = document.getElementById("fnMore");
+  var fnMoreWrap = document.getElementById("fnMoreWrap");
   var fnPill = document.getElementById("fnPill");
-  var fnTotal = document.getElementById("fnTotal");
-  var fnCats = document.getElementById("fnCats");
-  var fnFilterHint = document.getElementById("fnFilterHint");
   var fnTabs = document.getElementById("fnTabs");
   var btnFilterOff = document.getElementById("btnFilterOff");
   var btnGotoManage = document.getElementById("btnGotoManage");
@@ -1272,7 +1497,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var orderReply = document.getElementById("orderReply");
   var orderReplyBubble = document.getElementById("orderReplyBubble");
   var odTitle = document.getElementById("odTitle");
-  var odSub = document.getElementById("odSub");
   var odPill = document.getElementById("odPill");
   var odFields = document.getElementById("odFields");
   var odAmountBlock = document.getElementById("odAmountBlock");
@@ -1286,7 +1510,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var odToastTimer = 0;
   var orderStep = "idle"; /* ask | draft | success | rejected */
 
-  var priceState = { cat: "全部", onlyOn: false };
+  var priceState = { cat: "全部", onlyOn: false, expanded: false };
   var toastTimer = 0;
   var glowTimer = 0;
   /* 行内展开：手风琴 + 脏值确认 */
@@ -1435,8 +1659,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var dur = durationDisplay(r[4] || 30);
     var onSale = r[3] === "在售";
     var bookable = !!r[5] && onSale;
-    var catOpts = CATS.map(function (c) {
-      return '<option value="' + c + '"' + (c === r[0] ? " selected" : "") + ">" + c + "</option>";
+    var catChips = CATS.map(function (c) {
+      return '<button type="button" class="fn-chip' + (c === r[0] ? " is-on" : "") + '" data-cat="' + c + '">' + c + "</button>";
     }).join("");
     return (
       '<div class="fn-form">' +
@@ -1446,7 +1670,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         "</div>" +
         '<div class="fn-frow">' +
           '<span class="fn-flabel">分类</span>' +
-          '<div class="fn-ffield"><select data-f="cat">' + catOpts + "</select></div>" +
+          '<div class="fn-ffield"><div class="fn-chip-group" data-f="cat">' + catChips + "</div></div>" +
         "</div>" +
         '<div class="fn-frow">' +
           '<span class="fn-flabel">价格</span>' +
@@ -1500,13 +1724,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!panel || !inlineState.form) return;
     var nameEl = panel.querySelector('[data-f="name"]');
     var catEl = panel.querySelector('[data-f="cat"]');
+    var catOn = catEl ? catEl.querySelector(".fn-chip.is-on") : null;
     var priceEl = panel.querySelector('[data-f="price"]');
     var durEl = panel.querySelector('[data-f="duration"]');
     var units = panel.querySelector(".fn-dur-units");
     var onBtn = panel.querySelector('[data-f="onSale"]');
     var bookBtn = panel.querySelector('[data-f="bookable"]');
     inlineState.form.name = nameEl ? nameEl.value.trim() : "";
-    inlineState.form.cat = catEl ? catEl.value : "";
+    inlineState.form.cat = catOn ? catOn.getAttribute("data-cat") : (inlineState.form.cat || "");
     inlineState.form.price = priceEl ? String(priceEl.value).replace(/[¥￥,\s]/g, "") : "";
     inlineState.form.durUnit = units ? units.getAttribute("data-unit") || "min" : "min";
     inlineState.form.duration = durEl ? durEl.value : "";
@@ -1519,7 +1744,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var panel = item.querySelector(".fn-inline");
     if (!panel) return;
 
-    panel.querySelectorAll('input[data-f], select[data-f]').forEach(function (el) {
+    panel.querySelectorAll('input[data-f]').forEach(function (el) {
       el.addEventListener("input", function () {
         syncFormFromDom(panel);
       });
@@ -1540,6 +1765,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         syncFormFromDom(panel);
       });
     }
+
+    panel.querySelectorAll(".fn-chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        panel.querySelectorAll(".fn-chip").forEach(function (c) {
+          c.classList.toggle("is-on", c === chip);
+        });
+        syncFormFromDom(panel);
+      });
+    });
 
     panel.querySelectorAll(".fn-dur-unit").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -1735,16 +1969,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
     var all = countStats(PRICE_ROWS);
     fnPill.textContent = all.on + " 在售 · " + all.off + " 停售";
-    fnTotal.textContent = String(all.total);
-    fnCats.textContent = String(all.catN);
-
-    var hint = priceState.cat === "全部" ? "全部" : priceState.cat;
-    if (priceState.onlyOn) hint += " · 仅在售";
-    fnFilterHint.textContent = hint;
 
     var rows = filteredRows();
     if (!rows.length) {
       fnList.innerHTML = '<div class="fn-empty">当前筛选下暂无项目</div>';
+      if (fnMoreWrap) fnMoreWrap.hidden = true;
+      sessionCard.classList.remove("is-expanded");
       inlineState.id = null;
       inlineState.dirty = false;
       inlineState.base = null;
@@ -1753,8 +1983,21 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       return;
     }
 
+    /* 一屏优先：默认 3 行，其余折叠 */
+    var LIMIT = 3;
+    var collapsible = rows.length > LIMIT;
+    var expanded = !!priceState.expanded && collapsible;
+    var showRows = expanded ? rows : rows.slice(0, LIMIT);
+
     /* 全部：扁平打乱列表；分类 Tab：该类列表（无分组标题） */
-    fnList.innerHTML = rows.map(itemHtml).join("");
+    fnList.innerHTML = showRows.map(itemHtml).join("");
+    sessionCard.classList.toggle("is-expanded", expanded);
+
+    if (fnMoreWrap && fnMore) {
+      fnMoreWrap.hidden = !collapsible;
+      fnMore.textContent = expanded ? "收起" : "展开剩余 " + (rows.length - LIMIT) + " 项";
+      fnMore.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
 
     if (keepId != null && fnList.querySelector('.fn-item[data-id="' + keepId + '"]')) {
       var item = fnList.querySelector('.fn-item[data-id="' + keepId + '"]');
@@ -1772,7 +2015,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         var onBtn = panel.querySelector('[data-f="onSale"]');
         var bookBtn = panel.querySelector('[data-f="bookable"]');
         if (nameEl) nameEl.value = keepForm.name;
-        if (catEl) catEl.value = keepForm.cat;
+        if (catEl) {
+          catEl.querySelectorAll(".fn-chip").forEach(function (c) {
+            c.classList.toggle("is-on", c.getAttribute("data-cat") === keepForm.cat);
+          });
+        }
         if (priceEl) priceEl.value = keepForm.price !== "" ? "¥" + keepForm.price : "";
         if (durEl) durEl.value = keepForm.duration;
         if (units) {
@@ -1802,6 +2049,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function applyTab(cat) {
     priceState.cat = cat;
+    priceState.expanded = false;
     fnTabs.querySelectorAll(".fn-tab").forEach(function (t) {
       var on = t.dataset.cat === cat;
       t.classList.toggle("is-on", on);
@@ -1813,6 +2061,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function applyFilter(onlyOn) {
     priceState.onlyOn = onlyOn;
+    priceState.expanded = false;
     btnFilterOff.classList.toggle("is-on", onlyOn);
     btnFilterOff.textContent = onlyOn ? "查看全部" : "只看在售";
     closeInlineHard();
@@ -1846,6 +2095,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
     applyFilter(next);
   });
+
+  if (fnMore) {
+    fnMore.addEventListener("click", function () {
+      priceState.expanded = !priceState.expanded;
+      renderPriceCard();
+      if (priceState.expanded) {
+        requestAnimationFrame(function () {
+          try { fnList.scrollTop = 0; } catch (e) { /* */ }
+          updateScrollHint();
+        });
+      }
+    });
+  }
 
   btnGotoManage.addEventListener("click", function () {
     showToast("示意：将跳转「价目表管理」");
@@ -2100,8 +2362,27 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var PAY_PRIMARY = ["支付宝", "现金", "微信", "银行卡"];
   var PAY_MORE = ["会员卡", "经理签单", "欠款", "大众点评", "美团", "抖音", "口碑"];
   var PAY_ALL = PAY_PRIMARY.concat(PAY_MORE);
-  var STAFF_OPTS = ["Tony薛（总监）", "Tony薛总监", "何苏叶店长", "林设计师"];
-  var SERVICE_OPTS = ["染发-泡泡染", "泡泡染", "洗剪吹经典", "全头单色染", "空气烫", "总监剪发"];
+  /* ----- 开单：员工 × 3 工位（多对多） ----- */
+  var STAFF = [
+    { id: "tony", name: "Tony薛", tag: "总监", rate: 0.30, short: "Tony薛" },
+    { id: "he", name: "何苏叶", tag: "店长", rate: 0.25, short: "何苏叶" },
+    { id: "lin", name: "陈嘉怡", tag: "发型师", rate: 0.20, short: "陈嘉怡" },
+    { id: "kai", name: "赵鹏", tag: "技师", rate: 0.15, short: "赵鹏" },
+    { id: "mei", name: "周小雨", tag: "助理", rate: 0.10, short: "周小雨" }
+  ];
+  /* 固定金额券（满门槛可用） */
+  var COUPONS = [
+    { id: "c30", name: "满 200 减 30", amount: 30, min: 200 },
+    { id: "c50", name: "新人券 50", amount: 50, min: 0 }
+  ];
+  function couponById(id) {
+    for (var i = 0; i < COUPONS.length; i++) if (COUPONS[i].id === id) return COUPONS[i];
+    return null;
+  }
+  function staffById(id) {
+    for (var i = 0; i < STAFF.length; i++) if (STAFF[i].id === id) return STAFF[i];
+    return null;
+  }
   function seedOrderDraft() {
     return {
       name: "李女士",
@@ -2109,18 +2390,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       memberType: "持卡会员",
       service: "染发-泡泡染",
       serviceShort: "泡泡染",
-      staff: "Tony薛（总监）",
-      staffShort: "Tony薛",
-      payable: "298",
-      payMethod: "",
-      paid: "298",
-      performance: "298",
-      commission: "89.4"
+      price: "298",        /* 单价/原价，可手改 */
+      coupon: null,        /* { id, amount } 当前券 */
+      stations: [
+        { id: "big", name: "大工", staff: ["tony"] },
+        { id: "mid", name: "中工", staff: ["lin"] },
+        { id: "small", name: "小工", staff: ["he"] }
+      ],
+      rows: null,
+      payments: []
     };
   }
   var orderData = seedOrderDraft();
   var orderPhase = "draft";
-  var orderOpenKey = null;
+  var orderOpenSec = null;
+  var stationRoster = null;
+  var perfEdit = null; /* { id, field: 'perf' | 'comm' } */
   var thinkDemoTimer = 0;
 
   function payIconHtml(name) {
@@ -2140,13 +2425,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function closeOrderEdits() {
-    orderOpenKey = null;
+    orderOpenSec = null;
+    stationRoster = null;
+    perfEdit = null;
   }
 
   function moneyText(v) {
     var n = Number(String(v).replace(/[¥￥,\s]/g, ""));
     if (!isFinite(n)) return String(v);
     return n.toFixed(2);
+  }
+  /* 千分位版本：用于「今日实收」这类可能上四位的汇总 */
+  function moneyGroup(v) {
+    var s = moneyText(v);
+    var parts = s.split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
   }
 
   function normalizeMoneyInput(raw) {
@@ -2156,139 +2450,390 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return String(Math.round(n * 100) / 100);
   }
 
-  function checkoutValueHtml(pay, amt, amountEditable) {
-    return (
-      '<span class="od-v-checkout">' +
-        '<span class="od-pay-chip">' +
-          payIconHtml(pay) + escapeHtml(pay) +
-        "</span>" +
-        '<span class="od-amt"' + (amountEditable ? ' data-inline="paid"' : "") + ">¥" + amt + "</span>" +
-      "</span>"
-    );
+  /* ----- 开单派生值（业绩 / 提成 / 收款） -----
+     业绩基数 = 本单应付价（原价 − 券），每人独立取同一基数、不瓜分；
+     提成 = 个人业绩 × 个人提成率；手改过的行不再跟随应付价变化。 */
+  function moneyNum(v) {
+    var n = Number(String(v == null ? "" : v).replace(/[¥￥,\s]/g, ""));
+    return isFinite(n) ? n : 0;
+  }
+  function priceNum() { return moneyNum(orderData.price); }
+  function couponAmount() {
+    var c = orderData.coupon;
+    return c ? moneyNum(c.amount) : 0;
+  }
+  function payableNum() {
+    return Math.max(0, Math.round((priceNum() - couponAmount()) * 100) / 100);
   }
 
-  function startMoneyInline(host, fieldKey) {
-    if (host.querySelector(".od-v-input")) return;
-    var cur = orderData[fieldKey] || "0";
-    var input = document.createElement("input");
-    input.type = "text";
-    input.inputMode = "decimal";
-    input.className = "od-v-input";
-    input.value = moneyText(cur);
-    host.textContent = "";
-    host.appendChild(input);
-    input.focus();
-    input.select();
-    function commit() {
-      var next = normalizeMoneyInput(input.value);
-      if (next == null) {
-        showOdToast("请输入有效金额");
-        input.focus();
-        return;
-      }
-      orderData[fieldKey] = next;
-      if (fieldKey === "paid") orderData.payable = next;
-      renderOrderCard();
-    }
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        commit();
-      }
-      if (e.key === "Escape") {
-        e.preventDefault();
-        renderOrderCard();
-      }
-    });
-    input.addEventListener("blur", function () { commit(); });
-  }
-
-  function startTextInline(host, fieldKey, opts) {
-    if (host.querySelector("input,select")) return;
-    if (opts && opts.options) {
-      var sel = document.createElement("select");
-      sel.className = "od-v-select";
-      opts.options.forEach(function (name) {
-        var opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        if (name === orderData[fieldKey]) opt.selected = true;
-        sel.appendChild(opt);
+  function assignedStaffIds() {
+    var out = [];
+    orderData.stations.forEach(function (st) {
+      st.staff.forEach(function (id) {
+        if (out.indexOf(id) < 0) out.push(id);
       });
-      host.textContent = "";
-      host.appendChild(sel);
-      sel.focus();
-      function commitSel() {
-        orderData[fieldKey] = sel.value;
-        if (fieldKey === "service") {
-          orderData.serviceShort = String(sel.value).indexOf("泡泡染") >= 0 ? "泡泡染" : sel.value;
-        }
-        if (fieldKey === "staff") {
-          orderData.staffShort = String(sel.value).replace(/[（(].*?[）)]/g, "").replace(/总监|店长/g, "").trim() || sel.value;
-        }
-        renderOrderCard();
-      }
-      sel.addEventListener("change", commitSel);
-      sel.addEventListener("blur", commitSel);
-      return;
-    }
-    var input = document.createElement("input");
-    input.type = "text";
-    input.className = "od-v-input";
-    input.value = orderData[fieldKey] || "";
-    if (opts && opts.maxLength) input.maxLength = opts.maxLength;
-    host.textContent = "";
-    host.appendChild(input);
-    input.focus();
-    input.select();
-    function commit() {
-      orderData[fieldKey] = input.value.trim() || orderData[fieldKey];
-      renderOrderCard();
-    }
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") { e.preventDefault(); commit(); }
-      if (e.key === "Escape") { e.preventDefault(); renderOrderCard(); }
     });
-    input.addEventListener("blur", commit);
+    return out;
   }
-
-  function bindOrderItem(item) {
-    var key = item.getAttribute("data-key");
-    var row = item.querySelector(".od-row");
-    if (!row) return;
-    row.addEventListener("click", function (e) {
-      if (orderPhase !== "draft") return;
-      /* 仅员工 / 业绩 / 提成 / 支付金额可编辑 */
-      if (key === "checkout") {
-        var inline = e.target.closest("[data-inline='paid']");
-        if (inline) {
-          e.preventDefault();
-          startMoneyInline(inline, "paid");
-        }
-        return;
-      }
-      if (key === "performance" || key === "commission") {
-        var host = row.querySelector(".od-v");
-        if (host) startMoneyInline(host, key);
-        return;
-      }
-      if (key === "staff") {
-        var vHost = row.querySelector(".od-v");
-        if (vHost) startTextInline(vHost, "staff", { options: STAFF_OPTS });
-      }
+  function ensureRow(id) {
+    if (!orderData.rows) orderData.rows = {};
+    if (!orderData.rows[id]) {
+      var base = payableNum();
+      var m = staffById(id);
+      orderData.rows[id] = {
+        perf: String(base),
+        comm: String(Math.round(base * (m ? m.rate : 0) * 100) / 100),
+        touched: false
+      };
+    }
+    return orderData.rows[id];
+  }
+  /* 未手改过的员工，业绩/提成自动跟随新的应付价 */
+  function resyncRows() {
+    var base = payableNum();
+    assignedStaffIds().forEach(function (id) {
+      var row = ensureRow(id);
+      if (row.touched) return;
+      var m = staffById(id);
+      row.perf = String(base);
+      row.comm = String(Math.round(base * (m ? m.rate : 0) * 100) / 100);
     });
   }
+  function perfOf(id) { return moneyNum(ensureRow(id).perf); }
+  function commOf(id) { return moneyNum(ensureRow(id).comm); }
+  function emptyStations() {
+    return orderData.stations.filter(function (st) { return !st.staff.length; });
+  }
+  function paidTotal() {
+    return orderData.payments.reduce(function (s, p) { return s + moneyNum(p.amount); }, 0);
+  }
+  function remainingAmount() {
+    return Math.round((payableNum() - paidTotal()) * 100) / 100;
+  }
+  function paySummaryText() {
+    if (!orderData.payments.length) return '<span class="is-warn">未收款</span>';
+    return orderData.payments.map(function (p) {
+      return escapeHtml(p.method) + " ¥" + moneyText(p.amount);
+    }).join(" + ");
+  }
+  function stationSummaryText() {
+    /* 服务员工摘要：工位名做小标签 + 员工姓名，可换行完整显示 */
+    return orderData.stations.map(function (st) {
+      var names = st.staff.map(function (id) {
+        var m = staffById(id);
+        return m ? m.short : "";
+      }).filter(Boolean);
+      return (
+        '<span class="st-sum">' +
+          '<span class="od-stag">' + escapeHtml(st.name) + "</span>" +
+          (names.length
+            ? '<span class="st-sum-name">' + names.map(escapeHtml).join("/") + "</span>"
+            : '<span class="st-sum-empty">未分配</span>') +
+        "</span>"
+      );
+    }).join("");
+  }
+  function usableCouponCount() {
+    return COUPONS.filter(function (c) { return priceNum() + 0.005 >= (c.min || 0); }).length;
+  }
+  function couponSummaryText() {
+    var c = orderData.coupon;
+    if (c) return escapeHtml(c.name) + " <span class=\"is-warn\">−¥" + moneyText(c.amount) + "</span>";
+    var n = usableCouponCount();
+    return n ? "未用券 <span class=\"is-muted\">· 可用 " + n + " 张</span>" : "未用券";
+  }
 
-  function rowHtml(key, label, mainHtml, editable) {
+  /* 应付价变化后：收满则同步最后一笔，未手改的员工重算 */
+  function syncPaymentsToPayable(before) {
+    if (!orderData.payments.length) return;
+    if (Math.abs(paidTotal() - before) >= 0.005) return;
+    var after = payableNum();
+    var last = orderData.payments[orderData.payments.length - 1];
+    var next = Math.round((moneyNum(last.amount) + (after - before)) * 100) / 100;
+    last.amount = String(Math.max(0, next));
+  }
+  function applyPayableChange(fn) {
+    var before = payableNum();
+    fn();
+    resyncRows();
+    syncPaymentsToPayable(before);
+  }
+  function approveState() {
+    var rem = remainingAmount();
+    if (rem > 0.005) return { ok: false, msg: "还需收 ¥" + moneyText(rem) };
+    if (rem < -0.005) return { ok: false, msg: "收款超出应付 ¥" + moneyText(Math.abs(rem)) };
+    return { ok: true, msg: "" };
+  }
+
+  function heroHtml() {
+    var editable = orderPhase === "draft";
+    var priceEditing = editable && perfEdit && perfEdit.field === "price";
+    var amtHtml = priceEditing
+      ? '<input class="od-hero-input" type="text" inputmode="decimal" data-price-input="1"' +
+          ' value="' + moneyText(payableNum()) + '" aria-label="修改本单实收价">'
+      : editable
+        ? '<button type="button" class="od-hero-amt" data-edit-price="1" aria-label="修改本单实收价">' +
+            '<small>¥</small>' + moneyText(payableNum()) + "</button>"
+        : '<p class="od-hero-amt is-static"><small>¥</small>' + moneyText(payableNum()) + "</p>";
+    var couponChip = orderData.coupon
+      ? '<span class="od-hero-coupon">' + escapeHtml(orderData.coupon.name) +
+          " −¥" + moneyText(orderData.coupon.amount) + "</span>"
+      : "";
     return (
-      '<div class="od-item" data-key="' + key + '">' +
-        '<div class="od-row' + (editable ? " is-edit" : "") + '"' +
-          (editable ? ' role="button" tabindex="0"' : "") + ">" +
-          '<span class="od-k">' + label + "</span>" +
-          '<span class="od-v">' + mainHtml + "</span>" +
+      '<div class="od-hero">' +
+        '<div class="od-hero-main">' +
+          '<p class="od-hero-amt-row">' + amtHtml + "</p>" +
+          '<p class="od-hero-meta">' +
+            escapeHtml(orderData.serviceShort) + " · " + escapeHtml(orderData.name) +
+            " · 尾号 " + escapeHtml(orderData.phoneTail) +
+          "</p>" +
         "</div>" +
+        couponChip +
       "</div>"
     );
+  }
+
+  function sectionHtml(key, title, summary, bodyHtml, open, wrapSum) {
+    return (
+      '<section class="od-sec' + (open ? " is-open" : "") + '" data-sec="' + key + '">' +
+        '<button type="button" class="od-sec-head' + (wrapSum ? " is-stack" : "") +
+          '" aria-expanded="' + (open ? "true" : "false") + '">' +
+          '<span class="od-sec-title">' + title + "</span>" +
+          '<span class="od-sec-sum' + (wrapSum ? " is-wrap" : "") + '">' + summary + "</span>" +
+          '<svg class="od-sec-chev" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+            '<path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+          "</svg>" +
+        "</button>" +
+        '<div class="od-sec-body"' + (open ? "" : " hidden") + ">" + bodyHtml + "</div>" +
+      "</section>"
+    );
+  }
+
+  function personRowHtml(m, dupStationName) {
+    if (dupStationName) {
+      return (
+        '<div class="st-dup">' +
+          "<b>" + m.short + "</b><em>·</em>同单，业绩与提成记在「" + dupStationName + "」" +
+        "</div>"
+      );
+    }
+    var row = ensureRow(m.id);
+    function cell(field, label) {
+      var editing = perfEdit && perfEdit.id === m.id && perfEdit.field === field;
+      if (editing) {
+        return (
+          '<span class="st-metric"><i>' + label + "</i>" +
+            '<input class="st-input" type="text" inputmode="decimal" data-perf-input="' + field + '"' +
+              ' data-staff="' + m.id + '" value="' + moneyText(row[field]) + '"' +
+              ' aria-label="' + m.short + label + '">' +
+          "</span>"
+        );
+      }
+      return (
+        '<span class="st-metric"><i>' + label + "</i>" +
+          '<button type="button" class="st-val" data-edit="' + field + '" data-staff="' + m.id + '"' +
+            ' aria-label="修改' + m.short + label + '">¥' + moneyText(row[field]) + "</button>" +
+        "</span>"
+      );
+    }
+    return (
+      '<div class="st-person">' +
+        '<span class="st-person-name">' + m.short + "</span>" +
+        '<span class="st-metrics">' +
+          cell("perf", "业绩") + cell("comm", "提成") +
+        "</span>" +
+      "</div>"
+    );
+  }
+
+  function stationSecHtml(open) {
+    /* 员工首次出现的位置承载可编辑的业绩/提成；后续工位标「同单」不重复计 */
+    var firstStation = {};
+    orderData.stations.forEach(function (st) {
+      st.staff.forEach(function (id) {
+        if (!firstStation[id]) firstStation[id] = st.name;
+      });
+    });
+    var seen = {};
+
+    var body = orderData.stations.map(function (st) {
+      var rosterOpen = stationRoster === st.id;
+      var chosen = st.staff.map(function (id) {
+        var m = staffById(id);
+        if (!m) return "";
+        return (
+          '<button type="button" class="st-staff is-on"' +
+            ' data-st="' + st.id + '" data-staff="' + m.id + '"' +
+            ' aria-pressed="true" title="点按移出该工位">' +
+            m.short +
+          "</button>"
+        );
+      }).filter(Boolean).join("");
+      var addChip =
+        '<button type="button" class="st-add' + (rosterOpen ? " is-open" : "") + '"' +
+          ' data-roster="' + st.id + '" aria-expanded="' + (rosterOpen ? "true" : "false") + '">' +
+          (st.staff.length ? "＋" : "＋ 选员工") +
+        "</button>";
+      var roster = rosterOpen
+        ? '<div class="st-roster">' +
+            STAFF.map(function (m) {
+              var on = st.staff.indexOf(m.id) >= 0;
+              return (
+                '<button type="button" class="st-staff' + (on ? " is-on" : "") + '"' +
+                  ' data-st="' + st.id + '" data-staff="' + m.id + '"' +
+                  ' aria-pressed="' + (on ? "true" : "false") + '">' +
+                  m.short +
+                "</button>"
+              );
+            }).join("") +
+          "</div>"
+        : "";
+
+      var people = st.staff.map(function (id) {
+        var m = staffById(id);
+        if (!m) return "";
+        var isDup = seen[id] === true;
+        seen[id] = true;
+        return personRowHtml(m, isDup ? firstStation[id] : null);
+      }).filter(Boolean).join("");
+
+      return (
+        '<div class="st-item" data-st="' + st.id + '">' +
+          '<div class="st-top">' +
+            '<span class="st-name">' + st.name + "</span>" +
+            (st.staff.length ? "" : '<span class="st-empty">未分配</span>') +
+            '<div class="st-picks">' + chosen + addChip + "</div>" +
+          "</div>" +
+          roster +
+          people +
+        "</div>"
+      );
+    }).join("");
+
+    return sectionHtml(
+      "stations",
+      "服务员工",
+      stationSummaryText(),
+      '<div class="st-list">' + body + "</div>",
+      open,
+      true
+    );
+  }
+
+  function couponSecHtml(open) {
+    var body =
+      '<div class="cp-list">' +
+        '<button type="button" class="cp-chip' + (orderData.coupon ? "" : " is-on") + '" data-coupon="none">不用券</button>' +
+        COUPONS.map(function (c) {
+          var on = orderData.coupon && orderData.coupon.id === c.id;
+          var usable = priceNum() + 0.005 >= (c.min || 0);
+          return (
+            '<button type="button" class="cp-chip' + (on ? " is-on" : "") + '"' +
+              ' data-coupon="' + c.id + '"' + (usable ? "" : " disabled") +
+              ' aria-pressed="' + (on ? "true" : "false") + '">' +
+              escapeHtml(c.name) +
+            "</button>"
+          );
+        }).join("") +
+      "</div>";
+
+    return sectionHtml("coupon", "优惠", couponSummaryText(), body, open);
+  }
+
+  function paySecHtml(open) {
+    var lines = orderData.payments.map(function (p, i) {
+      return (
+        '<div class="pay-line" data-idx="' + i + '">' +
+          '<span class="pay-main">' + payIconHtml(p.method) + escapeHtml(p.method) + "</span>" +
+          '<span class="pay-amt"><i>¥</i>' +
+            '<input type="text" inputmode="decimal" data-pay-amt="' + i + '" value="' + moneyText(p.amount) + '" aria-label="' + escapeHtml(p.method) + '金额">' +
+          "</span>" +
+          (orderData.payments.length > 1
+            ? '<button type="button" class="pay-del" data-del="' + i + '" aria-label="删除这笔收款">✕</button>'
+            : "") +
+        "</div>"
+      );
+    }).join("");
+
+    var total = paidTotal();
+    var rem = remainingAmount();
+    var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
+    var full = Math.abs(rem) < 0.005;
+    var over = rem < -0.005;
+    var prog =
+      '<div class="pay-progress' + (full ? " is-full" : "") + (over ? " is-over" : "") + '">' +
+        '<div class="pay-bar"><span style="width:' + pct + '%"></span></div>' +
+        '<p class="pay-prog-txt" data-prog-txt>' +
+          (full
+            ? "已收满 ¥" + moneyText(total)
+            : over
+              ? "超出应付 ¥" + moneyText(Math.abs(rem))
+              : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem)) +
+        "</p>" +
+      "</div>";
+
+    var picks =
+      '<div class="pay-picks" data-picks hidden>' +
+        PAY_ALL.map(function (m) {
+          return (
+            '<button type="button" class="pay-pick" data-method="' + m + '">' +
+              payIconHtml(m) + "<span>" + m + "</span>" +
+            "</button>"
+          );
+        }).join("") +
+      "</div>";
+
+    var addLabel = full
+      ? "拆分收款"
+      : rem > 0.005
+        ? "＋ 再收 ¥" + moneyText(rem)
+        : "＋ 再收一笔";
+
+    return sectionHtml(
+      "pay",
+      "收款",
+      paySummaryText(),
+      '<div class="pay-list">' + lines + "</div>" +
+        '<button type="button" class="pay-add" data-add="1">' + addLabel + "</button>" +
+        picks + prog,
+      open
+    );
+  }
+
+  function stationsOfStaff(id) {
+    return orderData.stations.filter(function (st) {
+      return st.staff.indexOf(id) >= 0;
+    }).map(function (st) { return st.name; });
+  }
+
+  function successLinesHtml() {
+    var staffRows = assignedStaffIds().map(function (id) {
+      var m = staffById(id);
+      if (!m) return "";
+      var tags = stationsOfStaff(id).map(function (n) {
+        return '<span class="od-tag">' + escapeHtml(n) + "</span>";
+      }).join("");
+      return (
+        '<div class="od-line is-staff">' +
+          "<span>" + m.short + tags + "</span>" +
+          "<span>业绩 ¥" + moneyText(perfOf(id)) +
+            " <em>·</em> 提成 ¥" + moneyText(commOf(id)) + "</span>" +
+        "</div>"
+      );
+    }).filter(Boolean).join("");
+
+    var payRow =
+      '<div class="od-line">' +
+        "<span>收款</span>" +
+        "<span>" +
+          orderData.payments.map(function (p) {
+            return payIconHtml(p.method) + escapeHtml(p.method) +
+              ' <em>¥' + moneyText(p.amount) + "</em>";
+          }).join("<br>") +
+        "</span>" +
+      "</div>";
+
+    return '<div class="od-lines">' + staffRows + payRow + "</div>";
   }
 
   function showFollowCard(showText, withEnter) {
@@ -2335,73 +2880,307 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     showFollowCard(true, withEnter !== false);
   }
 
-  function perfPairHtml(editable) {
-    var d = orderData;
-    return (
-      '<div class="od-pair">' +
-        rowHtml("performance", "业绩", "¥" + moneyText(d.performance), editable) +
-        rowHtml("commission", "提成", "¥" + moneyText(d.commission), editable) +
-      "</div>"
-    );
-  }
-
   function renderOrderCard() {
-    var d = orderData;
-    var editable = orderPhase === "draft";
-    var pay = d.payMethod || "支付宝";
-    var amt = moneyText(d.paid || d.payable);
-
     if (orderPhase === "success") {
       odTitle.textContent = "开单成功";
-      odSub.textContent = "悦己美发沙龙 · 收款完成";
       odPill.textContent = "已收款";
       orderCard.setAttribute("data-phase", "success");
-      odFields.innerHTML =
-        rowHtml("customer", "顾客", escapeHtml(d.name) + "<small>尾号 " + escapeHtml(d.phoneTail) + "</small>", false) +
-        rowHtml("service", "项目", escapeHtml(d.serviceShort || d.service), false) +
-        rowHtml("amount", "金额", '<span class="od-money">¥' + amt + "</span>", false) +
-        rowHtml("staff", "业绩归属", escapeHtml(d.staff), false) +
-        perfPairHtml(false) +
-        rowHtml("collect", "收款", checkoutValueHtml(pay, amt, false), false);
-      if (odHint) odHint.hidden = true;
+      odFields.innerHTML = heroHtml() + successLinesHtml();
+      if (odHint) {
+        odHint.hidden = true;
+        odHint.textContent = "";
+      }
+      var payStr = orderData.payments.map(function (p) {
+        return escapeHtml(p.method) + ' <b>¥' + moneyText(p.amount) + "</b>";
+      }).join(" + ");
+      var today = todayStats();
       odFollow.innerHTML =
-        "这单没有用卡抵扣，按原价收取。今天累计已开 <b>5</b> 单服务，加上一张储值卡，收款合计 <b>1366</b> 元。" +
-        "<br>这单开好了，接下来?";
+        '<p class="od-fl-title">开单成功。</p>' +
+        '<p class="od-fl-line">本单收款方式：' + (payStr || "未收款") + "。</p>" +
+        '<p class="od-fl-line">本单服务员工 <b>' + assignedStaffIds().length + "</b> 人。</p>" +
+        '<p class="od-fl-line">今天已开 <b>' + today.count + "</b> 单，共实收 <b>¥" +
+          moneyGroup(today.amount) + "</b>。</p>" +
+        '<p class="od-fl-line is-ask">接下来想做什么？</p>';
       renderSuccessActions();
     } else if (orderPhase === "rejected") {
       odTitle.textContent = "已拒绝";
-      odSub.textContent = "悦己美发沙龙 · 已取消";
       odPill.textContent = "已取消";
       orderCard.setAttribute("data-phase", "rejected");
-      odFields.innerHTML =
-        rowHtml("customer", "顾客", escapeHtml(d.name), false) +
-        rowHtml("service", "项目", escapeHtml(d.service), false) +
-        rowHtml("staff", "员工", escapeHtml(d.staffShort || d.staff), false) +
-        perfPairHtml(false) +
-        rowHtml("checkout", "结账", checkoutValueHtml(pay, amt, false), false);
+      odFields.innerHTML = heroHtml();
       if (odHint) odHint.hidden = true;
       renderRejectActions();
     } else {
       odTitle.textContent = "开单确认";
-      odSub.textContent = "悦己美发沙龙 · 待批准";
       odPill.textContent = "待批准";
       orderCard.setAttribute("data-phase", "draft");
       odFields.innerHTML =
-        rowHtml("customer", "顾客", escapeHtml(d.name), false) +
-        rowHtml("service", "项目", escapeHtml(d.service), false) +
-        rowHtml("staff", "员工", escapeHtml(d.staffShort || d.staff), editable) +
-        perfPairHtml(editable) +
-        rowHtml("checkout", "结账", checkoutValueHtml(pay, amt, editable), editable);
+        heroHtml() +
+        stationSecHtml(orderOpenSec === "stations") +
+        couponSecHtml(orderOpenSec === "coupon") +
+        paySecHtml(orderOpenSec === "pay");
+      var state = approveState();
       if (odHint) {
-        odHint.hidden = false;
-        odHint.textContent = "可改员工、业绩、提成与支付金额；批准后才会真正提交，拒绝则取消本次操作。";
+        odHint.hidden = !state.msg;
+        odHint.textContent = state.msg;
+      }
+      if (btnOrderApprove) {
+        btnOrderApprove.disabled = !state.ok;
+        btnOrderApprove.setAttribute("aria-disabled", state.ok ? "false" : "true");
       }
       hideFollowCard();
     }
 
-    odFields.querySelectorAll(".od-item").forEach(bindOrderItem);
+    if (perfEdit) {
+      var focusEl = perfEdit.field === "price"
+        ? odFields.querySelector("[data-price-input]")
+        : odFields.querySelector(
+            '[data-perf-input="' + perfEdit.field + '"][data-staff="' + perfEdit.id + '"]'
+          );
+      if (focusEl) {
+        focusEl.focus();
+        try { focusEl.select(); } catch (err) { /* */ }
+      }
+    }
+
     requestAnimationFrame(updateScrollHint);
   }
+
+  function refreshDerived() {
+    /* 轻量刷新：收款进度 / 汇总 / 批准可用性，不重建 DOM，保住输入焦点 */
+    if (orderPhase !== "draft") return;
+    var total = paidTotal();
+    var rem = remainingAmount();
+    var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
+    var full = Math.abs(rem) < 0.005;
+    var over = rem < -0.005;
+    var prog = odFields.querySelector(".pay-progress");
+    if (prog) {
+      prog.classList.toggle("is-full", full);
+      prog.classList.toggle("is-over", over);
+      var bar = prog.querySelector(".pay-bar span");
+      if (bar) bar.style.width = pct + "%";
+      var txt = prog.querySelector("[data-prog-txt]");
+      if (txt) {
+        txt.textContent = full
+          ? "已收满 ¥" + moneyText(total)
+          : over
+            ? "超出应付 ¥" + moneyText(Math.abs(rem))
+            : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem);
+      }
+    }
+    var sec = odFields.querySelector('.od-sec[data-sec="pay"]');
+    if (sec) {
+      var sum = sec.querySelector(".od-sec-sum");
+      if (sum) sum.innerHTML = paySummaryText();
+    }
+    var state = approveState();
+    if (odHint) {
+      odHint.hidden = !state.msg;
+      odHint.textContent = state.msg;
+    }
+    if (btnOrderApprove) {
+      btnOrderApprove.disabled = !state.ok;
+      btnOrderApprove.setAttribute("aria-disabled", state.ok ? "false" : "true");
+    }
+  }
+
+  function addPayment(method) {
+    var rem = remainingAmount();
+    if (rem > 0.005) {
+      orderData.payments.push({ method: method, amount: rem });
+    } else if (orderData.payments.length) {
+      /* 已收满：把最后一笔对半拆开，一半换成所选方式 */
+      var last = orderData.payments[orderData.payments.length - 1];
+      var lastTotal = moneyNum(last.amount);
+      var half = Math.round((lastTotal / 2) * 100) / 100;
+      last.amount = half;
+      orderData.payments.push({ method: method, amount: Math.round((lastTotal - half) * 100) / 100 });
+      showOdToast("已拆分为 " + last.method + " + " + method);
+    } else {
+      orderData.payments.push({ method: method, amount: payableNum() });
+    }
+    orderOpenSec = "pay";
+    renderOrderCard();
+  }
+
+  odFields.addEventListener("click", function (e) {
+    if (orderPhase !== "draft") return;
+
+    var head = e.target.closest(".od-sec-head");
+    if (head && head.parentNode) {
+      var key = head.parentNode.getAttribute("data-sec");
+      orderOpenSec = orderOpenSec === key ? null : key;
+      if (orderOpenSec !== "stations") stationRoster = null;
+      renderOrderCard();
+      return;
+    }
+
+    var priceBtn = e.target.closest("[data-edit-price]");
+    if (priceBtn) {
+      perfEdit = { id: "price", field: "price" };
+      renderOrderCard();
+      return;
+    }
+
+    var cpBtn = e.target.closest("[data-coupon]");
+    if (cpBtn) {
+      var cid = cpBtn.getAttribute("data-coupon");
+      if (cid === "none") {
+        applyPayableChange(function () { orderData.coupon = null; });
+      } else {
+        var c = couponById(cid);
+        if (!c) return;
+        if (priceNum() + 0.005 < (c.min || 0)) {
+          showOdToast("未满 " + c.min + " 元，暂不可用");
+          return;
+        }
+        applyPayableChange(function () {
+          orderData.coupon = { id: c.id, name: c.name, amount: c.amount };
+        });
+      }
+      orderOpenSec = "coupon";
+      renderOrderCard();
+      return;
+    }
+
+    var valBtn = e.target.closest(".st-val");
+    if (valBtn) {
+      perfEdit = {
+        id: valBtn.getAttribute("data-staff"),
+        field: valBtn.getAttribute("data-edit")
+      };
+      renderOrderCard();
+      return;
+    }
+
+    var staffBtn = e.target.closest(".st-staff");
+    if (staffBtn) {
+      var stId = staffBtn.getAttribute("data-st");
+      var staffId = staffBtn.getAttribute("data-staff");
+      var st = null;
+      orderData.stations.forEach(function (s) { if (s.id === stId) st = s; });
+      if (!st) return;
+      var at = st.staff.indexOf(staffId);
+      if (at >= 0) st.staff.splice(at, 1);
+      else st.staff.push(staffId);
+      if (perfEdit && perfEdit.id === staffId && at >= 0) perfEdit = null;
+      renderOrderCard();
+      return;
+    }
+
+    var rosterBtn = e.target.closest("[data-roster]");
+    if (rosterBtn) {
+      var rid = rosterBtn.getAttribute("data-roster");
+      stationRoster = stationRoster === rid ? null : rid;
+      renderOrderCard();
+      return;
+    }
+
+    var addBtn = e.target.closest("[data-add]");
+    if (addBtn) {
+      var picks = odFields.querySelector("[data-picks]");
+      if (picks) picks.hidden = !picks.hidden;
+      return;
+    }
+
+    var pick = e.target.closest(".pay-pick");
+    if (pick) {
+      addPayment(pick.getAttribute("data-method"));
+      return;
+    }
+
+    var del = e.target.closest("[data-del]");
+    if (del) {
+      orderData.payments.splice(Number(del.getAttribute("data-del")), 1);
+      renderOrderCard();
+    }
+  });
+
+  odFields.addEventListener("input", function (e) {
+    var input = e.target.closest ? e.target.closest("[data-pay-amt]") : null;
+    if (!input || orderPhase !== "draft") return;
+    var i = Number(input.getAttribute("data-pay-amt"));
+    if (!orderData.payments[i]) return;
+    orderData.payments[i].amount = input.value;
+    refreshDerived();
+  });
+
+  odFields.addEventListener("focusout", function (e) {
+    var input = e.target.closest ? e.target.closest("[data-pay-amt]") : null;
+    if (!input || orderPhase !== "draft") return;
+    var i = Number(input.getAttribute("data-pay-amt"));
+    if (!orderData.payments[i]) return;
+    var next = normalizeMoneyInput(input.value);
+    orderData.payments[i].amount = next == null ? "0" : next;
+    requestAnimationFrame(renderOrderCard);
+  });
+
+  /* 业绩 / 提成 / 总价 就地编辑：三者互不联动；改过业绩或提成的员工不再跟随应付价 */
+  function commitPerf(id, field, raw) {
+    if (!id || !field) return false;
+    var next = normalizeMoneyInput(raw);
+    if (next == null) {
+      showOdToast("请输入有效金额");
+      return false;
+    }
+    if (field === "price") {
+      /* Hero 金额即「实收价」：保持当前券不变反推原价；若反推后跌出门槛则自动弃券 */
+      var target = Number(next);
+      var before = payableNum();
+      var active = orderData.coupon ? couponById(orderData.coupon.id) : null;
+      var withCoupon = Math.round((target + couponAmount()) * 100) / 100;
+      var keepCoupon = !active || withCoupon + 0.005 >= active.min;
+      if (active && !keepCoupon) orderData.coupon = null;
+      orderData.price = String(Math.max(0, keepCoupon ? withCoupon : target));
+      resyncRows();
+      syncPaymentsToPayable(before);
+      if (active && !keepCoupon) showOdToast(active.name + " 未达门槛，已取消用券");
+      return true;
+    }
+    var row = ensureRow(id);
+    row[field] = next;
+    row.touched = true;
+    return true;
+  }
+
+  function currentEditInput(target, selector) {
+    return target && target.closest ? target.closest(selector) : null;
+  }
+
+  odFields.addEventListener("keydown", function (e) {
+    var isPrice = currentEditInput(e.target, "[data-price-input]");
+    var input = currentEditInput(e.target, "[data-perf-input]");
+    if (!isPrice && !input) return;
+    if (e.key === "Enter") {
+      e.preventDefault();
+      var ok = isPrice
+        ? commitPerf("price", "price", isPrice.value)
+        : commitPerf(input.getAttribute("data-staff"), input.getAttribute("data-perf-input"), input.value);
+      if (ok) {
+        perfEdit = null;
+        renderOrderCard();
+      } else {
+        var again = isPrice || input;
+        again.focus();
+        try { again.select(); } catch (err) { /* */ }
+      }
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      perfEdit = null;
+      renderOrderCard();
+    }
+  });
+
+  odFields.addEventListener("focusout", function (e) {
+    var isPrice = currentEditInput(e.target, "[data-price-input]");
+    var input = currentEditInput(e.target, "[data-perf-input]");
+    if ((!isPrice && !input) || !perfEdit) return;
+    if (isPrice) commitPerf("price", "price", isPrice.value);
+    else commitPerf(input.getAttribute("data-staff"), input.getAttribute("data-perf-input"), input.value);
+    perfEdit = null;
+    requestAnimationFrame(renderOrderCard);
+  });
 
   function renderAskChips() {
     function chip(name, extraClass) {
@@ -2431,7 +3210,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orderStep = "ask";
     orderPhase = "draft";
     hideOrderStages();
-    askText.textContent = "李女士泡泡染 298 元，业绩给 Tony薛（总监），收款方式选哪个？";
+    askText.textContent = "李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？";
     renderAskChips();
     revealWithEnter(askCard);
     requestAnimationFrame(updateScrollHint);
@@ -2440,8 +3219,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function showDraftStage() {
     orderStep = "draft";
     orderPhase = "draft";
+    orderOpenSec = null;
+    stationRoster = null;
+    perfEdit = null;
     function revealDraft() {
-      orderReplyBubble.innerHTML = payIconHtml(orderData.payMethod) + "<span>" + escapeHtml(orderData.payMethod) + "</span>";
+      orderReplyBubble.innerHTML = orderData.payments.map(function (p) {
+        return payIconHtml(p.method) + "<span>" + escapeHtml(p.method) + "</span>";
+      }).join("");
       revealWithEnter(orderReply, "reply");
       orderCard.hidden = false;
       renderOrderCard();
@@ -2455,8 +3239,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     else revealDraft();
   }
 
+  var todayBase = { count: 6, amount: 1842 };
+  var todayExtra = { count: 0, amount: 0 };
+  function todayStats() {
+    return {
+      count: todayBase.count + todayExtra.count,
+      amount: Math.round((todayBase.amount + todayExtra.amount) * 100) / 100
+    };
+  }
+
   function approveOrder() {
     closeOrderEdits();
+    todayExtra.count += 1;
+    todayExtra.amount += paidTotal();
     orderStep = "success";
     orderPhase = "success";
     renderOrderCard();
@@ -2494,6 +3289,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orderData = seedOrderDraft();
     orderPhase = "draft";
     orderStep = "ask";
+    orderOpenSec = null;
+    stationRoster = null;
+    perfEdit = null;
     hideOrderStages();
     if (!playThink) {
       showAskStage();
@@ -2521,12 +3319,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     askCard.querySelectorAll(".is-picked").forEach(function (el) { el.classList.remove("is-picked"); });
     btn.classList.add("is-picked");
     if (pay === "跳过") {
-      orderData.payMethod = "现金";
+      orderData.payments = [{ method: "现金", amount: payableNum() }];
       showOdToast("已跳过，默认现金");
     } else {
-      orderData.payMethod = pay;
+      orderData.payments = [{ method: pay, amount: payableNum() }];
     }
-    orderData.paid = orderData.payable;
     setTimeout(function () { showDraftStage(); }, MOTION_REDUCED ? 0 : 160);
   });
 
