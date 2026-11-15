@@ -99,24 +99,68 @@ button{font:inherit;color:inherit}
   box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
 }
 
+/* 无 tab 首页图：永远顶贴边；矮屏只裁底部内容，不把整页上抬 */
 .home-bg{
-  position:absolute;inset:0;width:100%;height:100%;
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;
+  object-fit:cover;object-position:top center;
+  pointer-events:none;user-select:none;
+  transition:opacity var(--dur-sheet) var(--ease-out);
+}
+/* 衬托渐变（Figma 708:251 / 534:230）：390×77，贴画布底，不随安全区上抬 */
+.home-tab-fade{
+  position:absolute;left:0;right:0;bottom:0;height:77px;z-index:2;
+  pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    rgba(255,255,255,0) 16.883%,
+    #ffffff 100%
+  );
+}
+#frame.mode-fullscreen .home-tab-fade{
+  opacity:0;visibility:hidden;
+}
+/* 独立 tab 层：Figma 534:240 整图像素还原（390×123 @1x，含阴影）
+   胶囊本体 344×60 居中于图内 x23 / y30；只抬这一层进安全区，不动首页图 */
+.home-tab{
+  --tab-w:390px;--tab-h:123px;
+  --pill-x:23px;--pill-y:30px;
+  position:absolute;left:50%;bottom:var(--home-safe-bottom, 8px);
+  width:var(--tab-w);height:var(--tab-h);
+  margin-left:calc(var(--tab-w) / -2);
+  z-index:3;pointer-events:none;
+  isolation:isolate;
+}
+/* 几乎不透明毛玻璃底板：挡住首页内容，避免透到 tab 上 */
+.home-tab-pill{
+  position:absolute;left:var(--pill-x);top:var(--pill-y);
+  width:344px;height:60px;border-radius:200px;z-index:1;
+  pointer-events:none;
+  background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(20px) saturate(1.05);
+  backdrop-filter:blur(20px) saturate(1.05);
+  box-shadow:
+    0 20px 50px rgba(0,0,0,.08),
+    inset 3px 3px .5px -3.5px rgba(255,255,255,.55),
+    inset 2px 2px 1px -2px rgba(179,179,179,.55),
+    inset -2px -2px 1px -2px rgba(179,179,179,.45),
+    inset 0 0 22px rgba(242,242,242,.45);
+}
+.home-tab-art{
+  position:absolute;inset:0;width:100%;height:100%;z-index:2;
   object-fit:fill;pointer-events:none;user-select:none;
-  transition:opacity var(--dur-sheet) var(--ease-out);
+  display:block;
 }
-/* 首页整层：宽高由图片 1:1 比例决定（--home-art-h），底边贴在安全区之上。
-   矮屏时顶部溢出被 frame 裁掉（等同一屏内容向上滚动），tab 始终完整落在显示区内 */
-.home-art{
-  position:absolute;left:50%;bottom:var(--home-safe-bottom, 0px);
-  width:calc(var(--home-art-h, 844px) * 0.46208531);
-  height:var(--home-art-h, 844px);
-  margin-left:calc(var(--home-art-h, 844px) * -0.23104265);
-  overflow:visible;
+#frame.mode-home .home-tab{pointer-events:auto}
+#frame.mode-fullscreen .home-tab{
+  opacity:0;pointer-events:none;visibility:hidden;
 }
+/* 半屏时压在首页/tab 之上、Agent 之下：层级须高于 home-bg/fade/tab */
 .scrim{
-  position:absolute;inset:0;background:rgba(0,0,0,.75);pointer-events:none;
+  position:absolute;inset:0;z-index:4;
+  background:rgba(0,0,0,.75);pointer-events:none;
   transition:opacity var(--dur-sheet) var(--ease-out);
 }
+#frame.mode-sheet .scrim{pointer-events:auto}
 
 /* ---------- agent panel ---------- */
 .agent{
@@ -195,7 +239,7 @@ button{font:inherit;color:inherit}
 }
 
 /* ---------- 首页态 mode-home + 进入提醒 ---------- */
-/* Agent 整体沉到画布外，遮罩透明，露出完整首页（含烘进背景图的 tab 栏） */
+/* Agent 整体沉到画布外，遮罩透明，露出完整首页；tab 为独立层 */
 #frame.mode-home .agent{
   /* 固定满高，只靠 transform 沉出画布：top / height 都可插值，切换不跳变 */
   top:0;bottom:0;height:100%;
@@ -205,16 +249,12 @@ button{font:inherit;color:inherit}
 #frame.mode-home .scrim{opacity:0;pointer-events:none}
 #frame.mode-home .home-bg{opacity:1}
 #frame.is-mode-animating.mode-home .robot{transform:none}
-/* 安全区条带与图片底色一致，避免底部出现深色断层 */
-#frame.mode-home{background:#f4f5f9}
+#frame.mode-home{background:#ffffff}
 
-/* tab 中央 AI 位（仅点击热区；图标本身烘在背景图里）
-   图标 1x：x 173–215 / y 757–800（底边距图底 44，中心距图底 65.5）
-   用百分比锚定，随 --home-art-h 一起缩放，永远压在图标上 */
+/* 中央 AI 热区：叠在像素图上的透明按钮（图内坐标 = 胶囊偏移 + Figma 534:258）
+   pill x23/y30 + AI x146/y5 → left 169 / top 35；机器人底 ≈ y80 → 距图底 43 */
 .home-ai{
-  position:absolute;left:50%;bottom:4.79858%;   /* 40.5 / 844 */
-  width:50px;height:50px;
-  margin-left:-26px;z-index:3;
+  position:absolute;left:169px;top:35px;width:50px;height:50px;z-index:3;
   appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
   border-radius:50%;
   opacity:0;pointer-events:none;
@@ -224,23 +264,20 @@ button{font:inherit;color:inherit}
 .home-ai:focus-visible{outline:2px solid rgba(226,135,155,.62);outline-offset:3px}
 #frame.is-orb-open .home-ai{opacity:0;pointer-events:none}
 
-/* 圆形提醒：底边与 tab 机器人的底边齐平（图底 44px），收起时贴回图标框 */
+/* 圆形提醒：挂在 tab 像素图坐标系内，底边与机器人底边齐平 */
 .orb{
-  position:absolute;left:50%;bottom:5.21327%;   /* 44 / 844，始终与图标底边齐平 */
-  width:calc(43px * var(--home-art-k, 1));
-  height:calc(43px * var(--home-art-k, 1));
-  margin-left:calc(-21.5px * var(--home-art-k, 1));
-  z-index:4;pointer-events:none;opacity:0;
+  position:absolute;left:194px;bottom:43px;
+  width:43px;height:43px;margin-left:-21.5px;
+  z-index:5;pointer-events:none;opacity:0;
   transform-origin:50% 100%;
   transition:opacity var(--dur-ui) var(--ease-out);
   will-change:width,height,margin-left,opacity,transform;
 }
 .orb.is-open{pointer-events:auto;cursor:pointer}
 .orb.is-out{
-  /* 圆形窗口收束（内容不缩放）：128 → 图标框，底边不动，落点即图标 */
-  width:calc(43px * var(--home-art-k, 1)) !important;
-  height:calc(43px * var(--home-art-k, 1)) !important;
-  margin-left:calc(-21.5px * var(--home-art-k, 1)) !important;
+  /* 圆形窗口收束（内容不缩放）：128 → 图标框 43，底边始终贴机器人底边 */
+  width:43px !important;height:43px !important;
+  margin-left:-21.5px !important;
   opacity:0 !important;transform:none;
   transition:
     width var(--dur-orb-out) var(--ease-press),
@@ -1417,10 +1454,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 <div class="stage">
   <div class="frame-slot">
   <div id="frame" class="mode-home" data-mode="home">
-    <!-- 首页整层（背景图 + tab 中央 AI 热区 + 圆形提醒）共用一个坐标系：
-         以图片自身的 1x 尺寸为基准，底部对齐到安全区之上，保证 tab 永远完整可见 -->
-    <div class="home-art" id="homeArt">
-      <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
+    <!-- 无 tab 首页图：顶贴边；tab 与圆形提醒为独立层，只抬安全区 -->
+    <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="1604" decoding="async">
+
+    <!-- Figma 708:251：白渐变衬托层，贴底；不随安全区移动 -->
+    <div class="home-tab-fade" aria-hidden="true"></div>
+
+    <nav class="home-tab" id="homeTab" aria-label="底部导航">
+      <!-- 几乎不透明毛玻璃底板：盖住首页内容，再叠 Figma 像素图 -->
+      <div class="home-tab-pill" aria-hidden="true"></div>
+      <!-- Figma 534:240 整图像素还原（含玻璃胶囊、五态图标与阴影） -->
+      <img class="home-tab-art" src="assets/agent-chat/tab/tab-bar@3x.png" alt="" width="390" height="123" decoding="async" draggable="false">
 
       <button type="button" class="home-ai" id="homeAi" aria-label="唤起 AI 助手"></button>
 
@@ -1438,7 +1482,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         </div>
         <span class="orb-ring" aria-hidden="true"></span>
       </div>
-    </div>
+    </nav>
 
     <div class="scrim" aria-hidden="true"></div>
 
@@ -2649,7 +2693,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var homeAi = document.getElementById("homeAi");
 
   var ORB_SIZE = 128;
-  var ORB_BOTTOM = 44;          // 位置由 CSS 百分比锚点 44/844 承担，此值仅作文档说明
+  var ORB_BOTTOM = 43;          // tab 像素图内底距；与机器人底边齐平（CSS .orb bottom:43）
   var ORB_MEDIA_START = 0.80;   // 跳过空环前摇，直接进机器人段
   var ORB_SHOW_MS = 2400;       // 片源 0.8 → 3.2s
   var ORB_POP_MS = 200;         // 轻弹出现，不跟空环长大
@@ -4163,8 +4207,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     closeDx: -48,
     /* 收缩量超过该值才判定为「软键盘」，否则视为地址栏/浏览器 UI 变化 */
     kbMinPx: 140,
-    /* 首页整层设计高度（= home-bg@3x.png 的 1x 高度）与底部最小安全区 */
-    homeArtHeight: 844,
+    /* 独立 tab 底部最小抬起量（逻辑像素）；真实安全区更大时取更大值 */
     homeSafeMin: 8
   };
 
@@ -4341,28 +4384,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     root.style.setProperty("--safe-bottom", Math.round(logical) + "px");
   }
   function updateHomeArt() {
-    /* 首页层按图片 1x 尺寸摆放，底边永远贴在安全区之上：
-       · 视口比 844 矮 → 保持 844 高、底部对齐，顶部溢出被 frame 裁掉（等价于一屏内容向上滚过）
-       · 视口比 844 高 → 等比放大铺满，左右对称裁边（两侧本来就是留白）
-       两种情况下 tab 栏都完整落在显示区内，圆形与图标也始终同坐标系 */
+    /* 只抬独立 tab（与圆形提醒），首页图始终顶贴边，不整页上移 */
     var isMobile = root.classList.contains("is-mobile");
-    var safeLogical = 0;
-    var artH = CONFIG.homeArtHeight;
+    var safeLogical = CONFIG.homeSafeMin;
     if (isMobile) {
       var scale = parseFloat(root.style.getPropertyValue("--mobile-scale")) || 1;
       if (!isFinite(scale) || scale <= 0) scale = 1;
-      /* 底部安全区：取系统安全区，至少留 8 逻辑像素，避免 tab 贴死可视区底缘 */
       safeLogical = Math.max(Math.round(readSafeBottomPx() / scale), CONFIG.homeSafeMin);
-      var logicalH = parseFloat(root.style.getPropertyValue("--mobile-h")) || CONFIG.homeArtHeight;
-      var avail = logicalH - safeLogical;
-      if (isFinite(avail) && avail > artH) artH = avail;
     }
     root.style.setProperty("--home-safe-bottom", safeLogical + "px");
-    root.style.setProperty("--home-art-h", Math.round(artH) + "px");
-    root.style.setProperty(
-      "--home-art-k",
-      String(Math.round((artH / CONFIG.homeArtHeight) * 1000) / 1000)
-    );
   }
   function updateKeyboardInset() {
     if (!root.classList.contains("is-mobile")) return;
