@@ -34,8 +34,17 @@
   --dur-ui:.22s;
   --dur-enter:.34s;
   --dur-sheet:.42s;
+  /* 进入提醒圆形 */
+  --dur-orb-pop:200ms;
+  --ease-orb-pop:cubic-bezier(.34,1.3,.52,1);
+  --dur-orb-out:280ms;
   --p-rose:#F7B3C4;
   --p-berry:#E2879B;
+  /* 进入提醒圆环渐变（与品牌粉同族，由浅到深） */
+  --p-cream:#FFDCCB;
+  --p-apricot:#FFC7A8;
+  --p-blush:#FBC9CE;
+  --p-coral:#F39287;
   /* Figma AI 按钮三态（node 80:50） */
   --btn-blue:#496fc4;
   --btn-stroke:#9fadca;
@@ -104,11 +113,12 @@ button{font:inherit;color:inherit}
 .agent{
   position:absolute;left:0;right:0;bottom:0;
   display:flex;flex-direction:column;
-  overflow:visible;
+  overflow:visible;z-index:5;
   transition:
     top var(--dur-sheet) var(--ease-spring),
     border-radius var(--dur-sheet) var(--ease-out),
     height var(--dur-sheet) var(--ease-spring),
+    transform var(--dur-sheet) var(--ease-spring),
     background-color var(--dur-sheet) var(--ease-out);
 }
 .agent-surface{
@@ -174,6 +184,90 @@ button{font:inherit;color:inherit}
     radial-gradient(280px 190px at 94% 6%, rgba(230,210,245,.75) 0%, transparent 58%),
     radial-gradient(300px 220px at 70% 108%, rgba(246,219,228,.5) 0%, transparent 62%);
 }
+
+/* ---------- 首页态 mode-home + 进入提醒 ---------- */
+/* Agent 整体沉到画布外，遮罩透明，露出完整首页（含烘进背景图的 tab 栏） */
+#frame.mode-home .agent{
+  /* 固定满高，只靠 transform 沉出画布：top / height 都可插值，切换不跳变 */
+  top:0;bottom:0;height:100%;
+  transform:translateY(105%);
+  pointer-events:none;
+}
+#frame.mode-home .scrim{opacity:0;pointer-events:none}
+#frame.mode-home .home-bg{opacity:1}
+#frame.is-mode-animating.mode-home .robot{transform:none}
+
+/* tab 中央 AI 位（仅点击热区；图标本身烘在背景图里）
+   图标 1x 实测 x 173–215 / y 757–800 → 中心 (194, 778.5)、底边距画布 44px */
+.home-ai{
+  position:absolute;left:50%;bottom:40.5px;width:50px;height:50px;
+  margin-left:-26px;z-index:3;
+  appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
+  border-radius:50%;
+  opacity:0;pointer-events:none;
+  transition:opacity var(--dur-ui) var(--ease-out);
+}
+#frame.mode-home .home-ai{opacity:1;pointer-events:auto}
+.home-ai:focus-visible{outline:2px solid rgba(226,135,155,.62);outline-offset:3px}
+#frame.is-orb-open .home-ai{opacity:0;pointer-events:none}
+
+/* 圆形提醒：底边与 tab 机器人的底边齐平（44），收起时贴回图标框 */
+.orb{
+  position:absolute;left:50%;bottom:44px;
+  width:43px;height:43px;margin-left:-21.5px;
+  z-index:4;pointer-events:none;opacity:0;
+  transform-origin:50% 100%;
+  transition:opacity var(--dur-ui) var(--ease-out);
+  will-change:width,height,margin-left,opacity,transform;
+}
+.orb.is-open{pointer-events:auto;cursor:pointer}
+.orb.is-out{
+  /* 圆形窗口收束（内容不缩放）：128 → 图标框 43，底边始终贴 44，落点即图标 */
+  width:43px !important;height:43px !important;
+  margin-left:-21.5px !important;bottom:44px !important;
+  opacity:0 !important;transform:none;
+  transition:
+    width var(--dur-orb-out) var(--ease-press),
+    height var(--dur-orb-out) var(--ease-press),
+    margin-left var(--dur-orb-out) var(--ease-press),
+    opacity .22s ease;
+}
+.orb-shell{
+  position:absolute;inset:0;border-radius:50%;overflow:hidden;
+  background:#ddd;z-index:1;
+  box-shadow:0 14px 32px -12px rgba(40,18,26,.34);
+}
+/* 媒体放大 1.12：金属边落在圆裁切外，可见直径严格 = d128 */
+.orb-clip{
+  position:absolute;left:50%;top:50%;
+  width:143.36px;height:143.36px;margin-left:-71.68px;margin-top:-71.68px;
+  object-fit:cover;display:block;background:#ddd;
+  pointer-events:none;user-select:none;
+}
+/* 外侧柔光：不侵占圆内像素 */
+.orb-glow{
+  position:absolute;inset:-12px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(50% 50% at 50% 50%,
+    rgba(247,179,196,.34), rgba(255,199,168,.20) 54%, rgba(255,199,168,0) 76%);
+  opacity:0;transition:opacity var(--dur-enter) var(--ease-out);filter:blur(2px);
+}
+.orb.is-open .orb-glow{opacity:1}
+/* 边框：mask 挖空中心得到真实环形；外径与 d128 圆形边界重合，内径 124，厚度严格 2px */
+.orb-ring{
+  position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;
+  padding:2px;
+  background:conic-gradient(from 152deg,
+    var(--p-cream), var(--p-apricot) 20%, var(--p-blush) 38%,
+    var(--p-rose) 54%, var(--p-coral) 72%, var(--p-berry) 88%, var(--p-cream));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite:exclude;
+}
+@media (prefers-reduced-motion:reduce){
+  .orb,.orb.is-out,.orb-glow,.home-ai{transition:none !important}
+}
+
 
 .agent-inner{
   position:relative;z-index:1;flex:1;min-height:0;
@@ -1294,6 +1388,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 <aside class="site-nav" id="siteNav" aria-label="原型控制">
   <h1>Agent 对话原型</h1>
   <div class="nav-actions">
+    <button type="button" id="navHome" class="is-on">首页 · 提醒</button>
     <button type="button" id="navDemoPrice" class="is-on">价目表</button>
     <button type="button" id="navDemoOrder">开单</button>
     <button type="button" id="navSheet" class="is-on">半屏</button>
@@ -1305,9 +1400,26 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
 <div class="stage">
   <div class="frame-slot">
-  <div id="frame" class="mode-sheet" data-mode="sheet">
+  <div id="frame" class="mode-home" data-mode="home">
     <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
     <div class="scrim" aria-hidden="true"></div>
+
+    <button type="button" class="home-ai" id="homeAi" aria-label="唤起 AI 助手"></button>
+
+    <div class="orb" id="orb" aria-hidden="true">
+      <span class="orb-glow"></span>
+      <div class="orb-shell">
+        <video id="orbClip" class="orb-clip"
+          width="480" height="480"
+          muted playsinline webkit-playsinline
+          preload="auto"
+          disablepictureinpicture
+          controlslist="nodownload nofullscreen noremoteplayback"
+          poster="assets/tab/intro-poster.jpg"
+          src="assets/tab/agent-intro.mp4"></video>
+      </div>
+      <span class="orb-ring" aria-hidden="true"></span>
+    </div>
 
     <section class="agent" aria-label="AI Agent 对话窗口">
       <div class="agent-surface" aria-hidden="true"><div class="agent-glow"></div></div>
@@ -1324,7 +1436,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
             <button type="button" class="icon-btn btn-expand" id="btnExpand" title="展开全屏" aria-label="展开全屏">
               <img src="assets/agent-chat/icon-expand.svg" alt="">
             </button>
-            <button type="button" class="icon-btn btn-close" id="btnClose" title="关闭全屏" aria-label="关闭全屏">
+            <button type="button" class="icon-btn btn-close" id="btnClose" title="关闭窗口，返回首页" aria-label="关闭窗口，返回首页">
               <img src="assets/agent-chat/icon-close.svg" alt="">
             </button>
             <div class="fs-ctrl" role="group" aria-label="字号">
@@ -1536,6 +1648,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     '<rect x="4.6" y="10.2" width="14.8" height="10" rx="2.2"/><path d="M8.2 10.2V7.6a3.8 3.8 0 017.6 0v2.6"/></svg>';
 
   var frame = document.getElementById("frame");
+  var navHome = document.getElementById("navHome");
   var navSheet = document.getElementById("navSheet");
   var navFull = document.getElementById("navFull");
   var navThink = document.getElementById("navThink");
@@ -2492,12 +2605,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function setMode(mode) {
     var isFull = mode === "fullscreen";
+    var isHome = mode === "home";
     frame.classList.add("is-mode-animating");
     frame.classList.toggle("mode-fullscreen", isFull);
-    frame.classList.toggle("mode-sheet", !isFull);
-    frame.dataset.mode = isFull ? "fullscreen" : "sheet";
-    navSheet.classList.toggle("is-on", !isFull);
+    frame.classList.toggle("mode-sheet", !isFull && !isHome);
+    frame.classList.toggle("mode-home", isHome);
+    frame.dataset.mode = isFull ? "fullscreen" : isHome ? "home" : "sheet";
+    navSheet.classList.toggle("is-on", !isFull && !isHome);
     navFull.classList.toggle("is-on", isFull);
+    if (navHome) navHome.classList.toggle("is-on", isHome);
+    if (!isHome) stopOrb();
     clearTimeout(setMode._t);
     setMode._t = setTimeout(function () {
       frame.classList.remove("is-mode-animating");
@@ -2505,10 +2622,200 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     requestAnimationFrame(updateScrollHint);
   }
 
+  /* ----- 进入首页提醒：tab 中央轻弹放大成 d128 → 播放 → 快收 ----- */
+  var orb = document.getElementById("orb");
+  var orbClip = document.getElementById("orbClip");
+  var homeAi = document.getElementById("homeAi");
+
+  var ORB_SIZE = 128;
+  var ORB_BOTTOM = 44;          // 与 tab 机器人图标底边齐平（图标 1x 底边 y=800，画布 844）
+  var ORB_MEDIA_START = 0.80;   // 跳过空环前摇，直接进机器人段
+  var ORB_SHOW_MS = 2400;       // 片源 0.8 → 3.2s
+  var ORB_POP_MS = 200;         // 轻弹出现，不跟空环长大
+  var ORB_OUT_MS = 280;
+
+  var orbBusy = false;
+  var orbTimer = 0;
+  var orbPlayed = false;
+
+  function stopOrbClip() {
+    if (!orbClip) return;
+    try {
+      orbClip.pause();
+      orbClip.currentTime = ORB_MEDIA_START;
+    } catch (e) { /* ignore */ }
+  }
+
+  function orbReset() {
+    if (!orb) return;
+    orb.classList.remove("is-open", "is-out");
+    orb.setAttribute("aria-hidden", "true");
+    frame.classList.remove("is-orb-open");
+    orb.style.width = "";
+    orb.style.height = "";
+    orb.style.marginLeft = "";
+    orb.style.bottom = "";
+    orb.style.opacity = "";
+    orb.style.transform = "";
+    orb.style.transition = "";
+    orb.style.transformOrigin = "";
+  }
+
+  /* 立即收起（切到对话时不拖尾） */
+  function stopOrb() {
+    if (!orb) return;
+    clearTimeout(orbTimer);
+    if (orbBusy) {
+      stopOrbClip();
+      orbReset();
+      orbBusy = false;
+    }
+  }
+
+  function orbWait(ms) {
+    return new Promise(function (r) {
+      orbTimer = setTimeout(r, ms);
+    });
+  }
+
+  function orbStartMedia() {
+    if (!orbClip) return Promise.resolve();
+    orbClip.muted = true;
+    orbClip.playsInline = true;
+    try {
+      orbClip.pause();
+      orbClip.currentTime = ORB_MEDIA_START;
+    } catch (e) { /* ignore */ }
+    return new Promise(function (resolve) {
+      if (Math.abs(orbClip.currentTime - ORB_MEDIA_START) < 0.05) return resolve();
+      var done = function () {
+        orbClip.removeEventListener("seeked", done);
+        resolve();
+      };
+      orbClip.addEventListener("seeked", done);
+      setTimeout(resolve, 140);
+    }).then(function () {
+      try {
+        var p = orbClip.play();
+        if (p && typeof p.then === "function") return p;
+      } catch (e) { /* 自动播放被拦截时，重播入口仍可触发 */ }
+    });
+  }
+
+  function orbWaitOut() {
+    return new Promise(function (resolve) {
+      if (MOTION_REDUCED) return resolve();
+      var done = false;
+      var finish = function () {
+        if (done) return;
+        done = true;
+        orb.removeEventListener("transitionend", onEnd);
+        resolve();
+      };
+      var onEnd = function (e) {
+        if (e.target !== orb) return;
+        if (e.propertyName === "width" || e.propertyName === "transform" || e.propertyName === "opacity") finish();
+      };
+      orb.addEventListener("transitionend", onEnd);
+      setTimeout(finish, ORB_OUT_MS + 80);
+    });
+  }
+
+  function playOrb() {
+    if (!orb || orbBusy) return Promise.resolve();
+    orbBusy = true;
+    orbPlayed = true;
+    clearTimeout(orbTimer);
+
+    frame.classList.add("is-orb-open");
+    orb.classList.remove("is-out");
+    orb.setAttribute("aria-hidden", "false");
+    orb.classList.add("is-open");
+
+    /* 直接满幅 d128，轻弹出现 */
+    orb.style.transition = "none";
+    orb.style.width = ORB_SIZE + "px";
+    orb.style.height = ORB_SIZE + "px";
+    orb.style.marginLeft = -ORB_SIZE / 2 + "px";
+    orb.style.bottom = ORB_BOTTOM + "px";
+    orb.style.opacity = "0";
+    orb.style.transform = MOTION_REDUCED ? "none" : "scale(.92)";
+    orb.style.transformOrigin = "50% 100%";
+    void orb.offsetWidth;
+    if (!MOTION_REDUCED) {
+      orb.style.transition =
+        "opacity " + ORB_POP_MS + "ms ease, transform " + ORB_POP_MS + "ms cubic-bezier(.34,1.3,.52,1)";
+    }
+    orb.style.opacity = "1";
+    orb.style.transform = "none";
+
+    var t0 = performance.now();
+    return orbStartMedia().then(function () {
+      var elapsed = performance.now() - t0;
+      return orbWait(Math.max(0, ORB_SHOW_MS - elapsed));
+    }).then(function () {
+      stopOrbClip();
+      orb.style.transition = "";
+      void orb.offsetWidth;
+      orb.classList.add("is-out");
+      return orbWaitOut();
+    }).then(function () {
+      orbReset();
+      orbBusy = false;
+    });
+  }
+
+  function enterHome(replay) {
+    setMode("home");
+    if (replay) setTimeout(function () { playOrb(); }, 260);
+  }
+
+  function openAgent() {
+    stopOrb();
+    setMode("sheet");
+  }
+
+  /* 关闭窗口：直接回首页（不经过半屏），让 Agent 整体滑出画布 */
+  function goHome() {
+    stopOrb();
+    setMode("home");
+  }
+
   navSheet.addEventListener("click", function () { setMode("sheet"); });
   navFull.addEventListener("click", function () { setMode("fullscreen"); });
   btnExpand.addEventListener("click", function () { setMode("fullscreen"); });
-  btnClose.addEventListener("click", function () { setMode("sheet"); });
+  btnClose.addEventListener("click", goHome);
+  if (navHome) navHome.addEventListener("click", function () { enterHome(true); });
+  if (homeAi) homeAi.addEventListener("click", openAgent);
+  if (orb) {
+    orb.addEventListener("click", function () {
+      if (orb.classList.contains("is-open")) openAgent();
+    });
+  }
+
+  /* 刚进入首页：加载后自动提醒一次（仅首页态；?noremind / ?record 跳过） */
+  (function bootReminder() {
+    var skip = false;
+    try {
+      var q = new URLSearchParams(location.search);
+      skip = q.get("noremind") !== null || q.get("record") !== null;
+    } catch (e) { /* ignore */ }
+    if (skip) return;
+
+    var tries = 0;
+    function remind() {
+      if (orbPlayed || orbBusy) return;
+      if (frame.dataset.mode !== "home") return;
+      /* 页面在后台时先等可见，避免刚进首页却错过提醒 */
+      if (document.visibilityState === "hidden" && tries++ < 40) {
+        setTimeout(remind, 400);
+        return;
+      }
+      playOrb();
+    }
+    if (document.readyState === "complete") setTimeout(remind, 600);
+    else window.addEventListener("load", function () { setTimeout(remind, 600); }, { once: true });
+  })();
 
   document.querySelectorAll(".fs-ctrl button").forEach(function (btn) {
     btn.addEventListener("click", function () {
@@ -4146,6 +4453,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   document.addEventListener("touchcancel", function () { track = null; }, { passive: true });
 
   applyMode();
+
   window.addEventListener("resize", function () {
     if (root.classList.contains("is-mobile")) { updateScale(); updateKeyboardInset(); }
   }, { passive: true });
