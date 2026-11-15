@@ -101,8 +101,17 @@ button{font:inherit;color:inherit}
 
 .home-bg{
   position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;object-position:top center;pointer-events:none;user-select:none;
+  object-fit:fill;pointer-events:none;user-select:none;
   transition:opacity var(--dur-sheet) var(--ease-out);
+}
+/* 首页整层：宽高由图片 1:1 比例决定（--home-art-h），底边贴在安全区之上。
+   矮屏时顶部溢出被 frame 裁掉（等同一屏内容向上滚动），tab 始终完整落在显示区内 */
+.home-art{
+  position:absolute;left:50%;bottom:var(--home-safe-bottom, 0px);
+  width:calc(var(--home-art-h, 844px) * 0.46208531);
+  height:var(--home-art-h, 844px);
+  margin-left:calc(var(--home-art-h, 844px) * -0.23104265);
+  overflow:visible;
 }
 .scrim{
   position:absolute;inset:0;background:rgba(0,0,0,.75);pointer-events:none;
@@ -196,11 +205,15 @@ button{font:inherit;color:inherit}
 #frame.mode-home .scrim{opacity:0;pointer-events:none}
 #frame.mode-home .home-bg{opacity:1}
 #frame.is-mode-animating.mode-home .robot{transform:none}
+/* 安全区条带与图片底色一致，避免底部出现深色断层 */
+#frame.mode-home{background:#f4f5f9}
 
 /* tab 中央 AI 位（仅点击热区；图标本身烘在背景图里）
-   图标 1x 实测 x 173–215 / y 757–800 → 中心 (194, 778.5)、底边距画布 44px */
+   图标 1x：x 173–215 / y 757–800（底边距图底 44，中心距图底 65.5）
+   用百分比锚定，随 --home-art-h 一起缩放，永远压在图标上 */
 .home-ai{
-  position:absolute;left:50%;bottom:40.5px;width:50px;height:50px;
+  position:absolute;left:50%;bottom:4.79858%;   /* 40.5 / 844 */
+  width:50px;height:50px;
   margin-left:-26px;z-index:3;
   appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
   border-radius:50%;
@@ -211,10 +224,12 @@ button{font:inherit;color:inherit}
 .home-ai:focus-visible{outline:2px solid rgba(226,135,155,.62);outline-offset:3px}
 #frame.is-orb-open .home-ai{opacity:0;pointer-events:none}
 
-/* 圆形提醒：底边与 tab 机器人的底边齐平（44），收起时贴回图标框 */
+/* 圆形提醒：底边与 tab 机器人的底边齐平（图底 44px），收起时贴回图标框 */
 .orb{
-  position:absolute;left:50%;bottom:44px;
-  width:43px;height:43px;margin-left:-21.5px;
+  position:absolute;left:50%;bottom:5.21327%;   /* 44 / 844，始终与图标底边齐平 */
+  width:calc(43px * var(--home-art-k, 1));
+  height:calc(43px * var(--home-art-k, 1));
+  margin-left:calc(-21.5px * var(--home-art-k, 1));
   z-index:4;pointer-events:none;opacity:0;
   transform-origin:50% 100%;
   transition:opacity var(--dur-ui) var(--ease-out);
@@ -222,9 +237,10 @@ button{font:inherit;color:inherit}
 }
 .orb.is-open{pointer-events:auto;cursor:pointer}
 .orb.is-out{
-  /* 圆形窗口收束（内容不缩放）：128 → 图标框 43，底边始终贴 44，落点即图标 */
-  width:43px !important;height:43px !important;
-  margin-left:-21.5px !important;bottom:44px !important;
+  /* 圆形窗口收束（内容不缩放）：128 → 图标框，底边不动，落点即图标 */
+  width:calc(43px * var(--home-art-k, 1)) !important;
+  height:calc(43px * var(--home-art-k, 1)) !important;
+  margin-left:calc(-21.5px * var(--home-art-k, 1)) !important;
   opacity:0 !important;transform:none;
   transition:
     width var(--dur-orb-out) var(--ease-press),
@@ -1401,25 +1417,30 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 <div class="stage">
   <div class="frame-slot">
   <div id="frame" class="mode-home" data-mode="home">
-    <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
-    <div class="scrim" aria-hidden="true"></div>
+    <!-- 首页整层（背景图 + tab 中央 AI 热区 + 圆形提醒）共用一个坐标系：
+         以图片自身的 1x 尺寸为基准，底部对齐到安全区之上，保证 tab 永远完整可见 -->
+    <div class="home-art" id="homeArt">
+      <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="844" decoding="async">
 
-    <button type="button" class="home-ai" id="homeAi" aria-label="唤起 AI 助手"></button>
+      <button type="button" class="home-ai" id="homeAi" aria-label="唤起 AI 助手"></button>
 
-    <div class="orb" id="orb" aria-hidden="true">
-      <span class="orb-glow"></span>
-      <div class="orb-shell">
-        <video id="orbClip" class="orb-clip"
-          width="480" height="480"
-          muted playsinline webkit-playsinline
-          preload="auto"
-          disablepictureinpicture
-          controlslist="nodownload nofullscreen noremoteplayback"
-          poster="assets/tab/intro-poster.jpg"
-          src="assets/tab/agent-intro.mp4"></video>
+      <div class="orb" id="orb" aria-hidden="true">
+        <span class="orb-glow"></span>
+        <div class="orb-shell">
+          <video id="orbClip" class="orb-clip"
+            width="480" height="480"
+            muted playsinline webkit-playsinline
+            preload="auto"
+            disablepictureinpicture
+            controlslist="nodownload nofullscreen noremoteplayback"
+            poster="assets/tab/intro-poster.jpg"
+            src="assets/tab/agent-intro.mp4"></video>
+        </div>
+        <span class="orb-ring" aria-hidden="true"></span>
       </div>
-      <span class="orb-ring" aria-hidden="true"></span>
     </div>
+
+    <div class="scrim" aria-hidden="true"></div>
 
     <section class="agent" aria-label="AI Agent 对话窗口">
       <div class="agent-surface" aria-hidden="true"><div class="agent-glow"></div></div>
@@ -2628,7 +2649,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var homeAi = document.getElementById("homeAi");
 
   var ORB_SIZE = 128;
-  var ORB_BOTTOM = 44;          // 与 tab 机器人图标底边齐平（图标 1x 底边 y=800，画布 844）
+  var ORB_BOTTOM = 44;          // 位置由 CSS 百分比锚点 44/844 承担，此值仅作文档说明
   var ORB_MEDIA_START = 0.80;   // 跳过空环前摇，直接进机器人段
   var ORB_SHOW_MS = 2400;       // 片源 0.8 → 3.2s
   var ORB_POP_MS = 200;         // 轻弹出现，不跟空环长大
@@ -2732,12 +2753,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orb.setAttribute("aria-hidden", "false");
     orb.classList.add("is-open");
 
-    /* 直接满幅 d128，轻弹出现 */
+    /* 直接满幅 d128，轻弹出现；bottom 交给 CSS 百分比锚点，始终贴图标底边 */
     orb.style.transition = "none";
     orb.style.width = ORB_SIZE + "px";
     orb.style.height = ORB_SIZE + "px";
     orb.style.marginLeft = -ORB_SIZE / 2 + "px";
-    orb.style.bottom = ORB_BOTTOM + "px";
     orb.style.opacity = "0";
     orb.style.transform = MOTION_REDUCED ? "none" : "scale(.92)";
     orb.style.transformOrigin = "50% 100%";
@@ -4142,7 +4162,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     openDx: 56,
     closeDx: -48,
     /* 收缩量超过该值才判定为「软键盘」，否则视为地址栏/浏览器 UI 变化 */
-    kbMinPx: 140
+    kbMinPx: 140,
+    /* 首页整层设计高度（= home-bg@3x.png 的 1x 高度）与底部最小安全区 */
+    homeArtHeight: 844,
+    homeSafeMin: 8
   };
 
   var root = document.documentElement;
@@ -4288,6 +4311,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     root.style.setProperty("--vv-left", Math.round(vis.left) + "px");
     stage.style.left = Math.round(vis.left) + "px";
     updateSafeBottom(scale);
+    updateHomeArt();
   }
   function readSafeBottomPx() {
     var probe = document.getElementById("safeAreaProbe");
@@ -4315,6 +4339,30 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var px = readSafeBottomPx();
     var logical = px / scale;
     root.style.setProperty("--safe-bottom", Math.round(logical) + "px");
+  }
+  function updateHomeArt() {
+    /* 首页层按图片 1x 尺寸摆放，底边永远贴在安全区之上：
+       · 视口比 844 矮 → 保持 844 高、底部对齐，顶部溢出被 frame 裁掉（等价于一屏内容向上滚过）
+       · 视口比 844 高 → 等比放大铺满，左右对称裁边（两侧本来就是留白）
+       两种情况下 tab 栏都完整落在显示区内，圆形与图标也始终同坐标系 */
+    var isMobile = root.classList.contains("is-mobile");
+    var safeLogical = 0;
+    var artH = CONFIG.homeArtHeight;
+    if (isMobile) {
+      var scale = parseFloat(root.style.getPropertyValue("--mobile-scale")) || 1;
+      if (!isFinite(scale) || scale <= 0) scale = 1;
+      /* 底部安全区：取系统安全区，至少留 8 逻辑像素，避免 tab 贴死可视区底缘 */
+      safeLogical = Math.max(Math.round(readSafeBottomPx() / scale), CONFIG.homeSafeMin);
+      var logicalH = parseFloat(root.style.getPropertyValue("--mobile-h")) || CONFIG.homeArtHeight;
+      var avail = logicalH - safeLogical;
+      if (isFinite(avail) && avail > artH) artH = avail;
+    }
+    root.style.setProperty("--home-safe-bottom", safeLogical + "px");
+    root.style.setProperty("--home-art-h", Math.round(artH) + "px");
+    root.style.setProperty(
+      "--home-art-k",
+      String(Math.round((artH / CONFIG.homeArtHeight) * 1000) / 1000)
+    );
   }
   function updateKeyboardInset() {
     if (!root.classList.contains("is-mobile")) return;
@@ -4403,6 +4451,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         stage.style.width = "";
         stage.style.height = "";
       }
+      updateHomeArt();
       return;
     }
     /* 重新进入手机态：基线需要重新采样 */
