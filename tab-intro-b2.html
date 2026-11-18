@@ -250,10 +250,10 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   const ICON_SCALE = 0.47; /* ≈45/96 */
   const IN_MS = 380;
   const SETTLE_MS = 120;
-  const SHOW_MS = 2200;
+  const SHOW_MS = 1700; /* 缩进提前 0.5s */
   const OUT_MS = 320;
   const LIFT_PX = 0;
-  const ANCHOR_Y_NUDGE = 4; /* 整体下移 4，扩出/缩进仍相对 AI 轴 */
+  const ANCHOR_Y_NUDGE = 6; /* 整体下移，扩出/缩进仍相对 AI 轴 */
   /* 片源 0s 几乎空；0.3–3.6s 才是完整机器人 */
   const MEDIA_START = 0.5;
 

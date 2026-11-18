@@ -76,7 +76,7 @@ await page.screenshot({ path: path.join(outDir, 'b2-end.png') });
 
 const iconOk = (w) => w >= 40 && w <= 55;
 const aligned = (d) => d <= 6;
-const bottomParked = (d) => Math.abs(d + 4) <= 6; /* 锚点下移 4 → dBottom ≈ -4 */
+const bottomParked = (d) => Math.abs(d + 6) <= 6; /* 锚点下移 6 → dBottom ≈ -6 */
 const startOk = iconOk(start.w) && aligned(start.dx) && bottomParked(start.dBottom);
 const restOk =
   rest.w >= 90 &&
