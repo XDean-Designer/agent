@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Agent · 方案 B · 底部进出</title>
+<style>
+:root{
+  --stage-w:390px;
+  --stage-h:844px;
+  --tab-w:340px;
+  --tab-h:60px;
+  --ai-size:50px;
+  --orb:128px;
+  --tab-bottom:8px;
+  /* 完全在舞台底边之外：顶边低于 0 */
+  --orb-hidden-bottom:calc(-1 * (var(--orb) + 24px));
+  --orb-rest-bottom:calc(var(--tab-bottom) + 3px);
+  --ease-in:cubic-bezier(.34,1.3,.52,1);
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+  --ink:#333;
+  --red:#F32F41;
+  --bg:#2A2A2A;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);font-family:"PingFang SC","Segoe UI",system-ui,sans-serif;color:#fff}
+body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
+
+.stage{
+  width:min(var(--stage-w),100%);
+  aspect-ratio:390 / 844;
+  max-height:92vh;
+  max-width:min(var(--stage-w), calc(92vh * 390 / 844));
+  border-radius:36px;
+  position:relative;overflow:hidden;
+  background:#F5F5F5;
+  box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.home-shot{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top center;
+  display:block;pointer-events:none;user-select:none;
+  z-index:1;
+}
+
+.tab-wrap{
+  position:absolute;left:50%;bottom:var(--tab-bottom);transform:translateX(-50%);
+  width:var(--tab-w);height:var(--tab-h);z-index:5;
+}
+.tab{
+  position:absolute;inset:0;border-radius:200px;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:
+    0 12px 36px rgba(0,0,0,.12),
+    inset 3px 3px .5px -3.5px rgba(255,255,255,.5),
+    inset 2px 2px 1px -2px #b3b3b3,
+    inset -2px -2px 1px -2px #b3b3b3,
+    inset 0 0 22px rgba(242,242,242,.5);
+}
+.tab-items{
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:1fr 1fr var(--ai-size) 1fr 1fr;
+  align-items:center;padding:0 6px;z-index:2;
+}
+.item{
+  appearance:none;border:0;background:transparent;font:inherit;color:var(--ink);
+  display:grid;justify-items:center;gap:2px;padding:0;cursor:pointer;position:relative;
+}
+.item .ic{width:24px;height:24px;display:grid;place-items:center;position:relative}
+.item .ic img{display:block;width:24px;height:24px}
+.item span{font-size:11px;line-height:1;color:#333}
+.item.is-home{
+  width:52px;height:52px;margin:0 auto;border-radius:50%;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+  align-content:center;gap:0;padding-top:4px;
+}
+.item.is-home span{color:var(--red);font-weight:600}
+.item.is-home .ic{width:24px;height:24px}
+
+.ai-slot{
+  width:var(--ai-size);height:var(--ai-size);position:relative;
+  display:grid;place-items:center;justify-self:center;
+}
+.ai-btn{
+  appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
+  width:45px;height:45px;border-radius:50%;position:relative;z-index:2;
+  transition:opacity .22s var(--ease), transform .22s var(--ease);
+}
+.ai-btn img.bot{position:absolute;left:50%;top:48%;width:45px;height:39px;
+  transform:translate(-50%,-50%);object-fit:contain;filter:drop-shadow(0 0 2px rgba(0,0,0,.24));
+  pointer-events:none}
+.ai-btn img.glow{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);
+  object-fit:contain;pointer-events:none;opacity:.95}
+.ai-btn:focus-visible{outline:2px solid rgba(243,47,65,.45);outline-offset:3px}
+
+.stage.is-playing .ai-btn{opacity:0;transform:scale(.86)}
+
+/* ---------- orb B：底部进出 ---------- */
+.orb{
+  position:absolute;left:50%;
+  width:var(--orb);height:var(--orb);
+  margin-left:calc(var(--orb) / -2);
+  bottom:var(--orb-hidden-bottom);
+  z-index:8;pointer-events:none;
+  transform-origin:50% 100%;
+  transform:scale(.88);
+  opacity:1;
+  will-change:bottom,transform,opacity;
+}
+.orb.is-open{pointer-events:auto}
+.orb__shell{
+  position:absolute;inset:0;border-radius:50%;overflow:hidden;
+  background:transparent;
+  box-shadow:0 14px 32px rgba(0,0,0,.18);
+}
+.orb__shell .clip{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;display:block;background:transparent;
+  pointer-events:none;user-select:none;
+}
+
+.veil{
+  position:absolute;inset:0;background:rgba(20,12,16,.12);
+  opacity:0;pointer-events:none;transition:opacity .28s var(--ease);z-index:4;
+}
+.stage.is-playing .veil{opacity:1}
+
+.hud{
+  position:absolute;left:16px;right:16px;top:14px;z-index:9;
+  display:flex;align-items:center;gap:8px;pointer-events:none;
+}
+.pill{
+  pointer-events:auto;appearance:none;border:0;cursor:pointer;font:inherit;
+  font-size:11.5px;padding:7px 12px;border-radius:999px;
+  background:rgba(255,255,255,.92);color:#1B1319;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);backdrop-filter:blur(8px);
+}
+.pill:active{transform:scale(.97)}
+.hint{margin-left:auto;font-size:11px;color:rgba(27,19,25,.55);background:rgba(255,255,255,.7);
+  padding:6px 10px;border-radius:999px;backdrop-filter:blur(8px);pointer-events:none}
+
+.caption{
+  position:fixed;left:0;right:0;bottom:10px;text-align:center;
+  font-size:12px;color:rgba(255,255,255,.55);pointer-events:none;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .orb,.ai-btn,.veil{transition:none !important}
+}
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <img class="home-shot" src="首页-终2.png" alt="首页" width="1170" height="2532" decoding="async">
+
+    <div class="hud">
+      <button class="pill" id="replayBtn" type="button">重播方案 B</button>
+      <span class="hint">方案 B · 底部进出 · 透明抠像</span>
+    </div>
+
+    <div class="veil" id="veil"></div>
+
+    <div class="orb" id="orb" aria-hidden="true" data-phase="hidden">
+      <div class="orb__shell">
+        <video id="clip" class="clip"
+          width="512" height="512"
+          muted playsinline webkit-playsinline
+          preload="auto"
+          disablepictureinpicture
+          controlslist="nodownload nofullscreen noremoteplayback"
+          src="assets/tab/agent-keyed.webm"></video>
+      </div>
+    </div>
+
+    <div class="tab-wrap" id="tabWrap">
+      <div class="tab" aria-hidden="true"></div>
+      <div class="tab-items" role="tablist" aria-label="底部导航">
+        <button class="item is-home" type="button" aria-current="page">
+          <span class="ic">
+            <img src="assets/tab/tab-home-bg.svg" alt="" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+            <img src="assets/tab/tab-home-vector.svg" alt="" style="width:18px;height:18px">
+          </span>
+          <span>首页</span>
+        </button>
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-customer.svg" alt=""></span>
+          <span>客户</span>
+        </button>
+
+        <div class="ai-slot">
+          <button class="ai-btn" id="aiBtn" type="button" aria-label="打开 AI 助手">
+            <img class="glow" src="assets/tab/tab-glow.png" alt="">
+            <img class="bot" src="assets/tab/tab-ai.png" alt="">
+          </button>
+        </div>
+
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-store.svg" alt=""></span>
+          <span>小店</span>
+        </button>
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-acquire-union.svg" alt="" style="width:18px;height:18px"></span>
+          <span>获客</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <p class="caption">方案 B · d128 · 透明 WebM · 底出入场 · 首尾完全在屏外</p>
+
+<script>
+(() => {
+  const stage = document.getElementById("stage");
+  const orb = document.getElementById("orb");
+  const clip = document.getElementById("clip");
+  const replayBtn = document.getElementById("replayBtn");
+  const aiBtn = document.getElementById("aiBtn");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const SHOW_MS = 2400;
+  const IN_MS = 450;
+  const OUT_MS = 400;
+  const MEDIA_START = 0;
+
+  let busy = false;
+  let closeTimer = 0;
+
+  const CS = getComputedStyle(document.documentElement);
+  const HIDDEN_BOTTOM = CS.getPropertyValue("--orb-hidden-bottom").trim();
+  const REST_BOTTOM = CS.getPropertyValue("--orb-rest-bottom").trim();
+
+  function wait(ms) {
+    return new Promise((r) => { closeTimer = setTimeout(r, ms); });
+  }
+
+  function waitTransition(el, prop, fallback) {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        el.removeEventListener("transitionend", onEnd);
+        resolve();
+      };
+      const onEnd = (e) => {
+        if (e.target === el && (!prop || e.propertyName === prop)) finish();
+      };
+      el.addEventListener("transitionend", onEnd);
+      setTimeout(finish, fallback);
+    });
+  }
+
+  function parkHidden(scale) {
+    orb.style.transition = "none";
+    orb.style.bottom = HIDDEN_BOTTOM;
+    orb.style.transform = "scale(" + (scale == null ? 0.88 : scale) + ")";
+    orb.style.opacity = "1";
+    orb.dataset.phase = "hidden";
+    void orb.offsetWidth;
+  }
+
+  function stopMedia() {
+    try {
+      clip.pause();
+      clip.currentTime = MEDIA_START;
+    } catch (_) { /* ignore */ }
+  }
+
+  async function startMedia() {
+    clip.muted = true;
+    clip.playsInline = true;
+    try {
+      clip.pause();
+      clip.currentTime = MEDIA_START;
+    } catch (_) { /* ignore */ }
+    await new Promise((resolve) => {
+      const done = () => {
+        clip.removeEventListener("seeked", done);
+        resolve();
+      };
+      if (Math.abs(clip.currentTime - MEDIA_START) < 0.05) resolve();
+      else {
+        clip.addEventListener("seeked", done);
+        setTimeout(resolve, 120);
+      }
+    });
+    try {
+      const p = clip.play();
+      if (p && typeof p.then === "function") await p;
+    } catch (_) { /* gesture fallback via replay */ }
+  }
+
+  async function playIntro() {
+    if (busy) return;
+    busy = true;
+    clearTimeout(closeTimer);
+
+    stage.classList.add("is-playing");
+    orb.setAttribute("aria-hidden", "false");
+    orb.classList.add("is-open");
+
+    // 第 1 帧：完全在屏外
+    parkHidden(0.88);
+    window.__introPhase = "hidden-start";
+    window.__introT0 = performance.now();
+
+    // 入场到休息位
+    if (!reduced) {
+      orb.style.transition =
+        "bottom " + IN_MS + "ms var(--ease-in), transform " + IN_MS + "ms var(--ease-in)";
+    }
+    orb.style.bottom = REST_BOTTOM;
+    orb.style.transform = "scale(1)";
+    orb.dataset.phase = "entering";
+    window.__introPhase = "entering";
+    await waitTransition(orb, "bottom", reduced ? 0 : IN_MS + 40);
+    orb.dataset.phase = "rest";
+    window.__introPhase = "rest";
+
+    const tPlay = performance.now();
+    window.__introT0 = tPlay;
+    window.__introShowMs = SHOW_MS;
+    await startMedia();
+    await wait(Math.max(0, SHOW_MS - (performance.now() - tPlay)));
+
+    stopMedia();
+
+    // 退场：缩小 + 沉出屏外
+    orb.style.transition = reduced
+      ? "none"
+      : "bottom " + OUT_MS + "ms var(--ease-out), transform " + OUT_MS + "ms var(--ease-out)";
+    void orb.offsetWidth;
+    orb.style.bottom = HIDDEN_BOTTOM;
+    orb.style.transform = "scale(.82)";
+    orb.dataset.phase = "exiting";
+    window.__introPhase = "exiting";
+    await waitTransition(orb, "bottom", reduced ? 0 : OUT_MS + 40);
+
+    // 最后一帧：仍在屏外
+    parkHidden(0.88);
+    window.__introPhase = "hidden-end";
+
+    stage.classList.remove("is-playing");
+    orb.classList.remove("is-open");
+    orb.setAttribute("aria-hidden", "true");
+    orb.style.transition = "";
+    busy = false;
+  }
+
+  /** 几何：orb 是否完全在 stage 底边之下（无相交） */
+  window.__orbFullyOffscreen = function () {
+    const s = stage.getBoundingClientRect();
+    const o = orb.getBoundingClientRect();
+    return o.top >= s.bottom - 0.5;
+  };
+
+  replayBtn.addEventListener("click", () => playIntro());
+  aiBtn.addEventListener("click", () => { if (!busy) playIntro(); });
+
+  try { clip.load(); } catch (_) { /* ignore */ }
+
+  // 初始停在屏外
+  parkHidden(0.88);
+
+  const boot = () => {
+    if (document.visibilityState === "hidden") return;
+    setTimeout(() => playIntro(), 600);
+  };
+  if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot, { once: true });
+})();
+</script>
+</body>
+</html>

@@ -262,7 +262,90 @@ button{font:inherit;color:inherit}
 }
 #frame.mode-home .home-ai{opacity:1;pointer-events:auto}
 .home-ai:focus-visible{outline:2px solid rgba(226,135,155,.62);outline-offset:3px}
-#frame.is-orb-open .home-ai{opacity:0;pointer-events:none}
+#frame.is-orb-open .home-ai,
+#frame.is-b2-open .home-ai{opacity:0;pointer-events:none}
+
+/* 首页左上角：进入提醒方案切换（默认圆环） */
+.intro-switch{
+  position:absolute;left:12px;top:12px;z-index:20;
+  display:none;align-items:center;gap:0;
+  padding:3px;border-radius:999px;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 1px 3px rgba(0,0,0,.1);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  pointer-events:auto;
+}
+#frame.mode-home .intro-switch{display:inline-flex}
+#frame.mode-fullscreen .intro-switch{display:none}
+.intro-switch button{
+  appearance:none;border:0;cursor:pointer;font:inherit;
+  font-size:11px;font-weight:500;line-height:1;
+  padding:7px 10px;border-radius:999px;
+  color:#5a5558;background:transparent;
+  transition:background .18s var(--ease-out), color .18s var(--ease-out);
+}
+.intro-switch button.is-on{
+  background:#1B1319;color:#fff;
+}
+.intro-switch button:focus-visible{outline:2px solid rgba(226,135,155,.55);outline-offset:2px}
+
+/* B2：全屏浅蒙层 + 底部深色渐变（在 tab 下、机器人下） */
+.intro-veil{
+  position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:rgba(32,28,30,.28);opacity:0;
+  transition:opacity .32s var(--ease-out);
+}
+.intro-well{
+  position:absolute;left:0;right:0;bottom:0;height:220px;z-index:2;
+  pointer-events:none;opacity:0;
+  background:linear-gradient(
+    to top,
+    rgba(14,10,12,.62) 0%,
+    rgba(14,10,12,.36) 38%,
+    rgba(14,10,12,.12) 68%,
+    transparent 100%
+  );
+  transition:opacity .34s var(--ease-out);
+}
+#frame.is-b2-open .intro-veil,
+#frame.is-b2-open .intro-well{opacity:1}
+
+/* B2：透明机器人，锚在 homeAi 中心，无圆壳 */
+.intro-mascot{
+  --bot:160px;
+  --icon-scale:0.28;
+  position:absolute;left:50%;top:0;
+  width:var(--bot);height:var(--bot);margin:0;
+  z-index:4;pointer-events:none;opacity:0;
+  transform-origin:50% 50%;
+  transform:translate(-50%,-50%) scale(var(--icon-scale));
+  will-change:transform,opacity;
+  filter:drop-shadow(0 10px 24px rgba(40,18,26,.22));
+  -webkit-mask-image:linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 72%,
+    rgba(0,0,0,.75) 84%,
+    transparent 96%
+  );
+  mask-image:linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 72%,
+    rgba(0,0,0,.75) 84%,
+    transparent 96%
+  );
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+}
+.intro-mascot.is-open{pointer-events:auto;cursor:pointer}
+.intro-mascot .intro-clip{
+  display:block;width:100%;height:100%;
+  object-fit:contain;background:transparent;
+  pointer-events:none;user-select:none;
+}
 
 /* 圆形提醒：挂在 tab 像素图坐标系内，底边与机器人底边齐平 */
 .orb{
@@ -318,7 +401,8 @@ button{font:inherit;color:inherit}
   mask-composite:exclude;
 }
 @media (prefers-reduced-motion:reduce){
-  .orb,.orb.is-out,.orb-glow,.home-ai{transition:none !important}
+  .orb,.orb.is-out,.orb-glow,.home-ai,
+  .intro-veil,.intro-well,.intro-mascot,.intro-switch button{transition:none !important}
 }
 
 
@@ -1459,6 +1543,25 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
     <!-- Figma 708:251：白渐变衬托层，贴底；不随安全区移动 -->
     <div class="home-tab-fade" aria-hidden="true"></div>
+
+    <!-- 进入提醒方案切换：默认圆环 -->
+    <div class="intro-switch" id="introSwitch" role="group" aria-label="进入提醒方案">
+      <button type="button" data-scheme="orb" class="is-on" aria-pressed="true">圆环</button>
+      <button type="button" data-scheme="b2" aria-pressed="false">图标进出</button>
+    </div>
+
+    <!-- B2 蒙层 / 底渐变 / 透明机器人（与圆环方案并存，可切换） -->
+    <div class="intro-veil" id="introVeil" aria-hidden="true"></div>
+    <div class="intro-well" id="introWell" aria-hidden="true"></div>
+    <div class="intro-mascot" id="introMascot" aria-hidden="true">
+      <video id="introClip" class="intro-clip"
+        width="512" height="512"
+        muted playsinline webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+        controlslist="nodownload nofullscreen noremoteplayback"
+        src="assets/tab/agent-keyed.webm"></video>
+    </div>
 
     <nav class="home-tab" id="homeTab" aria-label="底部导航">
       <!-- 几乎不透明毛玻璃底板：盖住首页内容，再叠 Figma 像素图 -->
@@ -2679,7 +2782,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     navSheet.classList.toggle("is-on", !isFull && !isHome);
     navFull.classList.toggle("is-on", isFull);
     if (navHome) navHome.classList.toggle("is-on", isHome);
-    if (!isHome) stopOrb();
+    if (!isHome) stopIntro();
     clearTimeout(setMode._t);
     setMode._t = setTimeout(function () {
       frame.classList.remove("is-mode-animating");
@@ -2687,21 +2790,35 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     requestAnimationFrame(updateScrollHint);
   }
 
-  /* ----- 进入首页提醒：tab 中央轻弹放大成 d128 → 播放 → 快收 ----- */
+  /* ----- 进入首页提醒：圆环 / B2 图标进出（可切换，默认圆环） ----- */
   var orb = document.getElementById("orb");
   var orbClip = document.getElementById("orbClip");
   var homeAi = document.getElementById("homeAi");
+  var introSwitch = document.getElementById("introSwitch");
+  var introMascot = document.getElementById("introMascot");
+  var introClip = document.getElementById("introClip");
 
   var ORB_SIZE = 128;
-  var ORB_BOTTOM = 43;          // tab 像素图内底距；与机器人底边齐平（CSS .orb bottom:43）
-  var ORB_MEDIA_START = 0.80;   // 跳过空环前摇，直接进机器人段
-  var ORB_SHOW_MS = 2400;       // 片源 0.8 → 3.2s
-  var ORB_POP_MS = 200;         // 轻弹出现，不跟空环长大
+  var ORB_MEDIA_START = 0.80;
+  var ORB_SHOW_MS = 2400;
+  var ORB_POP_MS = 200;
   var ORB_OUT_MS = 280;
 
+  var B2_ICON_SCALE = 0.28;
+  var B2_IN_MS = 380;
+  var B2_SETTLE_MS = 120;
+  var B2_SHOW_MS = 2200;
+  var B2_OUT_MS = 320;
+  var B2_LIFT_PX = -36;
+  var B2_MEDIA_START = 0.5;
+
+  var introScheme = "orb"; /* orb | b2 */
   var orbBusy = false;
-  var orbTimer = 0;
-  var orbPlayed = false;
+  var b2Busy = false;
+  var introTimer = 0;
+  var introPlayed = false;
+
+  function introBusy() { return orbBusy || b2Busy; }
 
   function stopOrbClip() {
     if (!orbClip) return;
@@ -2726,20 +2843,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orb.style.transformOrigin = "";
   }
 
-  /* 立即收起（切到对话时不拖尾） */
   function stopOrb() {
-    if (!orb) return;
-    clearTimeout(orbTimer);
-    if (orbBusy) {
+    clearTimeout(introTimer);
+    if (!orb) { orbBusy = false; return; }
+    if (orbBusy || orb.classList.contains("is-open")) {
       stopOrbClip();
       orbReset();
-      orbBusy = false;
     }
+    orbBusy = false;
   }
 
-  function orbWait(ms) {
+  function introWait(ms) {
     return new Promise(function (r) {
-      orbTimer = setTimeout(r, ms);
+      introTimer = setTimeout(r, ms);
     });
   }
 
@@ -2763,7 +2879,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       try {
         var p = orbClip.play();
         if (p && typeof p.then === "function") return p;
-      } catch (e) { /* 自动播放被拦截时，重播入口仍可触发 */ }
+      } catch (e) { /* ignore */ }
     });
   }
 
@@ -2787,17 +2903,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function playOrb() {
-    if (!orb || orbBusy) return Promise.resolve();
+    if (!orb || orbBusy || b2Busy) return Promise.resolve();
     orbBusy = true;
-    orbPlayed = true;
-    clearTimeout(orbTimer);
+    introPlayed = true;
+    clearTimeout(introTimer);
 
     frame.classList.add("is-orb-open");
     orb.classList.remove("is-out");
     orb.setAttribute("aria-hidden", "false");
     orb.classList.add("is-open");
 
-    /* 直接满幅 d128，轻弹出现；bottom 交给 CSS 百分比锚点，始终贴图标底边 */
     orb.style.transition = "none";
     orb.style.width = ORB_SIZE + "px";
     orb.style.height = ORB_SIZE + "px";
@@ -2816,7 +2931,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var t0 = performance.now();
     return orbStartMedia().then(function () {
       var elapsed = performance.now() - t0;
-      return orbWait(Math.max(0, ORB_SHOW_MS - elapsed));
+      return introWait(Math.max(0, ORB_SHOW_MS - elapsed));
     }).then(function () {
       stopOrbClip();
       orb.style.transition = "";
@@ -2829,19 +2944,190 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     });
   }
 
+  /* ----- B2：图标放大进出 ----- */
+  function stopB2Clip() {
+    if (!introClip) return;
+    try {
+      introClip.pause();
+      introClip.currentTime = B2_MEDIA_START;
+    } catch (e) { /* ignore */ }
+  }
+
+  function b2Xform(scale, lift) {
+    return "translate(-50%, -50%) translateY(" + lift + "px) scale(" + scale + ")";
+  }
+
+  function pinB2ToAi() {
+    if (!introMascot || !homeAi) return;
+    var fr = frame.getBoundingClientRect();
+    var a = homeAi.getBoundingClientRect();
+    var cx = a.left + a.width / 2 - fr.left;
+    var cy = a.top + a.height / 2 - fr.top;
+    introMascot.style.left = cx + "px";
+    introMascot.style.top = cy + "px";
+  }
+
+  function b2Park() {
+    if (!introMascot) return;
+    pinB2ToAi();
+    introMascot.style.transition = "none";
+    introMascot.style.transform = b2Xform(B2_ICON_SCALE, 0);
+    introMascot.style.opacity = "0";
+    void introMascot.offsetWidth;
+  }
+
+  function b2Reset() {
+    if (!introMascot) return;
+    b2Park();
+    introMascot.classList.remove("is-open");
+    introMascot.setAttribute("aria-hidden", "true");
+    introMascot.style.transition = "";
+    frame.classList.remove("is-b2-open");
+  }
+
+  function stopB2() {
+    clearTimeout(introTimer);
+    if (!introMascot) { b2Busy = false; return; }
+    if (b2Busy || introMascot.classList.contains("is-open") || frame.classList.contains("is-b2-open")) {
+      stopB2Clip();
+      b2Reset();
+    }
+    b2Busy = false;
+  }
+
+  function stopIntro() {
+    stopOrb();
+    stopB2();
+  }
+
+  function b2WaitTransition(prop, fallback) {
+    return new Promise(function (resolve) {
+      if (MOTION_REDUCED || !introMascot) return resolve();
+      var done = false;
+      var finish = function () {
+        if (done) return;
+        done = true;
+        introMascot.removeEventListener("transitionend", onEnd);
+        resolve();
+      };
+      var onEnd = function (e) {
+        if (e.target === introMascot && (!prop || e.propertyName === prop)) finish();
+      };
+      introMascot.addEventListener("transitionend", onEnd);
+      setTimeout(finish, fallback);
+    });
+  }
+
+  function b2SeekStart() {
+    if (!introClip) return Promise.resolve();
+    introClip.muted = true;
+    introClip.playsInline = true;
+    try {
+      introClip.pause();
+      introClip.currentTime = B2_MEDIA_START;
+    } catch (e) { /* ignore */ }
+    return new Promise(function (resolve) {
+      if (Math.abs(introClip.currentTime - B2_MEDIA_START) < 0.04) return resolve();
+      var done = function () {
+        introClip.removeEventListener("seeked", done);
+        resolve();
+      };
+      introClip.addEventListener("seeked", done);
+      setTimeout(resolve, 160);
+    });
+  }
+
+  function b2StartMedia() {
+    return b2SeekStart().then(function () {
+      try {
+        var p = introClip.play();
+        if (p && typeof p.then === "function") return p;
+      } catch (e) { /* ignore */ }
+    });
+  }
+
+  function playB2() {
+    if (!introMascot || !introClip || b2Busy || orbBusy) return Promise.resolve();
+    b2Busy = true;
+    introPlayed = true;
+    clearTimeout(introTimer);
+
+    return b2SeekStart().then(function () {
+      frame.classList.add("is-b2-open");
+      introMascot.classList.add("is-open");
+      introMascot.setAttribute("aria-hidden", "false");
+      b2Park();
+      introMascot.style.opacity = "1";
+      return introWait(40);
+    }).then(function () {
+      if (!MOTION_REDUCED) {
+        introMascot.style.transition =
+          "transform " + B2_IN_MS + "ms cubic-bezier(.34,1.3,.52,1), opacity " + B2_IN_MS + "ms ease";
+      }
+      introMascot.style.transform = b2Xform(1, B2_LIFT_PX);
+      return b2WaitTransition("transform", MOTION_REDUCED ? 0 : B2_IN_MS + 40);
+    }).then(function () {
+      return introWait(B2_SETTLE_MS);
+    }).then(function () {
+      var t0 = performance.now();
+      return b2StartMedia().then(function () {
+        return introWait(Math.max(0, B2_SHOW_MS - (performance.now() - t0)));
+      });
+    }).then(function () {
+      return b2SeekStart();
+    }).then(function () {
+      if (!MOTION_REDUCED) {
+        introMascot.style.transition =
+          "transform " + B2_OUT_MS + "ms cubic-bezier(.2,.8,.2,1), opacity " + Math.min(B2_OUT_MS, 220) + "ms ease";
+      }
+      introMascot.style.transform = b2Xform(B2_ICON_SCALE, 0);
+      return b2WaitTransition("transform", MOTION_REDUCED ? 0 : B2_OUT_MS + 40);
+    }).then(function () {
+      frame.classList.remove("is-b2-open");
+      return introWait(30);
+    }).then(function () {
+      b2Reset();
+      b2Busy = false;
+    }).catch(function () {
+      b2Reset();
+      b2Busy = false;
+    });
+  }
+
+  function playIntro() {
+    if (introScheme === "b2") return playB2();
+    return playOrb();
+  }
+
+  function setIntroScheme(scheme, replay) {
+    if (scheme !== "orb" && scheme !== "b2") return;
+    introScheme = scheme;
+    if (introSwitch) {
+      introSwitch.querySelectorAll("button").forEach(function (btn) {
+        var on = btn.getAttribute("data-scheme") === scheme;
+        btn.classList.toggle("is-on", on);
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+    }
+    stopIntro();
+    if (replay && frame.dataset.mode === "home") {
+      setTimeout(function () { playIntro(); }, 220);
+    }
+  }
+
   function enterHome(replay) {
     setMode("home");
-    if (replay) setTimeout(function () { playOrb(); }, 260);
+    if (replay) setTimeout(function () { playIntro(); }, 260);
   }
 
   function openAgent() {
-    stopOrb();
+    stopIntro();
     setMode("sheet");
   }
 
   /* 关闭窗口：直接回首页（不经过半屏），让 Agent 整体滑出画布 */
   function goHome() {
-    stopOrb();
+    stopIntro();
     setMode("home");
   }
 
@@ -2856,6 +3142,21 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (orb.classList.contains("is-open")) openAgent();
     });
   }
+  if (introMascot) {
+    introMascot.addEventListener("click", function () {
+      if (introMascot.classList.contains("is-open")) openAgent();
+    });
+  }
+  if (introSwitch) {
+    introSwitch.addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-scheme]");
+      if (!btn) return;
+      setIntroScheme(btn.getAttribute("data-scheme"), true);
+    });
+  }
+  window.addEventListener("resize", function () {
+    if (b2Busy || frame.classList.contains("is-b2-open")) pinB2ToAi();
+  });
 
   /* 刚进入首页：加载后自动提醒一次（仅首页态；?noremind / ?record 跳过） */
   (function bootReminder() {
@@ -2868,14 +3169,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
     var tries = 0;
     function remind() {
-      if (orbPlayed || orbBusy) return;
+      if (introPlayed || introBusy()) return;
       if (frame.dataset.mode !== "home") return;
-      /* 页面在后台时先等可见，避免刚进首页却错过提醒 */
       if (document.visibilityState === "hidden" && tries++ < 40) {
         setTimeout(remind, 400);
         return;
       }
-      playOrb();
+      playIntro();
     }
     if (document.readyState === "complete") setTimeout(remind, 600);
     else window.addEventListener("load", function () { setTimeout(remind, 600); }, { once: true });

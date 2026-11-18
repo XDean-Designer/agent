@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Agent · 方案 B2 · 图标进出</title>
+<style>
+:root{
+  --stage-w:390px;
+  --stage-h:844px;
+  --tab-w:340px;
+  --tab-h:60px;
+  --ai-size:50px;
+  --bot:160px;
+  --icon-scale:0.28; /* ≈45/160 */
+  --tab-bottom:8px;
+  --ease-in:cubic-bezier(.34,1.3,.52,1);
+  --ease-out:cubic-bezier(.2,.8,.2,1);
+  --ink:#333;
+  --red:#F32F41;
+  --bg:#2A2A2A;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);font-family:"PingFang SC","Segoe UI",system-ui,sans-serif;color:#fff}
+body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
+
+.stage{
+  width:min(var(--stage-w),100%);
+  aspect-ratio:390 / 844;
+  max-height:92vh;
+  max-width:min(var(--stage-w), calc(92vh * 390 / 844));
+  border-radius:36px;
+  position:relative;overflow:hidden;
+  background:#F5F5F5;
+  box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+.home-shot{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:top center;
+  display:block;pointer-events:none;user-select:none;
+  z-index:1;
+}
+
+.tab-wrap{
+  position:absolute;left:50%;bottom:var(--tab-bottom);transform:translateX(-50%);
+  width:var(--tab-w);height:var(--tab-h);z-index:5;
+}
+.tab{
+  position:absolute;inset:0;border-radius:200px;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:
+    0 12px 36px rgba(0,0,0,.12),
+    inset 3px 3px .5px -3.5px rgba(255,255,255,.5),
+    inset 2px 2px 1px -2px #b3b3b3,
+    inset -2px -2px 1px -2px #b3b3b3,
+    inset 0 0 22px rgba(242,242,242,.5);
+}
+.tab-items{
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:1fr 1fr var(--ai-size) 1fr 1fr;
+  align-items:center;padding:0 6px;z-index:2;
+}
+.item{
+  appearance:none;border:0;background:transparent;font:inherit;color:var(--ink);
+  display:grid;justify-items:center;gap:2px;padding:0;cursor:pointer;position:relative;
+}
+.item .ic{width:24px;height:24px;display:grid;place-items:center;position:relative}
+.item .ic img{display:block;width:24px;height:24px}
+.item span{font-size:11px;line-height:1;color:#333}
+.item.is-home{
+  width:52px;height:52px;margin:0 auto;border-radius:50%;
+  background:rgba(255,255,255,.95);
+  box-shadow:0 1px 2px rgba(0,0,0,.06);
+  align-content:center;gap:0;padding-top:4px;
+}
+.item.is-home span{color:var(--red);font-weight:600}
+.item.is-home .ic{width:24px;height:24px}
+
+.ai-slot{
+  width:var(--ai-size);height:var(--ai-size);position:relative;
+  display:grid;place-items:center;justify-self:center;
+}
+.ai-btn{
+  appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
+  width:45px;height:45px;border-radius:50%;position:relative;z-index:2;
+  transition:opacity .18s var(--ease), transform .22s var(--ease);
+}
+.ai-btn img.bot{position:absolute;left:50%;top:48%;width:45px;height:39px;
+  transform:translate(-50%,-50%);object-fit:contain;filter:drop-shadow(0 0 2px rgba(0,0,0,.24));
+  pointer-events:none}
+.ai-btn img.glow{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);
+  object-fit:contain;pointer-events:none;opacity:.95}
+.ai-btn:focus-visible{outline:2px solid rgba(243,47,65,.45);outline-offset:3px}
+
+/* 仅在大机器人已盖住图标时隐藏静态 AI，避免空窗 */
+.stage.ai-hidden .ai-btn{opacity:0;transform:scale(.92);pointer-events:none}
+
+/* 全屏灰底蒙层（无圆形遮罩） */
+.veil{
+  position:absolute;inset:0;
+  background:rgba(32,28,30,.28);
+  opacity:0;pointer-events:none;
+  transition:opacity .32s var(--ease);z-index:4;
+}
+.stage.is-playing .veil{opacity:1}
+
+/* A：屏幕底部全宽线性深色渐变（veil 与 mascot 之间），托住羽化缺口 */
+.bot-well{
+  position:absolute;left:0;right:0;bottom:0;
+  height:220px;
+  z-index:6;pointer-events:none;
+  opacity:0;
+  background:linear-gradient(
+    to top,
+    rgba(14,10,12,.62) 0%,
+    rgba(14,10,12,.36) 38%,
+    rgba(14,10,12,.12) 68%,
+    transparent 100%
+  );
+  transition:opacity .34s var(--ease);
+}
+.stage.is-playing .bot-well{opacity:1}
+
+/*
+  透明机器人：锚在 AI 图标中心（JS 写入 left/top）
+  软羽化 mask 溶掉画布矩形灰边，不裁角色本体
+*/
+.mascot{
+  position:absolute;left:50%;top:auto;
+  width:var(--bot);height:var(--bot);
+  margin:0;
+  z-index:8;pointer-events:none;
+  transform-origin:50% 50%;
+  transform:translate(-50%,-50%) scale(var(--icon-scale));
+  opacity:0;
+  will-change:transform,opacity;
+  filter:drop-shadow(0 10px 24px rgba(40,18,26,.22));
+  /* A：上下羽化、左右几乎不裁（竖向线性 mask） */
+  -webkit-mask-image:linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 72%,
+    rgba(0,0,0,.75) 84%,
+    transparent 96%
+  );
+  mask-image:linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 72%,
+    rgba(0,0,0,.75) 84%,
+    transparent 96%
+  );
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+}
+.mascot.is-open{pointer-events:auto}
+.mascot .clip{
+  display:block;width:100%;height:100%;
+  object-fit:contain;background:transparent;
+  pointer-events:none;user-select:none;
+}
+
+.hud{
+  position:absolute;left:16px;right:16px;top:14px;z-index:9;
+  display:flex;align-items:center;gap:8px;pointer-events:none;
+}
+.pill{
+  pointer-events:auto;appearance:none;border:0;cursor:pointer;font:inherit;
+  font-size:11.5px;padding:7px 12px;border-radius:999px;
+  background:rgba(255,255,255,.92);color:#1B1319;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);backdrop-filter:blur(8px);
+}
+.pill:active{transform:scale(.97)}
+.hint{margin-left:auto;font-size:11px;color:rgba(27,19,25,.55);background:rgba(255,255,255,.7);
+  padding:6px 10px;border-radius:999px;backdrop-filter:blur(8px);pointer-events:none}
+
+.caption{
+  position:fixed;left:0;right:0;bottom:10px;text-align:center;
+  font-size:12px;color:rgba(255,255,255,.55);pointer-events:none;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mascot,.ai-btn,.veil,.bot-well{transition:none !important}
+}
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <img class="home-shot" src="首页-终2.png" alt="首页" width="1170" height="2532" decoding="async">
+
+    <div class="hud">
+      <button class="pill" id="replayBtn" type="button">重播方案 B2</button>
+      <span class="hint">方案 B2 · 图标进出 · 案1 · 160</span>
+    </div>
+
+    <div class="veil" id="veil"></div>
+    <div class="bot-well" id="botWell" aria-hidden="true"></div>
+
+    <div class="mascot" id="mascot" aria-hidden="true" data-phase="icon">
+      <video id="clip" class="clip"
+        width="512" height="512"
+        muted playsinline webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+        controlslist="nodownload nofullscreen noremoteplayback"
+        src="assets/tab/agent-keyed.webm"></video>
+    </div>
+
+    <div class="tab-wrap" id="tabWrap">
+      <div class="tab" aria-hidden="true"></div>
+      <div class="tab-items" role="tablist" aria-label="底部导航">
+        <button class="item is-home" type="button" aria-current="page">
+          <span class="ic">
+            <img src="assets/tab/tab-home-bg.svg" alt="" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+            <img src="assets/tab/tab-home-vector.svg" alt="" style="width:18px;height:18px">
+          </span>
+          <span>首页</span>
+        </button>
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-customer.svg" alt=""></span>
+          <span>客户</span>
+        </button>
+
+        <div class="ai-slot">
+          <button class="ai-btn" id="aiBtn" type="button" aria-label="打开 AI 助手">
+            <img class="glow" src="assets/tab/tab-glow.png" alt="">
+            <img class="bot" src="assets/tab/tab-ai.png" alt="">
+          </button>
+        </div>
+
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-store.svg" alt=""></span>
+          <span>小店</span>
+        </button>
+        <button class="item" type="button">
+          <span class="ic"><img src="assets/tab/tab-acquire-union.svg" alt="" style="width:18px;height:18px"></span>
+          <span>获客</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <p class="caption">方案 B2 · 从图标长出/缩回 · 画布羽化 · 案1 · 160</p>
+
+<script>
+(() => {
+  const stage = document.getElementById("stage");
+  const mascot = document.getElementById("mascot");
+  const clip = document.getElementById("clip");
+  const replayBtn = document.getElementById("replayBtn");
+  const aiBtn = document.getElementById("aiBtn");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const ICON_SCALE = 0.28;
+  const IN_MS = 380;
+  const SETTLE_MS = 120;
+  const SHOW_MS = 2200;
+  const OUT_MS = 320;
+  const LIFT_PX = -36; /* B 档：满幅上浮，进出仍钉图标中心 */
+  /* 片源 0s 几乎空；0.3–3.6s 才是完整机器人 */
+  const MEDIA_START = 0.5;
+
+  let busy = false;
+  let closeTimer = 0;
+
+  function wait(ms) {
+    return new Promise((r) => { closeTimer = setTimeout(r, ms); });
+  }
+
+  function waitTransition(el, prop, fallback) {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        el.removeEventListener("transitionend", onEnd);
+        resolve();
+      };
+      const onEnd = (e) => {
+        if (e.target === el && (!prop || e.propertyName === prop)) finish();
+      };
+      el.addEventListener("transitionend", onEnd);
+      setTimeout(finish, fallback);
+    });
+  }
+
+  /** 几何中心钉在 TAB 中央 AI 按钮中心 */
+  function pinToAiIcon() {
+    const s = stage.getBoundingClientRect();
+    const a = aiBtn.getBoundingClientRect();
+    const cx = a.left + a.width / 2 - s.left;
+    const cy = a.top + a.height / 2 - s.top;
+    mascot.style.left = cx + "px";
+    mascot.style.top = cy + "px";
+    mascot.style.bottom = "auto";
+    mascot.style.marginLeft = "0";
+  }
+
+  function xform(scale, lift) {
+    return "translate(-50%, -50%) translateY(" + lift + "px) scale(" + scale + ")";
+  }
+
+  function parkIcon() {
+    pinToAiIcon();
+    mascot.style.transition = "none";
+    mascot.style.transform = xform(ICON_SCALE, 0);
+    mascot.style.opacity = "0";
+    mascot.dataset.phase = "icon";
+    window.__introPhase = "icon";
+    void mascot.offsetWidth;
+  }
+
+  function stopMedia() {
+    try {
+      clip.pause();
+      clip.currentTime = MEDIA_START;
+    } catch (_) { /* ignore */ }
+  }
+
+  async function seekStart() {
+    clip.muted = true;
+    clip.playsInline = true;
+    try {
+      clip.pause();
+      clip.currentTime = MEDIA_START;
+    } catch (_) { /* ignore */ }
+    await new Promise((resolve) => {
+      const done = () => {
+        clip.removeEventListener("seeked", done);
+        resolve();
+      };
+      if (Math.abs(clip.currentTime - MEDIA_START) < 0.04) resolve();
+      else {
+        clip.addEventListener("seeked", done);
+        setTimeout(resolve, 160);
+      }
+    });
+  }
+
+  async function startMedia() {
+    await seekStart();
+    try {
+      const p = clip.play();
+      if (p && typeof p.then === "function") await p;
+    } catch (_) { /* replay / click */ }
+  }
+
+  async function playIntro() {
+    if (busy) return;
+    busy = true;
+    clearTimeout(closeTimer);
+
+    pinToAiIcon();
+    await seekStart();
+
+    stage.classList.add("is-playing");
+    mascot.classList.add("is-open");
+    mascot.setAttribute("aria-hidden", "false");
+
+    // 先以图标尺度叠在 AI 上，再藏静态图标 → 无缝「从图标长出」
+    parkIcon();
+    mascot.style.opacity = "1";
+    stage.classList.add("ai-hidden");
+    window.__introPhase = "icon-start";
+    window.__introT0 = performance.now();
+    await wait(40);
+
+    if (!reduced) {
+      mascot.style.transition =
+        "transform " + IN_MS + "ms var(--ease-in), opacity " + IN_MS + "ms ease";
+    }
+    mascot.dataset.phase = "entering";
+    window.__introPhase = "entering";
+    mascot.style.transform = xform(1, LIFT_PX);
+    await waitTransition(mascot, "transform", reduced ? 0 : IN_MS + 40);
+
+    mascot.dataset.phase = "rest";
+    window.__introPhase = "rest";
+    await wait(SETTLE_MS);
+
+    const tPlay = performance.now();
+    window.__introT0 = tPlay;
+    window.__introShowMs = SHOW_MS;
+    await startMedia();
+    await wait(Math.max(0, SHOW_MS - (performance.now() - tPlay)));
+
+    // 收回前定格回完整机器人帧，再缩进图标
+    await seekStart();
+
+    if (!reduced) {
+      mascot.style.transition =
+        "transform " + OUT_MS + "ms var(--ease-out), opacity " + Math.min(OUT_MS, 220) + "ms ease";
+    }
+    mascot.dataset.phase = "exiting";
+    window.__introPhase = "exiting";
+    mascot.style.transform = xform(ICON_SCALE, 0);
+    await waitTransition(mascot, "transform", reduced ? 0 : OUT_MS + 40);
+
+    // 先露回静态图标，再撤掉大机器人
+    stage.classList.remove("ai-hidden");
+    await wait(30);
+    parkIcon();
+    window.__introPhase = "icon-end";
+    stage.classList.remove("is-playing");
+    mascot.classList.remove("is-open");
+    mascot.setAttribute("aria-hidden", "true");
+    mascot.style.transition = "";
+    busy = false;
+  }
+
+  window.__botBox = function () {
+    const b = mascot.getBoundingClientRect();
+    const a = aiBtn.getBoundingClientRect();
+    return {
+      w: Math.round(b.width),
+      h: Math.round(b.height),
+      phase: window.__introPhase,
+      cx: Math.round(b.left + b.width / 2),
+      cy: Math.round(b.top + b.height / 2),
+      aiCx: Math.round(a.left + a.width / 2),
+      aiCy: Math.round(a.top + a.height / 2),
+    };
+  };
+
+  replayBtn.addEventListener("click", () => playIntro());
+  aiBtn.addEventListener("click", () => { if (!busy) playIntro(); });
+  window.addEventListener("resize", () => { if (!busy) parkIcon(); else pinToAiIcon(); });
+
+  try { clip.load(); } catch (_) { /* ignore */ }
+  parkIcon();
+
+  const boot = () => {
+    if (document.visibilityState === "hidden") return;
+    setTimeout(() => playIntro(), 600);
+  };
+  if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot, { once: true });
+})();
+</script>
+</body>
+</html>
