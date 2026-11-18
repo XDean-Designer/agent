@@ -271,9 +271,11 @@ button{font:inherit;color:inherit}
   border-radius:50%;pointer-events:none;opacity:0;
   background:rgba(255,255,255,.97);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);
-  transition:opacity .18s var(--ease-out);
+  transition:opacity .16s var(--ease-out);
 }
 #frame.is-b2-open .home-ai-cover{opacity:1}
+/* 缩回末段揭开像素图中央图标，与大机器人交叉 */
+#frame.is-b2-open.is-b2-revealing .home-ai-cover{opacity:0}
 
 /* 首页左上角：进入提醒方案切换（默认圆环） */
 .intro-switch{
@@ -2817,6 +2819,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var B2_ANCHOR_Y_NUDGE = 21; /* 整体下移 */
   var B2_ANCHOR_X_NUDGE = 2;  /* 整体右移 */
   var B2_MEDIA_START = 0.5;
+  var B2_HANDOFF_MS = 150;
+  var B2_REVEAL_RATIO = 0.68;
+  var B2_REVEAL_EXTRA_MS = 300; /* 图标再晚出现 0.3s */
 
   var introScheme = "orb"; /* orb | b2 */
   var orbBusy = false;
@@ -2992,7 +2997,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     introMascot.classList.remove("is-open");
     introMascot.setAttribute("aria-hidden", "true");
     introMascot.style.transition = "";
-    frame.classList.remove("is-b2-open");
+    frame.classList.remove("is-b2-open", "is-b2-revealing");
   }
 
   function stopB2() {
@@ -3086,15 +3091,26 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }).then(function () {
       return b2SeekStart();
     }).then(function () {
+      /* 缩回：末段揭开图标（B），到位后淡出大机器人（A） */
       if (!MOTION_REDUCED) {
         introMascot.style.transition =
-          "transform " + B2_OUT_MS + "ms cubic-bezier(.2,.8,.2,1), opacity " + Math.min(B2_OUT_MS, 220) + "ms ease";
+          "transform " + B2_OUT_MS + "ms cubic-bezier(.2,.8,.2,1)";
       }
+      var outDone = b2WaitTransition("transform", MOTION_REDUCED ? 0 : B2_OUT_MS + 40);
       introMascot.style.transform = b2Xform(B2_ICON_SCALE, 0);
-      return b2WaitTransition("transform", MOTION_REDUCED ? 0 : B2_OUT_MS + 40);
+      var revealAt = MOTION_REDUCED
+        ? 0
+        : Math.round(B2_OUT_MS * B2_REVEAL_RATIO) + B2_REVEAL_EXTRA_MS;
+      return introWait(revealAt).then(function () {
+        frame.classList.add("is-b2-revealing");
+        return outDone;
+      });
     }).then(function () {
-      frame.classList.remove("is-b2-open");
-      return introWait(30);
+      if (!MOTION_REDUCED) {
+        introMascot.style.transition = "opacity " + B2_HANDOFF_MS + "ms ease";
+      }
+      introMascot.style.opacity = "0";
+      return introWait(MOTION_REDUCED ? 0 : B2_HANDOFF_MS);
     }).then(function () {
       b2Reset();
       b2Busy = false;
