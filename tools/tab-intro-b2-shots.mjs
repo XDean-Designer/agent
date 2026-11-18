@@ -76,21 +76,22 @@ await page.screenshot({ path: path.join(outDir, 'b2-end.png') });
 
 const iconOk = (w) => w >= 40 && w <= 55;
 const aligned = (d) => d <= 6;
-const bottomParked = (d) => Math.abs(d + 13) <= 6; /* 锚点下移 13 → dBottom ≈ -13 */
-const startOk = iconOk(start.w) && aligned(start.dx) && bottomParked(start.dBottom);
+const bottomParked = (d) => Math.abs(d + 17) <= 6; /* 锚点下移 17 → dBottom ≈ -17 */
+const xNudged = (d) => Math.abs(d - 2) <= 6; /* 右移 2 → dx ≈ 2 */
+const startOk = iconOk(start.w) && xNudged(start.dx) && bottomParked(start.dBottom);
 const restOk =
   rest.w >= 90 &&
   rest.w <= 102 &&
   rest.visible &&
   rest.aiHidden &&
-  aligned(rest.dx) &&
+  xNudged(rest.dx) &&
   bottomParked(rest.dBottom);
 const endOk =
   iconOk(end.w) &&
   !end.playing &&
   !end.open &&
   !end.aiHidden &&
-  aligned(end.dx) &&
+  xNudged(end.dx) &&
   bottomParked(end.dBottom);
 const ok = startOk && restOk && endOk;
 console.log('PASS', ok, {
