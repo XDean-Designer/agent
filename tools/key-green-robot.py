@@ -33,10 +33,10 @@ CORE_THRESH = 0.72
 RIM_K = 3
 TEMPORAL = 0.35
 MOTION_DCY = 12.0       # centroid drop (px) → cut temporal
-CHOKE = 3               # tighter matte to kill gray canvas fringe
-WHITE_BLEND = 0.55      # less white rim (gray haze on dark veil)
-ALPHA_CRUSH = 0.12      # near-zero alpha → hard 0 (kill soft gray plate)
-BBOX_PAD = 6            # force clear outside content bbox
+CHOKE = 4               # tighter matte to kill gray canvas fringe
+WHITE_BLEND = 0.35      # less white rim (gray haze on dark veil)
+ALPHA_CRUSH = 0.18      # near-zero alpha → hard 0 (kill soft gray plate)
+BBOX_PAD = 4            # force clear outside content bbox
 
 
 def sample_key_green(bgr: np.ndarray) -> np.ndarray:
@@ -247,8 +247,8 @@ def crush_alpha(alpha: np.ndarray, floor: float = ALPHA_CRUSH) -> np.ndarray:
     """Hard-kill near-zero / soft fog alphas that read as gray canvas haze."""
     a = alpha.copy()
     a = np.where(a < floor, 0.0, a)
-    # snap weak rim upward or off — avoid mid-gray veils
-    weak = (a >= floor) & (a < 0.35)
+    # snap weak rim off — avoid mid-gray veils on dark veil pages
+    weak = (a >= floor) & (a < 0.42)
     a = np.where(weak, 0.0, a)
     return a.astype(np.float32)
 
@@ -321,7 +321,8 @@ def compose_rgba(bgr_src: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     rgb = despill_hard(bgr_src, alpha)
     rgb = pull_edge_color(rgb, alpha)
     rgb = white_edge_finish(rgb, alpha)
-    rgb = np.where(alpha[..., None] < 0.01, 0.0, rgb)
+    # fully clear canvas: no residual RGB where transparent
+    rgb = np.where(alpha[..., None] < 0.02, 0.0, rgb)
     rgba = np.dstack([rgb[:, :, 2], rgb[:, :, 1], rgb[:, :, 0], alpha * 255.0])
     return np.clip(rgba, 0, 255).astype(np.uint8)
 
@@ -332,9 +333,9 @@ def resize_rgba(rgba: np.ndarray, size: int) -> np.ndarray:
     out = np.asarray(im).astype(np.float32)
     # LANCZOS reintroduces soft fringe — crush again after resize
     a = out[:, :, 3] / 255.0
-    a = crush_alpha(a, floor=max(ALPHA_CRUSH, 0.10))
+    a = crush_alpha(a, floor=max(ALPHA_CRUSH, 0.16))
     out[:, :, 3] = a * 255.0
-    out[:, :, :3] = np.where(a[..., None] < 0.01, 0.0, out[:, :, :3])
+    out[:, :, :3] = np.where(a[..., None] < 0.02, 0.0, out[:, :, :3])
     return np.clip(out, 0, 255).astype(np.uint8)
 
 

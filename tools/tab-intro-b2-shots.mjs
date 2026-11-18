@@ -26,7 +26,7 @@ const start = await page.evaluate(() => {
     w: box.w,
     h: box.h,
     dx: Math.abs(box.cx - box.aiCx),
-    dy: Math.abs(box.cy - box.aiCy),
+    dBottom: box.dBottom,
     playing: document.getElementById('stage').classList.contains('is-playing'),
   };
 });
@@ -41,19 +41,18 @@ const rest = await page.evaluate(() => {
   const m = document.getElementById('mascot');
   const s = document.getElementById('stage').getBoundingClientRect();
   const b = m.getBoundingClientRect();
-  const a = document.getElementById('aiBtn').getBoundingClientRect();
   return {
     phase: window.__introPhase,
     w: box.w,
     h: box.h,
     visible: b.bottom > s.top && b.top < s.bottom,
     dx: Math.abs(box.cx - box.aiCx),
-    dy: Math.abs((b.top + b.height / 2) - (a.top + a.height / 2)),
+    dBottom: box.dBottom,
     aiHidden: document.getElementById('stage').classList.contains('ai-hidden'),
     veilOn: document.getElementById('stage').classList.contains('is-playing'),
   };
 });
-console.log('rest-160', JSON.stringify(rest));
+console.log('rest-96', JSON.stringify(rest));
 await page.screenshot({ path: path.join(outDir, 'b2-rest.png') });
 
 await page.waitForFunction(() => window.__introPhase === 'icon-end', { timeout: 12000 });
@@ -66,7 +65,7 @@ const end = await page.evaluate(() => {
     w: box.w,
     h: box.h,
     dx: Math.abs(box.cx - box.aiCx),
-    dy: Math.abs(box.cy - box.aiCy),
+    dBottom: box.dBottom,
     playing: document.getElementById('stage').classList.contains('is-playing'),
     aiHidden: document.getElementById('stage').classList.contains('ai-hidden'),
     open: m.classList.contains('is-open'),
@@ -77,11 +76,32 @@ await page.screenshot({ path: path.join(outDir, 'b2-end.png') });
 
 const iconOk = (w) => w >= 40 && w <= 55;
 const aligned = (d) => d <= 6;
-const startOk = iconOk(start.w) && aligned(start.dx) && aligned(start.dy);
-const restOk = rest.w >= 150 && rest.w <= 170 && rest.visible && rest.aiHidden && aligned(rest.dx) && rest.dy >= 28 && rest.dy <= 48;
-const endOk = iconOk(end.w) && !end.playing && !end.open && !end.aiHidden && aligned(end.dx) && aligned(end.dy);
+const bottomParked = (d) => Math.abs(d + 4) <= 6; /* 锚点下移 4 → dBottom ≈ -4 */
+const startOk = iconOk(start.w) && aligned(start.dx) && bottomParked(start.dBottom);
+const restOk =
+  rest.w >= 90 &&
+  rest.w <= 102 &&
+  rest.visible &&
+  rest.aiHidden &&
+  aligned(rest.dx) &&
+  bottomParked(rest.dBottom);
+const endOk =
+  iconOk(end.w) &&
+  !end.playing &&
+  !end.open &&
+  !end.aiHidden &&
+  aligned(end.dx) &&
+  bottomParked(end.dBottom);
 const ok = startOk && restOk && endOk;
-console.log('PASS', ok, { startOk, restOk, endOk, startW: start.w, restW: rest.w, endW: end.w });
+console.log('PASS', ok, {
+  startOk,
+  restOk,
+  endOk,
+  startW: start.w,
+  restW: rest.w,
+  endW: end.w,
+  restBottom: rest.dBottom,
+});
 
 fs.copyFileSync(path.join(outDir, 'b2-icon.png'), 'D:/AI agent/out/tab-intro-b2-icon.png');
 fs.copyFileSync(path.join(outDir, 'b2-rest.png'), 'D:/AI agent/out/tab-intro-b2-rest.png');

@@ -11,8 +11,8 @@
   --tab-w:340px;
   --tab-h:60px;
   --ai-size:50px;
-  --bot:160px;
-  --icon-scale:0.28; /* ≈45/160 */
+  --bot:96px;
+  --icon-scale:0.47; /* ≈45/96 */
   --tab-bottom:8px;
   --ease-in:cubic-bezier(.34,1.3,.52,1);
   --ease-out:cubic-bezier(.2,.8,.2,1);
@@ -109,7 +109,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
 /* A：屏幕底部全宽线性深色渐变（veil 与 mascot 之间），托住羽化缺口 */
 .bot-well{
   position:absolute;left:0;right:0;bottom:0;
-  height:220px;
+  height:160px;
   z-index:6;pointer-events:none;
   opacity:0;
   background:linear-gradient(
@@ -132,28 +132,21 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   width:var(--bot);height:var(--bot);
   margin:0;
   z-index:8;pointer-events:none;
-  transform-origin:50% 50%;
-  transform:translate(-50%,-50%) scale(var(--icon-scale));
+  /* 底边锚点：放大时下沿固定，往上/两侧生长 */
+  transform-origin:50% 100%;
+  transform:translateX(-50%) scale(var(--icon-scale));
   opacity:0;
   will-change:transform,opacity;
-  filter:drop-shadow(0 10px 24px rgba(40,18,26,.22));
-  /* A：上下羽化、左右几乎不裁（竖向线性 mask） */
-  -webkit-mask-image:linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 10%,
-    #000 72%,
-    rgba(0,0,0,.75) 84%,
-    transparent 96%
-  );
-  mask-image:linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 10%,
-    #000 72%,
-    rgba(0,0,0,.75) 84%,
-    transparent 96%
-  );
+  filter:drop-shadow(0 6px 18px rgba(40,18,26,.16));
+  /* 上下羽化（底边加长软收，去掉杂线）+ 左右 12% */
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 58%, rgba(0,0,0,.55) 78%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 58%, rgba(0,0,0,.55) 78%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-composite:intersect;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
   -webkit-mask-size:100% 100%;mask-size:100% 100%;
 }
@@ -194,7 +187,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
 
     <div class="hud">
       <button class="pill" id="replayBtn" type="button">重播方案 B2</button>
-      <span class="hint">方案 B2 · 图标进出 · 案1 · 160</span>
+      <span class="hint">方案 B2 · 图标进出 · 案1 · 96</span>
     </div>
 
     <div class="veil" id="veil"></div>
@@ -243,7 +236,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
       </div>
     </div>
   </div>
-  <p class="caption">方案 B2 · 从图标长出/缩回 · 画布羽化 · 案1 · 160</p>
+  <p class="caption">方案 B2 · 从图标长出/缩回 · 底边锚 · 案1 · 96</p>
 
 <script>
 (() => {
@@ -254,12 +247,13 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   const aiBtn = document.getElementById("aiBtn");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const ICON_SCALE = 0.28;
+  const ICON_SCALE = 0.47; /* ≈45/96 */
   const IN_MS = 380;
   const SETTLE_MS = 120;
   const SHOW_MS = 2200;
   const OUT_MS = 320;
-  const LIFT_PX = -36; /* B 档：满幅上浮，进出仍钉图标中心 */
+  const LIFT_PX = 0;
+  const ANCHOR_Y_NUDGE = 4; /* 整体下移 4，扩出/缩进仍相对 AI 轴 */
   /* 片源 0s 几乎空；0.3–3.6s 才是完整机器人 */
   const MEDIA_START = 0.5;
 
@@ -287,20 +281,21 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     });
   }
 
-  /** 几何中心钉在 TAB 中央 AI 按钮中心 */
+  /** 底边钉在 TAB 中央 AI 按钮中心；放大时下沿不动 */
   function pinToAiIcon() {
     const s = stage.getBoundingClientRect();
     const a = aiBtn.getBoundingClientRect();
+    const bot = parseFloat(getComputedStyle(mascot).getPropertyValue("--bot")) || 96;
     const cx = a.left + a.width / 2 - s.left;
     const cy = a.top + a.height / 2 - s.top;
     mascot.style.left = cx + "px";
-    mascot.style.top = cy + "px";
+    mascot.style.top = (cy - bot + ANCHOR_Y_NUDGE) + "px";
     mascot.style.bottom = "auto";
     mascot.style.marginLeft = "0";
   }
 
   function xform(scale, lift) {
-    return "translate(-50%, -50%) translateY(" + lift + "px) scale(" + scale + ")";
+    return "translateX(-50%) translateY(" + lift + "px) scale(" + scale + ")";
   }
 
   function parkIcon() {
@@ -414,14 +409,19 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
   window.__botBox = function () {
     const b = mascot.getBoundingClientRect();
     const a = aiBtn.getBoundingClientRect();
+    const aiCx = a.left + a.width / 2;
+    const aiCy = a.top + a.height / 2;
     return {
       w: Math.round(b.width),
       h: Math.round(b.height),
       phase: window.__introPhase,
       cx: Math.round(b.left + b.width / 2),
       cy: Math.round(b.top + b.height / 2),
-      aiCx: Math.round(a.left + a.width / 2),
-      aiCy: Math.round(a.top + a.height / 2),
+      bottom: Math.round(b.bottom),
+      aiCx: Math.round(aiCx),
+      aiCy: Math.round(aiCy),
+      /* 底边相对 AI 中心：正值 = 底边在图标上方（上浮） */
+      dBottom: Math.round(aiCy - b.bottom),
     };
   };
 
