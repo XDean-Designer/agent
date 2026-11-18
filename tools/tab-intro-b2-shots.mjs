@@ -76,7 +76,7 @@ await page.screenshot({ path: path.join(outDir, 'b2-end.png') });
 
 const iconOk = (w) => w >= 40 && w <= 55;
 const aligned = (d) => d <= 6;
-const bottomParked = (d) => Math.abs(d + 17) <= 6; /* 锚点下移 17 → dBottom ≈ -17 */
+const bottomParked = (d) => Math.abs(d + 21) <= 6; /* 锚点下移 21 → dBottom ≈ -21 */
 const xNudged = (d) => Math.abs(d - 2) <= 6; /* 右移 2 → dx ≈ 2 */
 const startOk = iconOk(start.w) && xNudged(start.dx) && bottomParked(start.dBottom);
 const restOk =
