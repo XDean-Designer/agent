@@ -3091,7 +3091,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }).then(function () {
       return b2SeekStart();
     }).then(function () {
-      /* 缩回：末段揭开图标（B），到位后淡出大机器人（A） */
+      /* 缩回到位即淡出；图标仍按原节奏晚出现 */
       if (!MOTION_REDUCED) {
         introMascot.style.transition =
           "transform " + B2_OUT_MS + "ms cubic-bezier(.2,.8,.2,1)";
@@ -3101,16 +3101,18 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       var revealAt = MOTION_REDUCED
         ? 0
         : Math.round(B2_OUT_MS * B2_REVEAL_RATIO) + B2_REVEAL_EXTRA_MS;
-      return introWait(revealAt).then(function () {
+      var revealP = introWait(revealAt).then(function () {
         frame.classList.add("is-b2-revealing");
-        return outDone;
       });
-    }).then(function () {
-      if (!MOTION_REDUCED) {
-        introMascot.style.transition = "opacity " + B2_HANDOFF_MS + "ms ease";
-      }
-      introMascot.style.opacity = "0";
-      return introWait(MOTION_REDUCED ? 0 : B2_HANDOFF_MS);
+      return outDone.then(function () {
+        if (!MOTION_REDUCED) {
+          introMascot.style.transition = "opacity " + B2_HANDOFF_MS + "ms ease";
+        }
+        introMascot.style.opacity = "0";
+        return introWait(MOTION_REDUCED ? 0 : B2_HANDOFF_MS);
+      }).then(function () {
+        return revealP;
+      });
     }).then(function () {
       b2Reset();
       b2Busy = false;

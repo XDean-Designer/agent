@@ -386,7 +386,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     await startMedia();
     await wait(Math.max(0, SHOW_MS - (performance.now() - tPlay)));
 
-    // 收回：缩回末段先露图标（B），到位后交叉淡出大机器人（A）
+    // 收回：缩回到位即淡出（提前消失）；图标仍按原节奏晚出现
     await seekStart();
 
     if (!reduced) {
@@ -398,8 +398,10 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     mascot.style.transform = xform(ICON_SCALE, 0);
 
     const revealAt = reduced ? 0 : Math.round(OUT_MS * REVEAL_RATIO) + REVEAL_EXTRA_MS;
-    await wait(revealAt);
-    stage.classList.remove("ai-hidden");
+    const revealP = wait(revealAt).then(() => {
+      stage.classList.remove("ai-hidden");
+    });
+
     await outDone;
 
     if (!reduced) {
@@ -407,6 +409,7 @@ body{display:grid;place-items:center;min-height:100%;padding:24px 16px}
     }
     mascot.style.opacity = "0";
     await wait(reduced ? 0 : HANDOFF_MS);
+    await revealP;
 
     parkIcon();
     window.__introPhase = "icon-end";
