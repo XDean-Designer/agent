@@ -15,9 +15,6 @@
   --muted:#626262;
   --line:#ededed;
   --line-2:#e8e8e8;
-  /* 半屏露出约 23% 首页；贴底填满，避免短屏时固定 650px 把输入条顶出可视区 */
-  --sheet-top-pct:23%;
-  --radius-sheet:16px;
   --font:"Noto Sans SC",sans-serif;
   --fs-body:15px; /* 默认「中」 */
   --kb-h:0px;
@@ -143,13 +140,12 @@ button{font:inherit;color:inherit}
 #frame.mode-fullscreen .home-tab{
   opacity:0;pointer-events:none;visibility:hidden;
 }
-/* 半屏时压在首页/tab 之上、Agent 之下：层级须高于 home-bg/fade/tab */
+/* 遮罩层（全屏打开时隐藏；首页不需要） */
 .scrim{
   position:absolute;inset:0;z-index:4;
   background:rgba(0,0,0,.75);pointer-events:none;
   transition:opacity var(--dur-sheet) var(--ease-out);
 }
-#frame.mode-sheet .scrim{pointer-events:auto}
 
 /* ---------- agent panel ---------- */
 .agent{
@@ -169,33 +165,6 @@ button{font:inherit;color:inherit}
 .agent-glow{
   position:absolute;inset:0;
 }
-
-/* 半屏：实底不透明；top% + bottom:0，高度随 --mobile-h 伸缩，输入条始终在框内 */
-#frame.mode-sheet .agent{
-  top:var(--sheet-top-pct);bottom:0;height:auto;
-  border-radius:var(--radius-sheet) var(--radius-sheet) 0 0;
-  background-color:#ffffff;
-  background-image:linear-gradient(180deg,
-    #f5f3f1 0%,
-    #f6f1f3 8%,
-    #f1f1f3 22%,
-    #ebebed 42%,
-    #e8e8ec 58%,
-    #efeff1 78%,
-    #faf7f8 92%,
-    #ffffff 100%);
-}
-#frame.mode-sheet .agent-glow{
-  /* 光斑叠在实色底上，边缘透明不影响面板不透明度 */
-  background:
-    radial-gradient(190px 122px at 33% -2%, #FFE9F0 0%, rgba(255,233,240,0) 72%),
-    radial-gradient(142px 122px at 114% 0%, #F3E6FA 0%, rgba(243,230,250,0) 72%),
-    radial-gradient(238px 238px at 84% 118%, #F6DBE4 0%, rgba(246,219,228,0) 72%),
-    radial-gradient(164px 94px at 15% 92%, #F3E6FA 0%, rgba(243,230,250,0) 75%);
-  opacity:1;
-}
-#frame.mode-sheet .scrim{opacity:1}
-#frame.mode-sheet .home-bg{opacity:1}
 
 #frame.mode-fullscreen .agent{
   top:0;height:100%;border-radius:0;
@@ -383,12 +352,10 @@ button{font:inherit;color:inherit}
   padding:18px 16px 10px;
   display:grid;grid-template-columns:1fr auto;align-items:start;gap:8px;
 }
-#frame.mode-sheet .agent-header{padding:16px 16px 8px}
 .header-main{display:flex;align-items:flex-start;gap:6px;min-width:0;padding-top:2px}
 .robot{
-  width:100px;height:100px;flex:none;
-  /* 半屏：头部上探出 sheet 顶边（对齐 Figma 约 20px+） */
-  margin:-36px 0 -20px -14px;
+  width:96px;height:96px;flex:none;
+  margin:-12px 0 -22px -10px;
   object-fit:contain;pointer-events:none;user-select:none;
   filter:drop-shadow(0 8px 14px rgba(120,40,70,.18));
   transition:
@@ -400,9 +367,7 @@ button{font:inherit;color:inherit}
   transform:translateZ(0);
 }
 #frame.is-mode-animating .robot{transform:translateZ(0) scale(1.02)}
-#frame.mode-fullscreen .robot{margin:-12px 0 -22px -10px;width:96px;height:96px}
-.greet{padding-top:18px;min-width:0}
-#frame.mode-fullscreen .greet{padding-top:22px}
+.greet{padding-top:22px;min-width:0}
 .greet-title{
   margin:0;font-size:18px;font-weight:600;line-height:1.25;
   background:linear-gradient(90deg,#6088f1 4.7%,#c163bc 57.8%,#ed8954 100%);
@@ -427,10 +392,7 @@ button{font:inherit;color:inherit}
 .fs-ctrl{
   display:flex;align-items:center;gap:10px;font-size:13px;color:#4a4a4a;user-select:none;
 }
-#frame.mode-sheet .btn-expand{display:grid}
-#frame.mode-fullscreen .btn-expand{display:none}
-#frame.mode-sheet .btn-close{display:none}
-#frame.mode-fullscreen .btn-close{display:grid}
+.btn-close{display:grid}
 .fs-ctrl button{
   appearance:none;border:0;background:transparent;padding:0;cursor:pointer;
   font-size:13px;color:#8a8a8a;line-height:1;
@@ -668,7 +630,7 @@ button{font:inherit;color:inherit}
   -webkit-user-select:none;user-select:none;
 }
 .fn-swipe-track{
-  position:relative;z-index:1;
+  position:relative;z-index:1;width:100%;
   transform:translateX(0);
   transition:transform .26s var(--ease-out);
   will-change:transform;
@@ -695,72 +657,43 @@ button{font:inherit;color:inherit}
 .fn-del.is-locked{background:#c9c6ce;color:#fff}
 .fn-del.is-locked:active{background:#c9c6ce}
 .fn-row{
-  display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
-  padding:10px 12px;cursor:default;
+  display:flex;align-items:center;gap:10px;
+  width:100%;box-sizing:border-box;
+  padding:8px 12px;cursor:default;min-height:40px;
   background:#faf9fb;border:1px solid rgba(26,26,26,.04);
   border-radius:12px;
   transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
   -webkit-tap-highlight-color:transparent;
 }
 .fn-row.is-off{opacity:.55;background:#f5f5f6}
-.fn-row.is-editing{
-  opacity:1;background:#f4f7ff;
-  border-color:rgba(90,120,220,.28);
-  box-shadow:inset 0 0 0 1px rgba(90,120,220,.12);
+.fn-row-status{
+  display:inline-flex;align-items:center;gap:5px;flex:none;
+  font-size:11px;font-weight:500;color:#6a6a72;line-height:1.2;
+  white-space:nowrap;pointer-events:none;user-select:none;
 }
 .fn-row-name{
-  appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:none;
-  width:100%;min-width:0;padding:3px 6px;margin:0 -6px;font:inherit;
-  font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3;
-  text-align:left;cursor:text;border-radius:6px;
-  border-bottom:1.5px solid transparent;
-  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
-  -webkit-user-select:text;user-select:text;
-}
-.fn-row-name:focus{
-  color:#1a1a1a;background:rgba(90,120,220,.1);
-  border-bottom-color:rgba(90,120,220,.72);
-  box-shadow:0 0 0 1px rgba(90,120,220,.12);
+  flex:1;min-width:0;font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .fn-row-price{
-  display:inline-flex;align-items:baseline;justify-self:end;gap:1px;
-  padding:3px 6px;margin:0 -6px;border-radius:6px;
+  display:inline-flex;align-items:baseline;gap:1px;flex:none;margin-left:auto;
   font-size:calc(var(--fs-body) + 1px);font-weight:700;color:#1a1a1a;
-  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
-  border-bottom:1.5px solid transparent;
-  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
-}
-.fn-row-price.is-editing{
-  background:rgba(90,120,220,.1);
-  border-bottom-color:rgba(90,120,220,.72);
-  box-shadow:0 0 0 1px rgba(90,120,220,.12);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap;
 }
 .fn-row-price small{
   flex:none;font-size:11px;font-weight:600;color:#8a8a8a;
   line-height:1;transform:translateY(-0.05em);
 }
-.fn-row-price-input{
-  appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:none;
-  width:auto;min-width:2ch;max-width:7ch;padding:0;margin:0;font:inherit;
-  font-size:inherit;font-weight:700;color:inherit;text-align:left;
-  font-variant-numeric:tabular-nums;cursor:text;
-  field-sizing:content;
-  -webkit-user-select:text;user-select:text;
-}
-.fn-row-status{
-  grid-column:1 / -1;display:inline-flex;align-items:center;gap:6px;
-  appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:2px 0;margin:0;
-  font:inherit;font-size:11.5px;color:#6a6a72;cursor:pointer;
-  border-radius:6px;transition:transform .12s ease,opacity .12s ease,color .12s ease;
-  -webkit-tap-highlight-color:transparent;
-}
-.fn-row-status:active{opacity:.75;transform:scale(.97);color:#1a1a1a}
 .fn-dot{
   width:6px;height:6px;border-radius:50%;background:#3cbc6e;flex:none;
 }
 .fn-row.is-off .fn-dot{background:#b0b0b0}
 .fn-item.is-saved .fn-row{
   background:#f3faf5;box-shadow:inset 0 0 0 1px rgba(52,199,89,.28);
+}
+.pay-amt-ro{
+  font-size:12.5px;font-weight:600;color:#1a1a1a;
+  font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 .fn-form{position:relative}
 .fn-form::before{
@@ -788,9 +721,6 @@ button{font:inherit;color:inherit}
   color:#1a1a1a;outline:none;padding:0;font-family:inherit;
 }
 .fn-ffield input::placeholder{color:#929292;font-weight:400}
-.fn-pencil{
-  flex:none;width:16px;height:16px;pointer-events:none;opacity:.85;
-}
 .fn-dur{
   display:inline-flex;align-items:center;gap:8px;margin-left:auto;
 }
@@ -1236,13 +1166,6 @@ button{font:inherit;color:inherit}
 .mb-pick.is-on{
   border-color:rgba(90,120,220,.45);background:rgba(90,120,220,.08);
 }
-.mb-pick-type{
-  flex:none;margin-top:1px;padding:1px 6px;border-radius:4px;
-  font-size:10px;font-weight:600;line-height:1.4;
-}
-.mb-pick-type.is-times{color:#2f6aa8;background:rgba(90,160,220,.14)}
-.mb-pick-type.is-discount{color:#b85a2a;background:rgba(232,140,80,.14)}
-.mb-pick-type.is-balance{color:#2d8a5a;background:rgba(80,180,120,.14)}
 .mb-pick-main{flex:1;min-width:0}
 .mb-pick-name{display:block;font-size:12.5px;font-weight:600;color:#1a1a1a;line-height:1.3}
 .mb-pick-detail{display:block;margin-top:2px;font-size:11px;color:#8a7f88;line-height:1.3}
@@ -1563,8 +1486,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     <button type="button" id="navDemoOrder">开单</button>
     <button type="button" id="navDemoArchive">归档</button>
     <button type="button" id="navSimSelfPay">模拟新自助单</button>
-    <button type="button" id="navSheet" class="is-on">半屏</button>
-    <button type="button" id="navFull">全屏</button>
     <button type="button" id="navThink">演示思考 → 出结果</button>
   </div>
   <p class="hint">真机自动预览；桌面 <code>?mobile=1</code>。左缘滑动打开本面板。</p>
@@ -1617,9 +1538,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
             </div>
           </div>
           <div class="header-actions">
-            <button type="button" class="icon-btn btn-expand" id="btnExpand" title="展开全屏" aria-label="展开全屏">
-              <img src="assets/agent-chat/icon-expand.svg" alt="">
-            </button>
             <button type="button" class="icon-btn btn-close" id="btnClose" title="关闭窗口，返回首页" aria-label="关闭窗口，返回首页">
               <img src="assets/agent-chat/icon-close.svg" alt="">
             </button>
@@ -1814,11 +1732,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     ["烫护", "蛋白矫正", 628, "在售", 140, true, 0],
     ["烫护", "热玛吉护理", 880, "停售", 90, false, 0]
   ];
-  var PENCIL_SVG =
-    '<svg class="fn-pencil" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">' +
-    '<path d="M9.6 2.85l3.55 3.55M2.5 13.5l.85-3.9L10.7 2.25a1.2 1.2 0 011.7 0l1.35 1.35a1.2 1.2 0 010 1.7L6.4 12.65l-3.9.85z" stroke="#C7C7CC" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M2.5 13.5h5.2" stroke="#C7C7CC" stroke-width="1.05" stroke-linecap="round"/>' +
-    "</svg>";
   var SAVE_SVG =
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M12 3.4v11.2"/><path d="M6.6 9.6l5.4 5.4 5.4-5.4"/><path d="M3.4 21h17.2"/></svg>';
@@ -1833,8 +1746,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   var frame = document.getElementById("frame");
   var navHome = document.getElementById("navHome");
-  var navSheet = document.getElementById("navSheet");
-  var navFull = document.getElementById("navFull");
   var navThink = document.getElementById("navThink");
   var navDemoPrice = document.getElementById("navDemoPrice");
   var navDemoOrder = document.getElementById("navDemoOrder");
@@ -1844,7 +1755,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var panelOrder = document.getElementById("panelOrder");
   var tabTip = document.getElementById("tabTip");
   var orderUserMsg = document.getElementById("orderUserMsg");
-  var btnExpand = document.getElementById("btnExpand");
   var btnClose = document.getElementById("btnClose");
   var hold = document.getElementById("holdTalk");
   var messages = document.getElementById("messages");
@@ -2181,66 +2091,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }, 320);
   }
 
-  function saveRowName(id, input) {
-    var row = PRICE_ROWS[id];
-    if (!row || !input) return;
-    var name = String(input.value || "").trim();
-    if (!name) {
-      input.value = row[1];
-      showToast("请填写名称");
-      return;
-    }
-    if (name === row[1]) {
-      input.value = row[1];
-      return;
-    }
-    row[1] = name;
-    input.value = name;
-    flashSaved(id);
-    showToast("名称已更新");
-  }
-
-  function fitPriceInput(input) {
-    if (!input) return;
-    var s = String(input.value || "").replace(/[¥￥,\s]/g, "") || "0";
-    input.size = Math.max(2, Math.min(7, s.length));
-  }
-
-  function saveRowPrice(id, input) {
-    var row = PRICE_ROWS[id];
-    if (!row || !input) return;
-    var raw = String(input.value || "").replace(/[¥￥,\s]/g, "");
-    var priceNum = Number(raw);
-    if (!isFinite(priceNum) || priceNum < 0 || raw === "") {
-      input.value = String(row[2]);
-      fitPriceInput(input);
-      showToast("请填写有效价格");
-      return;
-    }
-    priceNum = Math.round(priceNum * 100) / 100;
-    if (priceNum === Number(row[2])) {
-      input.value = String(row[2]);
-      fitPriceInput(input);
-      return;
-    }
-    row[2] = priceNum;
-    input.value = String(priceNum);
-    fitPriceInput(input);
-    flashSaved(id);
-    showToast("价格已更新");
-  }
-
-  function toggleRowSale(id) {
-    var row = PRICE_ROWS[id];
-    if (!row) return;
-    var nextOn = row[3] !== "在售";
-    row[3] = nextOn ? "在售" : "停售";
-    if (!nextOn) row[5] = false;
-    renderPriceCard();
-    flashSaved(id);
-    showToast(nextOn ? "已设为在售" : "已设为停售");
-  }
-
   function itemHtml(r) {
     var id = rowIdOf(r);
     var off = r[3] === "停售";
@@ -2260,71 +2110,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           "</button>" +
           '<div class="fn-swipe-track">' +
             '<div class="fn-row' + (off ? " is-off" : "") + '">' +
-              '<input class="fn-row-name" type="text" data-edit="name" maxlength="30" value="' + escapeHtml(r[1]) + '" aria-label="修改名称">' +
-              '<div class="fn-row-price"><small>¥</small>' +
-                '<input class="fn-row-price-input" type="text" data-edit="price" inputmode="decimal" value="' + escapeHtml(String(r[2])) + '" size="' + Math.max(2, String(r[2]).length) + '" aria-label="修改价格">' +
-              "</div>" +
-              '<button type="button" class="fn-row-status" data-edit="status" aria-label="切换在售状态">' +
-                '<span class="fn-dot"></span><span data-status-label>' + r[3] + "</span>" +
-              "</button>" +
+              '<span class="fn-row-status">' +
+                '<span class="fn-dot" aria-hidden="true"></span>' +
+                '<span>' + escapeHtml(r[3]) + "</span>" +
+              "</span>" +
+              '<span class="fn-row-name">' + escapeHtml(r[1]) + "</span>" +
+              '<span class="fn-row-price"><small>¥</small>' + escapeHtml(String(r[2])) + "</span>" +
             "</div>" +
           "</div>" +
         "</div>" +
       "</div>"
     );
-  }
-
-  function setRowEditing(item, on) {
-    var row = item && item.querySelector(".fn-row");
-    if (!row) return;
-    row.classList.toggle("is-editing", !!on);
-  }
-
-  function bindRowEditEvents() {
-    fnList.querySelectorAll(".fn-item").forEach(function (item) {
-      var id = Number(item.getAttribute("data-id"));
-      var nameEl = item.querySelector('[data-edit="name"]');
-      var priceEl = item.querySelector('[data-edit="price"]');
-      var priceWrap = item.querySelector(".fn-row-price");
-      if (nameEl) {
-        nameEl.addEventListener("focus", function () {
-          setRowEditing(item, true);
-          try { nameEl.select(); } catch (err) { /* */ }
-        });
-        nameEl.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            nameEl.blur();
-          }
-        });
-        nameEl.addEventListener("blur", function () {
-          saveRowName(id, nameEl);
-          if (!(priceEl && document.activeElement === priceEl)) setRowEditing(item, false);
-        });
-      }
-      if (priceEl) {
-        fitPriceInput(priceEl);
-        priceEl.addEventListener("focus", function () {
-          setRowEditing(item, true);
-          if (priceWrap) priceWrap.classList.add("is-editing");
-          try { priceEl.select(); } catch (err) { /* */ }
-        });
-        priceEl.addEventListener("input", function () {
-          fitPriceInput(priceEl);
-        });
-        priceEl.addEventListener("keydown", function (e) {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            priceEl.blur();
-          }
-        });
-        priceEl.addEventListener("blur", function () {
-          if (priceWrap) priceWrap.classList.remove("is-editing");
-          saveRowPrice(id, priceEl);
-          if (!(nameEl && document.activeElement === nameEl)) setRowEditing(item, false);
-        });
-      }
-    });
   }
 
   function renderPriceCard() {
@@ -2341,7 +2137,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
 
     fnList.innerHTML = rows.map(itemHtml).join("");
-    bindRowEditEvents();
     requestAnimationFrame(updateScrollHint);
   }
 
@@ -2389,13 +2184,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       closeSwipe();
       return;
     }
-    var statusBtn = e.target.closest('[data-edit="status"]');
-    if (statusBtn) {
-      e.preventDefault();
-      toggleRowSale(Number(item.getAttribute("data-id")));
-      return;
-    }
-    /* 名称 / 价格由自身 input 处理；点行空白不展开 */
+    /* 价目只读：点行空白不展开编辑 */
   });
 
   fnDeleteCancel.addEventListener("click", hideDeleteConfirm);
@@ -2447,15 +2236,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   renderPriceCard();
 
   function setMode(mode) {
-    var isFull = mode === "fullscreen";
     var isHome = mode === "home";
+    var isFull = !isHome;
     frame.classList.add("is-mode-animating");
     frame.classList.toggle("mode-fullscreen", isFull);
-    frame.classList.toggle("mode-sheet", !isFull && !isHome);
+    frame.classList.remove("mode-sheet");
     frame.classList.toggle("mode-home", isHome);
-    frame.dataset.mode = isFull ? "fullscreen" : isHome ? "home" : "sheet";
-    navSheet.classList.toggle("is-on", !isFull && !isHome);
-    navFull.classList.toggle("is-on", isFull);
+    frame.dataset.mode = isHome ? "home" : "fullscreen";
     if (navHome) navHome.classList.toggle("is-on", isHome);
     if (!isHome) stopIntro();
     clearTimeout(setMode._t);
@@ -2678,18 +2465,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function openAgent() {
     stopIntro();
-    setMode("sheet");
+    setMode("fullscreen");
   }
 
-  /* 关闭窗口：直接回首页（不经过半屏），让 Agent 整体滑出画布 */
+  /* 关闭窗口：回首页，Agent 整体滑出画布 */
   function goHome() {
     stopIntro();
     setMode("home");
   }
 
-  navSheet.addEventListener("click", function () { setMode("sheet"); });
-  navFull.addEventListener("click", function () { setMode("fullscreen"); });
-  btnExpand.addEventListener("click", function () { setMode("fullscreen"); });
   btnClose.addEventListener("click", goHome);
   if (navHome) navHome.addEventListener("click", function () { enterHome(true); });
   if (homeAi) {
@@ -3200,14 +2984,31 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return p.method;
   }
 
+  function memberBenefitDisplay(benefit) {
+    if (!benefit) return null;
+    if (benefit.type === "times") return "1次";
+    if (benefit.type === "discount") {
+      var rate = Number(benefit.rate);
+      if (!isFinite(rate) || rate <= 0) rate = 0.9;
+      var zhe = Math.round(rate * 10 * 10) / 10;
+      if (Math.abs(zhe - Math.round(zhe)) < 0.05) zhe = Math.round(zhe);
+      return zhe + "折";
+    }
+    return null;
+  }
+
   function payChipHtml(method, amount, benefit) {
     var label = method;
     if (method === "会员卡" && benefit && benefit.label) label = method + " · " + benefit.label;
+    var disp = method === "会员卡" ? memberBenefitDisplay(benefit) : null;
+    var amtHtml = disp
+      ? escapeHtml(disp)
+      : ("¥" + moneyText(amount));
     return (
       '<span class="od-pay-chip">' +
         '<span class="od-pay-method">' + payIconHtml(method) +
           "<span>" + escapeHtml(label) + "</span></span>" +
-        '<span class="od-pay-amt">¥' + moneyText(amount) + "</span>" +
+        '<span class="od-pay-amt">' + amtHtml + "</span>" +
       "</span>"
     );
   }
@@ -3219,18 +3020,34 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return null;
   }
 
-  /* 会员权益理想填入额（未扣其他收款；多笔时由 balancePayments 封顶补齐） */
+  /* 会员权益写入金额：折扣=0（由其他方式承担）；计次=应付冲抵；储值=min(余额,应付) */
   function memberBenefitAmount(b) {
     var payable = payableNum();
     if (!b) return 0;
-    if (b.type === "discount") {
-      return Math.round(payable * (b.rate || 1) * 100) / 100;
-    }
+    if (b.type === "discount") return 0;
     if (b.type === "balance") {
       return Math.min(Number(b.balance) || 0, payable);
     }
-    /* 项目次数：示意按应付全额抵扣 */
+    /* 项目次数：冲抵本单应付金额 */
     return payable;
+  }
+
+  function discountBenefit() {
+    for (var i = 0; i < orderData.payments.length; i++) {
+      var p = orderData.payments[i];
+      if (p.method === "会员卡" && p.benefit && p.benefit.type === "discount") return p.benefit;
+    }
+    return null;
+  }
+
+  /* 有折扣权益时收满基准为折后应付；否则为原应付 */
+  function effectivePayable() {
+    var base = payableNum();
+    var d = discountBenefit();
+    if (!d) return base;
+    var rate = Number(d.rate);
+    if (!isFinite(rate) || rate <= 0) rate = 0.9;
+    return Math.round(base * rate * 100) / 100;
   }
 
   function needsMemberBenefitPick() {
@@ -3248,7 +3065,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
             var on = selectedId && selectedId === b.id;
             return (
               '<button type="button" class="mb-pick' + (on ? " is-on" : "") + '" data-mb-benefit="' + b.id + '">' +
-                '<span class="mb-pick-type is-' + b.type + '">' + escapeHtml(b.typeLabel) + "</span>" +
                 '<span class="mb-pick-main">' +
                   '<span class="mb-pick-name">' + escapeHtml(b.label) + "</span>" +
                   '<span class="mb-pick-detail">' + escapeHtml(b.detail) + "</span>" +
@@ -3355,7 +3171,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return orderData.payments.reduce(function (s, p) { return s + moneyNum(p.amount); }, 0);
   }
   function remainingAmount() {
-    return Math.round((payableNum() - paidTotal()) * 100) / 100;
+    return Math.round((effectivePayable() - paidTotal()) * 100) / 100;
   }
   function paySummaryText() {
     if (!orderData.payments.length) return '<span class="is-warn">未收款</span>';
@@ -3403,15 +3219,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return n ? "未用券 <span class=\"is-muted\">· 可用 " + n + " 张</span>" : "未用券";
   }
 
-  /* 应付价变化后：收满则由金额最大的一笔吸收差额，其余笔保持不变 */
+  function isBenefitLockedPay(p) {
+    return !!(p && p.method === "会员卡" && p.benefit &&
+      (p.benefit.type === "times" || p.benefit.type === "discount"));
+  }
+
+  /* 应付价变化后：收满则由金额最大的一笔吸收差额（跳过计次/折扣会员卡展示行） */
   function syncPaymentsToPayable(before) {
     if (!orderData.payments.length) return;
     if (Math.abs(paidTotal() - before) >= 0.005) return;
-    var payable = payableNum();
-    var idx = 0;
+    var payable = effectivePayable();
+    var idx = -1;
     orderData.payments.forEach(function (p, i) {
-      if (moneyNum(p.amount) > moneyNum(orderData.payments[idx].amount)) idx = i;
+      if (isBenefitLockedPay(p)) return;
+      if (idx < 0 || moneyNum(p.amount) > moneyNum(orderData.payments[idx].amount)) idx = i;
     });
+    if (idx < 0) return;
     var others = 0;
     orderData.payments.forEach(function (p, i) {
       if (i !== idx) others += moneyNum(p.amount);
@@ -3420,7 +3243,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orderData.payments[idx].amount = String(next);
   }
   function applyPayableChange(fn) {
-    var before = payableNum();
+    var before = effectivePayable();
     fn();
     resyncRows();
     syncPaymentsToPayable(before);
@@ -3663,17 +3486,18 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var lines = orderData.payments.map(function (p, i) {
       if (p.method === "会员卡" && memberIdx < 0) memberIdx = i;
       var mainLabel = payMethodLabel(p);
-      var sub = p.method === "会员卡" && p.benefit
-        ? '<span class="pay-main-sub">' + escapeHtml(p.benefit.typeLabel) + "</span>"
-        : "";
+      var benefitDisp = p.method === "会员卡" ? memberBenefitDisplay(p.benefit) : null;
+      var amtCell = benefitDisp
+        ? '<span class="pay-amt pay-amt-ro" aria-label="' + escapeHtml(mainLabel) + '">' + escapeHtml(benefitDisp) + "</span>"
+        : ('<span class="pay-amt"><i>¥</i>' +
+            '<input type="text" inputmode="decimal" data-pay-amt="' + i + '" value="' + moneyText(p.amount) + '" aria-label="' + escapeHtml(mainLabel) + '金额">' +
+          "</span>");
       return (
         '<div class="pay-line" data-idx="' + i + '">' +
           '<span class="pay-main">' + payIconHtml(p.method) +
-            "<span>" + escapeHtml(mainLabel) + "</span>" + sub +
+            "<span>" + escapeHtml(mainLabel) + "</span>" +
           "</span>" +
-          '<span class="pay-amt"><i>¥</i>' +
-            '<input type="text" inputmode="decimal" data-pay-amt="' + i + '" value="' + moneyText(p.amount) + '" aria-label="' + escapeHtml(mainLabel) + '金额">' +
-          "</span>" +
+          amtCell +
           (orderData.payments.length > 1
             ? '<button type="button" class="pay-del" data-del="' + i + '" aria-label="删除这笔收款">✕</button>'
             : "") +
@@ -3689,7 +3513,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
     var total = paidTotal();
     var rem = remainingAmount();
-    var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
+    var targetPay = effectivePayable();
+    var pct = targetPay > 0 ? Math.max(0, Math.min(100, Math.round((total / targetPay) * 100))) : 0;
     var full = Math.abs(rem) < 0.005 && !needsMemberBenefitPick();
     var over = rem < -0.005;
     var prog =
@@ -3845,6 +3670,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         odHint.textContent = "";
       }
       var payStr = orderData.payments.map(function (p) {
+        var disp = p.method === "会员卡" ? memberBenefitDisplay(p.benefit) : null;
+        if (disp) return escapeHtml(payMethodLabel(p)) + " <b>" + escapeHtml(disp) + "</b>";
         return escapeHtml(payMethodLabel(p)) + ' <b>¥' + moneyText(p.amount) + "</b>";
       }).join(" + ");
       if (archive) {
@@ -3925,7 +3752,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var total = paidTotal();
     var rem = remainingAmount();
     var needBenefit = needsMemberBenefitPick();
-    var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
+    var targetPay = effectivePayable();
+    var pct = targetPay > 0 ? Math.max(0, Math.min(100, Math.round((total / targetPay) * 100))) : 0;
     var full = Math.abs(rem) < 0.005 && !needBenefit;
     var over = rem < -0.005;
     var prog = odFields.querySelector(".pay-progress");
@@ -3963,11 +3791,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   /* ---------- 混合收款自动补齐：改一笔，另一笔自动吸收差额，总额始终等于应付 ---------- */
   function absorbIndexFor(editedIdx) {
-    /* 由「除当前项外金额最大的一笔」吸收差额：大额笔稳定，小额笔浮动 */
+    /* 由「除当前项外金额最大的一笔」吸收差额；计次/折扣会员卡不参与吸收 */
     var best = -1;
     var bestVal = -Infinity;
     orderData.payments.forEach(function (p, i) {
       if (i === editedIdx) return;
+      if (isBenefitLockedPay(p)) return;
       var v = moneyNum(p.amount);
       if (v > bestVal) { bestVal = v; best = i; }
     });
@@ -3984,15 +3813,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     el.value = text;
     try { el.setSelectionRange(text.length, text.length); } catch (err) { /* */ }
   }
-  /* 把编辑后的金额补平到应付；返回被吸收的那一笔索引（无则 -1） */
+  /* 把编辑后的金额补平到应付（有折扣权益时用折后应付）；返回被吸收的那一笔索引（无则 -1） */
   function balancePayments(editedIdx, clampEdited) {
     var payments = orderData.payments;
-    /* 只有一笔时不联动：保留原有「欠款 / 超收」校验路径 */
     if (payments.length < 2) return -1;
-    var payable = payableNum();
+    if (isBenefitLockedPay(payments[editedIdx])) return -1;
+    var payable = effectivePayable();
     var other = absorbIndexFor(editedIdx);
-    if (other < 0) return -1;
-    /* 其余笔（吸收方以外）的存量，决定编辑项的上限 */
     var fixedSum = 0;
     payments.forEach(function (p, i) {
       if (i === editedIdx || i === other) return;
@@ -4001,13 +3828,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     fixedSum = Math.round(fixedSum * 100) / 100;
     var ceiling = Math.max(0, Math.round((payable - fixedSum) * 100) / 100);
     var edited = moneyNum(payments[editedIdx].amount);
-    /* 上限锁定：编辑值最多只到「应付 − 其余笔合计」 */
     if (clampEdited && edited > ceiling) {
       edited = ceiling;
       payments[editedIdx].amount = String(edited);
       writePayInput(editedIdx, edited);
     }
-    /* 吸收方 = 应付 − 编辑项 − 其余笔，保证任意笔数下三者相加恒等于应付 */
+    if (other < 0) return -1;
     var rest = Math.max(0, Math.round((payable - edited - fixedSum) * 100) / 100);
     payments[other].amount = String(rest);
     writePayInput(other, rest);
@@ -4063,11 +3889,23 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       type: b.type,
       typeLabel: b.typeLabel,
       label: b.label,
-      detail: b.detail
+      detail: b.detail,
+      rate: b.rate,
+      balance: b.balance
     };
-    /* 按权益规则写入理想金额；多笔时与手改金额相同：封顶并让其他笔吸收差额，总额=应付 */
     orderData.payments[idx].amount = String(memberBenefitAmount(b));
-    if (orderData.payments.length >= 2) {
+    if (b.type === "discount") {
+      /* 折扣不占金额；折后应付由其他方式承担 */
+      var cashNeed = effectivePayable();
+      if (orderData.payments.length < 2) {
+        var cashMethod = "微信";
+        if (hasPaymentMethod(cashMethod)) cashMethod = "支付宝";
+        if (hasPaymentMethod(cashMethod)) cashMethod = "现金";
+        orderData.payments.push({ method: cashMethod, amount: String(cashNeed) });
+      } else {
+        balancePayments(idx, true);
+      }
+    } else if (orderData.payments.length >= 2) {
       balancePayments(idx, true);
     } else if (moneyNum(orderData.payments[idx].amount) > payableNum() + 0.005) {
       orderData.payments[idx].amount = String(payableNum());

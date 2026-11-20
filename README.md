@@ -6,9 +6,7 @@ AI Agent 在**思考 / 读取**时，对话气泡里播放的循环微动效。�
 
 ## 在线预览
 
-- 工作中动效：https://xdean-designer.github.io/agent/
-- Agent 会话原型（半屏/全屏 · 价目表功能卡）：https://xdean-designer.github.io/agent/agent-chat.html
-  - 手机预览可加 `?mobile=1`
+https://xdean-designer.github.io/agent/
 
 ## 三种方案
 
@@ -59,10 +57,8 @@ v += 0.20 * gaussPx(at(0.600), 4.8);    // T
 
 ```
 index.html          构建产物，单文件可直接打开（机器人头已内联）
-agent-chat.html     Agent 会话窗口 HTML 交互原型（GitHub Pages）
 src/app.html        模板源码，改这里
 assets/robot.svg    机器人头矢量素材
-assets/agent-chat/  会话原型切图与图标
 tools/              构建、截图、逐帧渲染、动效度量脚本
 docs/               README 用预览图
 ```
