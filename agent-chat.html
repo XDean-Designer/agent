@@ -730,7 +730,6 @@ button{font:inherit;color:inherit}
   touch-action:pan-y;
   -webkit-user-select:none;user-select:none;
 }
-.fn-item.is-open .fn-swipe{border-radius:12px 12px 0 0}
 .fn-swipe-track{
   position:relative;z-index:1;
   transform:translateX(0);
@@ -760,41 +759,72 @@ button{font:inherit;color:inherit}
 .fn-del.is-locked:active{background:#c9c6ce}
 .fn-row{
   display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;
-  padding:10px 12px;cursor:pointer;
+  padding:10px 12px;cursor:default;
   background:#faf9fb;border:1px solid rgba(26,26,26,.04);
-  border-radius:12px;transition:background .15s ease,border-radius .15s ease;
-  -webkit-tap-highlight-color:transparent;user-select:none;
+  border-radius:12px;
+  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+  -webkit-tap-highlight-color:transparent;
 }
 .fn-row.is-off{opacity:.55;background:#f5f5f6}
-.fn-row-name{font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3}
+.fn-row.is-editing{
+  opacity:1;background:#f4f7ff;
+  border-color:rgba(90,120,220,.28);
+  box-shadow:inset 0 0 0 1px rgba(90,120,220,.12);
+}
+.fn-row-name{
+  appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:none;
+  width:100%;min-width:0;padding:3px 6px;margin:0 -6px;font:inherit;
+  font-size:var(--fs-body);font-weight:500;color:#1a1a1a;line-height:1.3;
+  text-align:left;cursor:text;border-radius:6px;
+  border-bottom:1.5px solid transparent;
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
+  -webkit-user-select:text;user-select:text;
+}
+.fn-row-name:focus{
+  color:#1a1a1a;background:rgba(90,120,220,.1);
+  border-bottom-color:rgba(90,120,220,.72);
+  box-shadow:0 0 0 1px rgba(90,120,220,.12);
+}
 .fn-row-price{
+  display:inline-flex;align-items:baseline;justify-self:end;gap:1px;
+  padding:3px 6px;margin:0 -6px;border-radius:6px;
   font-size:calc(var(--fs-body) + 1px);font-weight:700;color:#1a1a1a;
   font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+  border-bottom:1.5px solid transparent;
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;
 }
-.fn-row-price small{font-size:11px;font-weight:500;color:#8a8a8a;margin-right:1px}
+.fn-row-price.is-editing{
+  background:rgba(90,120,220,.1);
+  border-bottom-color:rgba(90,120,220,.72);
+  box-shadow:0 0 0 1px rgba(90,120,220,.12);
+}
+.fn-row-price small{
+  flex:none;font-size:11px;font-weight:600;color:#8a8a8a;
+  line-height:1;transform:translateY(-0.05em);
+}
+.fn-row-price-input{
+  appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:none;
+  width:auto;min-width:2ch;max-width:7ch;padding:0;margin:0;font:inherit;
+  font-size:inherit;font-weight:700;color:inherit;text-align:left;
+  font-variant-numeric:tabular-nums;cursor:text;
+  field-sizing:content;
+  -webkit-user-select:text;user-select:text;
+}
 .fn-row-status{
-  grid-column:1 / -1;display:flex;align-items:center;gap:6px;
-  font-size:11.5px;color:#6a6a72;
+  grid-column:1 / -1;display:inline-flex;align-items:center;gap:6px;
+  appearance:none;-webkit-appearance:none;border:0;background:transparent;padding:2px 0;margin:0;
+  font:inherit;font-size:11.5px;color:#6a6a72;cursor:pointer;
+  border-radius:6px;transition:transform .12s ease,opacity .12s ease,color .12s ease;
+  -webkit-tap-highlight-color:transparent;
 }
+.fn-row-status:active{opacity:.75;transform:scale(.97);color:#1a1a1a}
 .fn-dot{
   width:6px;height:6px;border-radius:50%;background:#3cbc6e;flex:none;
 }
 .fn-row.is-off .fn-dot{background:#b0b0b0}
-.fn-item.is-open .fn-row{
-  opacity:1;background:#f7f7f7;border-color:transparent;
-  border-radius:12px 12px 0 0;margin:0;
-}
-.fn-item.is-open .fn-row-name{color:#929292;font-weight:500}
-.fn-item.is-open .fn-row-price,
-.fn-item.is-open .fn-row-status{display:none}
 .fn-item.is-saved .fn-row{
   background:#f3faf5;box-shadow:inset 0 0 0 1px rgba(52,199,89,.28);
 }
-.fn-inline{
-  display:none;background:#f7f7f7;padding:0 0 12px;
-  border-radius:0 0 12px 12px;
-}
-.fn-item.is-open .fn-inline{display:block}
 .fn-form{position:relative}
 .fn-form::before{
   content:"";position:absolute;left:12px;right:12px;top:0;height:1px;
@@ -1079,6 +1109,19 @@ button{font:inherit;color:inherit}
   font-size:10px;font-weight:500;color:#7a7480;
   background:rgba(26,26,26,.045);border:.5px solid rgba(26,26,26,.06);
 }
+/* 工位淡色：一眼区分大/中/小工 */
+.od-stag.is-big,.od-tag.is-big{
+  color:#b85a2a;background:rgba(232,140,80,.14);border-color:rgba(232,140,80,.28);
+}
+.od-stag.is-mid,.od-tag.is-mid{
+  color:#2f6aa8;background:rgba(90,160,220,.14);border-color:rgba(90,160,220,.28);
+}
+.od-stag.is-small,.od-tag.is-small{
+  color:#2d8a5a;background:rgba(80,180,120,.14);border-color:rgba(80,180,120,.28);
+}
+.st-name.is-big{color:#b85a2a}
+.st-name.is-mid{color:#2f6aa8}
+.st-name.is-small{color:#2d8a5a}
 .od-sec-chev{
   width:14px;height:14px;flex:none;color:#c0bcc4;
   transition:transform .22s var(--ease-out);
@@ -1178,15 +1221,15 @@ button{font:inherit;color:inherit}
 /* 成功态：员工名后的工位标签 */
 .od-tag{
   display:inline-block;margin-left:5px;padding:1px 6px;border-radius:5px;
-  font-size:10px;font-weight:500;color:#7a3d6a;
-  background:rgba(180,100,140,.1);border:.5px solid rgba(180,100,140,.16);
+  font-size:10px;font-weight:500;color:#7a7480;
+  background:rgba(26,26,26,.045);border:.5px solid rgba(26,26,26,.06);
   vertical-align:1px;
 }
 
 /* 收款：分摊行 */
 .pay-list{display:flex;flex-direction:column}
 .pay-line{
-  display:flex;align-items:center;gap:8px;
+  display:flex;align-items:center;gap:12px;
   padding:8px 0;border-top:1px solid rgba(26,26,26,.05);
 }
 .pay-line:first-child{border-top:0;padding-top:2px}
@@ -1269,8 +1312,18 @@ button{font:inherit;color:inherit}
 .od-line img{width:16px;height:16px;vertical-align:-3px;margin-right:3px}
 
 .od-pay-chip{
-  display:inline-flex;align-items:center;gap:5px;vertical-align:middle;
+  display:inline-flex;align-items:center;gap:10px;vertical-align:middle;
   font-size:inherit;font-weight:600;color:#1a1a1a;margin-right:2px;
+}
+.od-pay-method{
+  display:inline-flex;align-items:center;gap:5px;min-width:0;
+}
+.od-pay-amt{
+  font-variant-numeric:tabular-nums;font-weight:600;color:#1a1a1a;
+  white-space:nowrap;
+}
+.od-pay-sep{
+  display:inline-block;margin:0 6px;color:#c0bcc4;font-weight:500;
 }
 .od-pay-chip img,.ask-pay img,.pay-opt img,.pay-main img,.pay-pick img{
   width:18px;height:18px;display:block;flex:none;object-fit:contain;
@@ -1644,15 +1697,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
               <span class="think-label" id="thinkLabel">思考中</span>
             </div>
 
-            <div class="bubble-agent" id="agentNote">已为你整理店内价目表，可按分类查看或筛选在售项。</div>
+            <div class="bubble-agent" id="agentNote">已为你整理价目表，可按分类查看或筛选在售项。</div>
 
-            <article class="session-card" id="sessionCard" aria-label="店内价目表">
+            <article class="session-card" id="sessionCard" aria-label="价目表">
               <header class="fn-head">
                 <div class="fn-ico" aria-hidden="true">
                   <img src="assets/robot.svg" alt="">
                 </div>
                 <div class="fn-titles">
-                  <p class="fn-title">店内价目表</p>
+                  <p class="fn-title">价目表</p>
                 </div>
                 <span class="fn-pill" id="fnPill">18 在售 · 4 停售</span>
               </header>
@@ -1859,9 +1912,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var btnFilterOff = document.getElementById("btnFilterOff");
   var btnGotoManage = document.getElementById("btnGotoManage");
   var fnToast = document.getElementById("fnToast");
-  var fnDiscard = document.getElementById("fnDiscard");
-  var fnDiscardKeep = document.getElementById("fnDiscardKeep");
-  var fnDiscardOk = document.getElementById("fnDiscardOk");
   var fnDelete = document.getElementById("fnDelete");
   var fnDeleteTitle = document.getElementById("fnDeleteTitle");
   var fnDeleteText = document.getElementById("fnDeleteText");
@@ -1893,14 +1943,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var priceState = { cat: "全部", onlyOn: false, expanded: false };
   var toastTimer = 0;
   var glowTimer = 0;
-  /* 行内展开：手风琴 + 脏值确认 */
-  var inlineState = {
-    id: null,
-    dirty: false,
-    base: null,
-    form: null,
-    pending: null /* { type: 'close'|'tab'|'filter', cat?, onlyOn? } */
-  };
   /* 「全部」打乱顺序：进入时打一次，切回全部不重打乱 */
   var shuffledAll = PRICE_ROWS.slice();
   for (var si = shuffledAll.length - 1; si > 0; si--) {
@@ -1967,7 +2009,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var swipeGesture = null;
   var swipeOpenId = null;
   var pendingDelete = null;
-  var swipeSuppressUntil = 0; /* 拖拽结束后短暂吞掉紧随其后的 click，避免连带展开编辑 */
+  var swipeSuppressUntil = 0; /* 拖拽结束后短暂吞掉紧随其后的 click */
 
   function closeSwipe() {
     fnList.querySelectorAll(".fn-swipe.is-open").forEach(function (s) {
@@ -1979,8 +2021,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function swipeTargetOf(target) {
     var swipe = target && target.closest ? target.closest(".fn-swipe") : null;
     if (!swipe || !fnList.contains(swipe)) return null;
-    /* 任一行处于编辑态时整体禁用左滑，避免删除时静默丢弃未保存改动 */
-    if (fnList.querySelector(".fn-item.is-open")) return null;
     return swipe;
   }
 
@@ -1989,9 +2029,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     swipeSuppressUntil = 0;
     /* 只响应主键；右键 / 中键不参与 */
     if (e.pointerType === "mouse" && e.button !== 0) { swipeGesture = null; return; }
-    /* 左缘 24px 留给导航手势；编辑面板与删除按钮内部不接管 */
+    /* 左缘 24px 留给导航手势；行内编辑与删除按钮不接管左滑 */
     if (e.clientX <= 24 ||
-        (e.target.closest && (e.target.closest(".fn-inline") || e.target.closest("[data-del]")))) {
+        (e.target.closest && (e.target.closest("[data-edit]") || e.target.closest("[data-del]")))) {
       swipeGesture = null;
       return;
     }
@@ -2110,7 +2150,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var shuffleIndex = shuffledAll.indexOf(row);
     PRICE_ROWS.splice(index, 1);
     if (shuffleIndex >= 0) shuffledAll.splice(shuffleIndex, 1);
-    closeInlineHard();
     closeSwipe();
     renderPriceCard();
     showToast("已删除「" + p.name + "」", function () {
@@ -2170,95 +2209,78 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     motionEnter(el, variant);
   }
 
-  function snapshotForm(f) {
-    return {
-      name: f.name,
-      cat: f.cat,
-      price: f.price,
-      duration: f.duration,
-      durUnit: f.durUnit,
-      onSale: f.onSale,
-      bookable: f.bookable
-    };
-  }
-
-  function formEqual(a, b) {
-    if (!a || !b) return false;
-    return a.name === b.name && a.cat === b.cat && a.price === b.price &&
-      a.duration === b.duration && a.durUnit === b.durUnit &&
-      a.onSale === b.onSale && a.bookable === b.bookable;
-  }
-
-  function markDirty() {
-    if (!inlineState.form || !inlineState.base) return;
-    inlineState.dirty = !formEqual(inlineState.form, inlineState.base);
-  }
-
-  function durationDisplay(mins) {
-    if (mins >= 60 && mins % 60 === 0) {
-      return { value: mins / 60, unit: "hour" };
-    }
-    return { value: mins, unit: "min" };
-  }
-
-  function durationToMinutes(value, unit) {
-    var n = parseFloat(value);
-    if (!isFinite(n) || n <= 0) return 0;
-    return unit === "hour" ? Math.round(n * 60) : Math.round(n);
-  }
-
-  function buildInlineHtml(r) {
-    var dur = durationDisplay(r[4] || 30);
-    var onSale = r[3] === "在售";
-    var bookable = !!r[5] && onSale;
-    var catChips = CATS.map(function (c) {
-      return '<button type="button" class="fn-chip' + (c === r[0] ? " is-on" : "") + '" data-cat="' + c + '">' + c + "</button>";
-    }).join("");
-    return (
-      '<div class="fn-form">' +
-        '<div class="fn-frow">' +
-          '<span class="fn-flabel">名称</span>' +
-          '<div class="fn-ffield"><input type="text" data-f="name" maxlength="30" value="' + escapeHtml(r[1]) + '" placeholder="请输入">' + PENCIL_SVG + "</div>" +
-        "</div>" +
-        '<div class="fn-frow">' +
-          '<span class="fn-flabel">分类</span>' +
-          '<div class="fn-ffield"><div class="fn-chip-group" data-f="cat">' + catChips + "</div></div>" +
-        "</div>" +
-        '<div class="fn-frow">' +
-          '<span class="fn-flabel">价格</span>' +
-          '<div class="fn-ffield"><input type="text" data-f="price" inputmode="decimal" value="¥' + escapeHtml(String(r[2])) + '" placeholder="请输入">' + PENCIL_SVG + "</div>" +
-        "</div>" +
-        '<div class="fn-frow">' +
-          '<span class="fn-flabel">时长</span>' +
-          '<div class="fn-ffield">' +
-            '<div class="fn-dur">' +
-              '<input class="fn-dur-num" type="number" data-f="duration" min="1" step="1" value="' + dur.value + '">' +
-              '<div class="fn-dur-units" data-unit="' + dur.unit + '">' +
-                '<span class="fn-dur-ind"></span>' +
-                '<button type="button" class="fn-dur-unit' + (dur.unit === "min" ? " is-on" : "") + '" data-unit="min">分</button>' +
-                '<button type="button" class="fn-dur-unit' + (dur.unit === "hour" ? " is-on" : "") + '" data-unit="hour">时</button>' +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-        "</div>" +
-        '<div class="fn-frow fn-frow--sw">' +
-          '<div class="fn-sw-pair">' +
-            '<span class="fn-sw-item"><span class="fn-flabel">在售</span>' +
-              '<button type="button" class="fn-switch' + (onSale ? " is-on" : "") + '" data-f="onSale" aria-pressed="' + onSale + '"></button></span>' +
-            '<span class="fn-sw-item"><span class="fn-flabel">可预约</span>' +
-              '<button type="button" class="fn-switch' + (bookable ? " is-on" : "") + '"' +
-                (onSale ? "" : " disabled") + ' data-f="bookable" aria-pressed="' + bookable + '"></button></span>' +
-          "</div>" +
-        "</div>" +
-      "</div>" +
-      '<div class="fn-inline-foot">' +
-        '<button type="button" class="fn-inline-save" data-act="save">' + SAVE_SVG + "<span>保存</span></button>" +
-      "</div>"
-    );
-  }
-
   function cardCountOf(r) {
     return Number(r && r[6]) || 0;
+  }
+
+  function flashSaved(id) {
+    var saved = fnList.querySelector('.fn-item[data-id="' + id + '"]');
+    if (!saved) return;
+    saved.classList.add("is-saved");
+    clearTimeout(glowTimer);
+    glowTimer = setTimeout(function () {
+      saved.classList.remove("is-saved");
+    }, 320);
+  }
+
+  function saveRowName(id, input) {
+    var row = PRICE_ROWS[id];
+    if (!row || !input) return;
+    var name = String(input.value || "").trim();
+    if (!name) {
+      input.value = row[1];
+      showToast("请填写名称");
+      return;
+    }
+    if (name === row[1]) {
+      input.value = row[1];
+      return;
+    }
+    row[1] = name;
+    input.value = name;
+    flashSaved(id);
+    showToast("名称已更新");
+  }
+
+  function fitPriceInput(input) {
+    if (!input) return;
+    var s = String(input.value || "").replace(/[¥￥,\s]/g, "") || "0";
+    input.size = Math.max(2, Math.min(7, s.length));
+  }
+
+  function saveRowPrice(id, input) {
+    var row = PRICE_ROWS[id];
+    if (!row || !input) return;
+    var raw = String(input.value || "").replace(/[¥￥,\s]/g, "");
+    var priceNum = Number(raw);
+    if (!isFinite(priceNum) || priceNum < 0 || raw === "") {
+      input.value = String(row[2]);
+      fitPriceInput(input);
+      showToast("请填写有效价格");
+      return;
+    }
+    priceNum = Math.round(priceNum * 100) / 100;
+    if (priceNum === Number(row[2])) {
+      input.value = String(row[2]);
+      fitPriceInput(input);
+      return;
+    }
+    row[2] = priceNum;
+    input.value = String(priceNum);
+    fitPriceInput(input);
+    flashSaved(id);
+    showToast("价格已更新");
+  }
+
+  function toggleRowSale(id) {
+    var row = PRICE_ROWS[id];
+    if (!row) return;
+    var nextOn = row[3] !== "在售";
+    row[3] = nextOn ? "在售" : "停售";
+    if (!nextOn) row[5] = false;
+    renderPriceCard();
+    flashSaved(id);
+    showToast(nextOn ? "已设为在售" : "已设为停售");
   }
 
   function itemHtml(r) {
@@ -2279,264 +2301,75 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
             "<span>" + (locked ? "不可删" : "删除") + "</span>" +
           "</button>" +
           '<div class="fn-swipe-track">' +
-            '<div class="fn-row' + (off ? " is-off" : "") + '" role="button" tabindex="0" aria-expanded="false">' +
-              '<div class="fn-row-name">' + escapeHtml(r[1]) + "</div>" +
-              '<div class="fn-row-price"><small>¥</small>' + r[2] + "</div>" +
-              '<div class="fn-row-status"><span class="fn-dot"></span>' + r[3] + "</div>" +
+            '<div class="fn-row' + (off ? " is-off" : "") + '">' +
+              '<input class="fn-row-name" type="text" data-edit="name" maxlength="30" value="' + escapeHtml(r[1]) + '" aria-label="修改名称">' +
+              '<div class="fn-row-price"><small>¥</small>' +
+                '<input class="fn-row-price-input" type="text" data-edit="price" inputmode="decimal" value="' + escapeHtml(String(r[2])) + '" size="' + Math.max(2, String(r[2]).length) + '" aria-label="修改价格">' +
+              "</div>" +
+              '<button type="button" class="fn-row-status" data-edit="status" aria-label="切换在售状态">' +
+                '<span class="fn-dot"></span><span data-status-label>' + r[3] + "</span>" +
+              "</button>" +
             "</div>" +
           "</div>" +
         "</div>" +
-        '<div class="fn-inline" hidden></div>' +
       "</div>"
     );
   }
 
-  function syncFormFromDom(panel) {
-    if (!panel || !inlineState.form) return;
-    var nameEl = panel.querySelector('[data-f="name"]');
-    var catEl = panel.querySelector('[data-f="cat"]');
-    var catOn = catEl ? catEl.querySelector(".fn-chip.is-on") : null;
-    var priceEl = panel.querySelector('[data-f="price"]');
-    var durEl = panel.querySelector('[data-f="duration"]');
-    var units = panel.querySelector(".fn-dur-units");
-    var onBtn = panel.querySelector('[data-f="onSale"]');
-    var bookBtn = panel.querySelector('[data-f="bookable"]');
-    inlineState.form.name = nameEl ? nameEl.value.trim() : "";
-    inlineState.form.cat = catOn ? catOn.getAttribute("data-cat") : (inlineState.form.cat || "");
-    inlineState.form.price = priceEl ? String(priceEl.value).replace(/[¥￥,\s]/g, "") : "";
-    inlineState.form.durUnit = units ? units.getAttribute("data-unit") || "min" : "min";
-    inlineState.form.duration = durEl ? durEl.value : "";
-    inlineState.form.onSale = !!(onBtn && onBtn.classList.contains("is-on"));
-    inlineState.form.bookable = !!(bookBtn && bookBtn.classList.contains("is-on"));
-    markDirty();
+  function setRowEditing(item, on) {
+    var row = item && item.querySelector(".fn-row");
+    if (!row) return;
+    row.classList.toggle("is-editing", !!on);
   }
 
-  function bindInlineEvents(item) {
-    var panel = item.querySelector(".fn-inline");
-    if (!panel) return;
-
-    panel.querySelectorAll('input[data-f]').forEach(function (el) {
-      el.addEventListener("input", function () {
-        syncFormFromDom(panel);
-      });
-      el.addEventListener("change", function () {
-        syncFormFromDom(panel);
-      });
-    });
-
-    var priceEl = panel.querySelector('[data-f="price"]');
-    if (priceEl) {
-      priceEl.addEventListener("focus", function () {
-        var v = String(priceEl.value).replace(/[¥￥,\s]/g, "");
-        priceEl.value = v;
-      });
-      priceEl.addEventListener("blur", function () {
-        var v = String(priceEl.value).replace(/[¥￥,\s]/g, "");
-        if (v !== "" && isFinite(Number(v))) priceEl.value = "¥" + v;
-        syncFormFromDom(panel);
-      });
-    }
-
-    panel.querySelectorAll(".fn-chip").forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        panel.querySelectorAll(".fn-chip").forEach(function (c) {
-          c.classList.toggle("is-on", c === chip);
+  function bindRowEditEvents() {
+    fnList.querySelectorAll(".fn-item").forEach(function (item) {
+      var id = Number(item.getAttribute("data-id"));
+      var nameEl = item.querySelector('[data-edit="name"]');
+      var priceEl = item.querySelector('[data-edit="price"]');
+      var priceWrap = item.querySelector(".fn-row-price");
+      if (nameEl) {
+        nameEl.addEventListener("focus", function () {
+          setRowEditing(item, true);
+          try { nameEl.select(); } catch (err) { /* */ }
         });
-        syncFormFromDom(panel);
-      });
-    });
-
-    panel.querySelectorAll(".fn-dur-unit").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var wrap = panel.querySelector(".fn-dur-units");
-        var unit = btn.getAttribute("data-unit");
-        wrap.setAttribute("data-unit", unit);
-        panel.querySelectorAll(".fn-dur-unit").forEach(function (b) {
-          b.classList.toggle("is-on", b === btn);
+        nameEl.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            nameEl.blur();
+          }
         });
-        syncFormFromDom(panel);
-      });
-    });
-
-    var onBtn = panel.querySelector('[data-f="onSale"]');
-    var bookBtn = panel.querySelector('[data-f="bookable"]');
-    if (onBtn) {
-      onBtn.addEventListener("click", function () {
-        var next = !onBtn.classList.contains("is-on");
-        onBtn.classList.toggle("is-on", next);
-        onBtn.setAttribute("aria-pressed", next ? "true" : "false");
-        if (!next && bookBtn) {
-          bookBtn.classList.remove("is-on");
-          bookBtn.setAttribute("aria-pressed", "false");
-          bookBtn.disabled = true;
-        } else if (bookBtn) {
-          bookBtn.disabled = false;
-        }
-        syncFormFromDom(panel);
-        showToast(next ? "已设为在售" : "已设为停售");
-      });
-    }
-    if (bookBtn) {
-      bookBtn.addEventListener("click", function () {
-        if (bookBtn.disabled) {
-          showToast("停售项目不可预约");
-          return;
-        }
-        var next = !bookBtn.classList.contains("is-on");
-        bookBtn.classList.toggle("is-on", next);
-        bookBtn.setAttribute("aria-pressed", next ? "true" : "false");
-        syncFormFromDom(panel);
-        showToast(next ? "已开启可预约" : "已关闭可预约");
-      });
-    }
-
-    var saveBtn = panel.querySelector('[data-act="save"]');
-    if (saveBtn) {
-      saveBtn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        saveInline(item);
-      });
-    }
-  }
-
-  function closeInlineHard() {
-    var open = fnList.querySelector(".fn-item.is-open");
-    if (open) {
-      open.classList.remove("is-open");
-      var row = open.querySelector(".fn-row");
-      if (row) row.setAttribute("aria-expanded", "false");
-      var panel = open.querySelector(".fn-inline");
-      if (panel) {
-        panel.hidden = true;
-        panel.innerHTML = "";
+        nameEl.addEventListener("blur", function () {
+          saveRowName(id, nameEl);
+          if (!(priceEl && document.activeElement === priceEl)) setRowEditing(item, false);
+        });
       }
-    }
-    inlineState.id = null;
-    inlineState.dirty = false;
-    inlineState.base = null;
-    inlineState.form = null;
-  }
-
-  function openDiscard(pending) {
-    inlineState.pending = pending || { type: "close" };
-    fnDiscard.hidden = false;
-    fnDiscard.classList.add("is-on");
-  }
-
-  function hideDiscard() {
-    fnDiscard.classList.remove("is-on");
-    fnDiscard.hidden = true;
-    inlineState.pending = null;
-  }
-
-  function requestCloseInline(pending) {
-    if (inlineState.id == null) return;
-    if (inlineState.dirty) {
-      openDiscard(pending || { type: "close" });
-      return;
-    }
-    closeInlineHard();
-    if (pending && pending.type === "tab") applyTab(pending.cat);
-    else if (pending && pending.type === "filter") applyFilter(pending.onlyOn);
-    else requestAnimationFrame(updateScrollHint);
-  }
-
-  function openInline(item) {
-    var id = Number(item.getAttribute("data-id"));
-    var row = PRICE_ROWS[id];
-    if (!row) return;
-    closeInlineHard();
-    var panel = item.querySelector(".fn-inline");
-    var head = item.querySelector(".fn-row");
-    panel.hidden = false;
-    panel.innerHTML = buildInlineHtml(row);
-    item.classList.add("is-open");
-    if (head) head.setAttribute("aria-expanded", "true");
-    var dur = durationDisplay(row[4] || 30);
-    inlineState.id = id;
-    inlineState.form = {
-      name: row[1],
-      cat: row[0],
-      price: String(row[2]),
-      duration: String(dur.value),
-      durUnit: dur.unit,
-      onSale: row[3] === "在售",
-      bookable: !!row[5] && row[3] === "在售"
-    };
-    inlineState.base = snapshotForm(inlineState.form);
-    inlineState.dirty = false;
-    bindInlineEvents(item);
-    requestAnimationFrame(function () {
-      try {
-        item.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      } catch (err) { /* ignore */ }
-      updateScrollHint();
+      if (priceEl) {
+        fitPriceInput(priceEl);
+        priceEl.addEventListener("focus", function () {
+          setRowEditing(item, true);
+          if (priceWrap) priceWrap.classList.add("is-editing");
+          try { priceEl.select(); } catch (err) { /* */ }
+        });
+        priceEl.addEventListener("input", function () {
+          fitPriceInput(priceEl);
+        });
+        priceEl.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            priceEl.blur();
+          }
+        });
+        priceEl.addEventListener("blur", function () {
+          if (priceWrap) priceWrap.classList.remove("is-editing");
+          saveRowPrice(id, priceEl);
+          if (!(nameEl && document.activeElement === nameEl)) setRowEditing(item, false);
+        });
+      }
     });
-  }
-
-  function toggleInline(item) {
-    var id = Number(item.getAttribute("data-id"));
-    if (inlineState.id === id) {
-      requestCloseInline({ type: "close" });
-      return;
-    }
-    if (inlineState.id != null && inlineState.dirty) {
-      openDiscard({ type: "switch", id: id });
-      return;
-    }
-    openInline(item);
-  }
-
-  function saveInline(item) {
-    var panel = item.querySelector(".fn-inline");
-    syncFormFromDom(panel);
-    var f = inlineState.form;
-    if (!f || !f.name) {
-      showToast("请填写名称");
-      return;
-    }
-    var priceNum = Number(String(f.price).replace(/[¥￥,\s]/g, ""));
-    if (!isFinite(priceNum) || priceNum < 0) {
-      showToast("请填写有效价格");
-      return;
-    }
-    var mins = durationToMinutes(f.duration, f.durUnit);
-    if (mins < 1) {
-      showToast("请填写项目时长");
-      return;
-    }
-    var id = inlineState.id;
-    var row = PRICE_ROWS[id];
-    if (!row) return;
-    row[0] = f.cat;
-    row[1] = f.name;
-    row[2] = Math.round(priceNum * 100) / 100;
-    row[3] = f.onSale ? "在售" : "停售";
-    row[4] = mins;
-    row[5] = f.onSale ? !!f.bookable : false;
-    inlineState.dirty = false;
-    inlineState.base = snapshotForm(f);
-    closeInlineHard();
-    renderPriceCard();
-    var saved = fnList.querySelector('.fn-item[data-id="' + id + '"]');
-    if (saved) {
-      saved.classList.add("is-saved");
-      clearTimeout(glowTimer);
-      glowTimer = setTimeout(function () {
-        saved.classList.remove("is-saved");
-      }, 320);
-      try {
-        saved.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      } catch (err) { /* ignore */ }
-    }
-    showToast("保存成功");
   }
 
   function renderPriceCard() {
-    var keepId = inlineState.id;
-    var keepDirty = inlineState.dirty;
-    var keepForm = inlineState.form ? snapshotForm(inlineState.form) : null;
-    var keepBase = inlineState.base ? snapshotForm(inlineState.base) : null;
     swipeOpenId = null;
 
     var all = countStats(PRICE_ROWS);
@@ -2547,10 +2380,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       fnList.innerHTML = '<div class="fn-empty">当前筛选下暂无项目</div>';
       if (fnMoreWrap) fnMoreWrap.hidden = true;
       sessionCard.classList.remove("is-expanded");
-      inlineState.id = null;
-      inlineState.dirty = false;
-      inlineState.base = null;
-      inlineState.form = null;
       requestAnimationFrame(updateScrollHint);
       return;
     }
@@ -2561,60 +2390,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var expanded = !!priceState.expanded && collapsible;
     var showRows = expanded ? rows : rows.slice(0, LIMIT);
 
-    /* 全部：扁平打乱列表；分类 Tab：该类列表（无分组标题） */
     fnList.innerHTML = showRows.map(itemHtml).join("");
     sessionCard.classList.toggle("is-expanded", expanded);
+    bindRowEditEvents();
 
     if (fnMoreWrap && fnMore) {
       fnMoreWrap.hidden = !collapsible;
       fnMore.textContent = expanded ? "收起" : "展开剩余 " + (rows.length - LIMIT) + " 项";
       fnMore.setAttribute("aria-expanded", expanded ? "true" : "false");
-    }
-
-    if (keepId != null && fnList.querySelector('.fn-item[data-id="' + keepId + '"]')) {
-      var item = fnList.querySelector('.fn-item[data-id="' + keepId + '"]');
-      openInline(item);
-      if (keepForm && keepDirty) {
-        inlineState.form = keepForm;
-        inlineState.base = keepBase;
-        inlineState.dirty = true;
-        var panel = item.querySelector(".fn-inline");
-        var nameEl = panel.querySelector('[data-f="name"]');
-        var catEl = panel.querySelector('[data-f="cat"]');
-        var priceEl = panel.querySelector('[data-f="price"]');
-        var durEl = panel.querySelector('[data-f="duration"]');
-        var units = panel.querySelector(".fn-dur-units");
-        var onBtn = panel.querySelector('[data-f="onSale"]');
-        var bookBtn = panel.querySelector('[data-f="bookable"]');
-        if (nameEl) nameEl.value = keepForm.name;
-        if (catEl) {
-          catEl.querySelectorAll(".fn-chip").forEach(function (c) {
-            c.classList.toggle("is-on", c.getAttribute("data-cat") === keepForm.cat);
-          });
-        }
-        if (priceEl) priceEl.value = keepForm.price !== "" ? "¥" + keepForm.price : "";
-        if (durEl) durEl.value = keepForm.duration;
-        if (units) {
-          units.setAttribute("data-unit", keepForm.durUnit);
-          panel.querySelectorAll(".fn-dur-unit").forEach(function (b) {
-            b.classList.toggle("is-on", b.getAttribute("data-unit") === keepForm.durUnit);
-          });
-        }
-        if (onBtn) {
-          onBtn.classList.toggle("is-on", keepForm.onSale);
-          onBtn.setAttribute("aria-pressed", keepForm.onSale ? "true" : "false");
-        }
-        if (bookBtn) {
-          bookBtn.classList.toggle("is-on", keepForm.bookable);
-          bookBtn.setAttribute("aria-pressed", keepForm.bookable ? "true" : "false");
-          bookBtn.disabled = !keepForm.onSale;
-        }
-      }
-    } else {
-      inlineState.id = null;
-      inlineState.dirty = false;
-      inlineState.base = null;
-      inlineState.form = null;
     }
     requestAnimationFrame(updateScrollHint);
   }
@@ -2627,7 +2410,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       t.classList.toggle("is-on", on);
       t.setAttribute("aria-selected", on ? "true" : "false");
     });
-    closeInlineHard();
     renderPriceCard();
   }
 
@@ -2636,7 +2418,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     priceState.expanded = false;
     btnFilterOff.classList.toggle("is-on", onlyOn);
     btnFilterOff.textContent = onlyOn ? "查看全部" : "只看在售";
-    closeInlineHard();
     renderPriceCard();
   }
 
@@ -2650,7 +2431,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   fnList.addEventListener("click", function (e) {
     if (swipeClickSuppressed(e)) return;
-    if (e.target.closest(".fn-inline")) return;
     var delBtn = e.target.closest("[data-del]");
     if (delBtn) {
       requestDelete(Number(delBtn.getAttribute("data-del")));
@@ -2668,7 +2448,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       closeSwipe();
       return;
     }
-    toggleInline(item);
+    var statusBtn = e.target.closest('[data-edit="status"]');
+    if (statusBtn) {
+      e.preventDefault();
+      toggleRowSale(Number(item.getAttribute("data-id")));
+      return;
+    }
+    /* 名称 / 价格由自身 input 处理；点行空白不展开 */
   });
 
   fnDeleteCancel.addEventListener("click", hideDeleteConfirm);
@@ -2706,20 +2492,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!btn) return;
     var cat = btn.dataset.cat;
     if (cat === priceState.cat) return;
-    if (inlineState.id != null && inlineState.dirty) {
-      openDiscard({ type: "tab", cat: cat });
-      return;
-    }
     applyTab(cat);
   });
 
   btnFilterOff.addEventListener("click", function () {
-    var next = !priceState.onlyOn;
-    if (inlineState.id != null && inlineState.dirty) {
-      openDiscard({ type: "filter", onlyOn: next });
-      return;
-    }
-    applyFilter(next);
+    applyFilter(!priceState.onlyOn);
   });
 
   if (fnMore) {
@@ -2737,49 +2514,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   btnGotoManage.addEventListener("click", function () {
     showToast("示意：将跳转「价目表管理」");
-  });
-
-  fnDiscardKeep.addEventListener("click", function () {
-    hideDiscard();
-  });
-
-  fnDiscardOk.addEventListener("click", function () {
-    var pending = inlineState.pending;
-    hideDiscard();
-    if (!pending) {
-      closeInlineHard();
-      return;
-    }
-    if (pending.type === "switch") {
-      closeInlineHard();
-      var next = fnList.querySelector('.fn-item[data-id="' + pending.id + '"]');
-      if (next) openInline(next);
-      return;
-    }
-    if (pending.type === "tab") {
-      applyTab(pending.cat);
-      return;
-    }
-    if (pending.type === "filter") {
-      applyFilter(pending.onlyOn);
-      return;
-    }
-    closeInlineHard();
-    requestAnimationFrame(updateScrollHint);
-  });
-
-  document.addEventListener("click", function (e) {
-    if (inlineState.id == null) return;
-    if (fnDiscard.classList.contains("is-on")) return;
-    /* 点在当前展开项 / Tab / 底栏 / 弹层内：不收起 */
-    if (e.target.closest(".fn-item.is-open") ||
-        e.target.closest(".fn-tabs") ||
-        e.target.closest(".fn-foot") ||
-        e.target.closest(".fn-discard") ||
-        e.target.closest(".fn-toast")) return;
-    /* 点其它行：由列表 click 负责切换 */
-    if (e.target.closest(".fn-item")) return;
-    requestCloseInline({ type: "close" });
   });
 
   renderPriceCard();
@@ -3457,6 +3191,23 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return '<img src="' + src + '" alt="" width="18" height="18">';
   }
 
+  function stationToneClass(name) {
+    if (name === "大工") return " is-big";
+    if (name === "中工") return " is-mid";
+    if (name === "小工") return " is-small";
+    return "";
+  }
+
+  function payChipHtml(method, amount) {
+    return (
+      '<span class="od-pay-chip">' +
+        '<span class="od-pay-method">' + payIconHtml(method) +
+          "<span>" + escapeHtml(method) + "</span></span>" +
+        '<span class="od-pay-amt">¥' + moneyText(amount) + "</span>" +
+      "</span>"
+    );
+  }
+
   function showOdToast(msg) {
     if (!odToast) return;
     odToast.textContent = msg;
@@ -3556,8 +3307,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function paySummaryText() {
     if (!orderData.payments.length) return '<span class="is-warn">未收款</span>';
     return orderData.payments.map(function (p) {
-      return escapeHtml(p.method) + " ¥" + moneyText(p.amount);
-    }).join(" + ");
+      return payChipHtml(p.method, p.amount);
+    }).join('<span class="od-pay-sep">+</span>');
   }
   function stationSummaryText() {
     /* 服务员工摘要：工位名做小标签 + 员工姓名，可换行完整显示 */
@@ -3568,7 +3319,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       }).filter(Boolean);
       return (
         '<span class="st-sum">' +
-          '<span class="od-stag">' + escapeHtml(st.name) + "</span>" +
+          '<span class="od-stag' + stationToneClass(st.name) + '">' + escapeHtml(st.name) + "</span>" +
           (names.length
             ? '<span class="st-sum-name">' + names.map(escapeHtml).join("/") + "</span>"
             : '<span class="st-sum-empty">未分配</span>') +
@@ -3751,7 +3502,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       return (
         '<div class="st-item" data-st="' + st.id + '">' +
           '<div class="st-top">' +
-            '<span class="st-name">' + st.name + "</span>" +
+            '<span class="st-name' + stationToneClass(st.name) + '">' + escapeHtml(st.name) + "</span>" +
             (st.staff.length ? "" : '<span class="st-empty">未分配</span>') +
             '<div class="st-picks">' + chosen + addChip + "</div>" +
           "</div>" +
@@ -3853,7 +3604,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       "收款",
       paySummaryText(),
       '<div class="pay-list">' + lines + "</div>" + addHtml + picks + prog,
-      open
+      open,
+      true
     );
   }
 
@@ -3868,11 +3620,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       var m = staffById(id);
       if (!m) return "";
       var tags = stationsOfStaff(id).map(function (n) {
-        return '<span class="od-tag">' + escapeHtml(n) + "</span>";
+        return '<span class="od-tag' + stationToneClass(n) + '">' + escapeHtml(n) + "</span>";
       }).join("");
       return (
         '<div class="od-line is-staff">' +
-          "<span>" + m.short + tags + "</span>" +
+          "<span>" + escapeHtml(m.short) + tags + "</span>" +
           "<span>业绩 ¥" + moneyText(perfOf(id)) +
             " <em>·</em> 提成 ¥" + moneyText(commOf(id)) + "</span>" +
         "</div>"
@@ -3884,8 +3636,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         "<span>收款</span>" +
         "<span>" +
           orderData.payments.map(function (p) {
-            return payIconHtml(p.method) + escapeHtml(p.method) +
-              ' <em>¥' + moneyText(p.amount) + "</em>";
+            return payChipHtml(p.method, p.amount);
           }).join("<br>") +
         "</span>" +
       "</div>";
