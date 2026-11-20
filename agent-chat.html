@@ -34,17 +34,6 @@
   --dur-ui:.22s;
   --dur-enter:.34s;
   --dur-sheet:.42s;
-  /* 进入提醒圆形 */
-  --dur-orb-pop:200ms;
-  --ease-orb-pop:cubic-bezier(.34,1.3,.52,1);
-  --dur-orb-out:280ms;
-  --p-rose:#F7B3C4;
-  --p-berry:#E2879B;
-  /* 进入提醒圆环渐变（与品牌粉同族，由浅到深） */
-  --p-cream:#FFDCCB;
-  --p-apricot:#FFC7A8;
-  --p-blush:#FBC9CE;
-  --p-coral:#F39287;
   /* Figma AI 按钮三态（node 80:50） */
   --btn-blue:#496fc4;
   --btn-stroke:#9fadca;
@@ -262,8 +251,49 @@ button{font:inherit;color:inherit}
 }
 #frame.mode-home .home-ai{opacity:1;pointer-events:auto}
 .home-ai:focus-visible{outline:2px solid rgba(226,135,155,.62);outline-offset:3px}
-#frame.is-orb-open .home-ai,
 #frame.is-b2-open .home-ai{opacity:0;pointer-events:none}
+
+/* 自助归档：TAB Agent 旁小气泡（新 pending 提示一次） */
+.tab-tip{
+  position:absolute;left:194px;bottom:92px;z-index:6;
+  max-width:168px;padding:8px 12px;border-radius:12px;
+  background:#1c1c1e;color:#fff;font-size:12px;font-weight:500;line-height:1.35;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.35);
+  opacity:0;transform:translate(-50%,6px) scale(.96);pointer-events:none;
+  transition:opacity .22s var(--ease-out),transform .22s var(--ease-out);
+  white-space:nowrap;
+}
+.tab-tip::after{
+  content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;
+  margin-left:-5px;background:#1c1c1e;transform:rotate(45deg);border-radius:1px;
+}
+.tab-tip.is-on{
+  opacity:1;transform:translate(-50%,0) scale(1);pointer-events:auto;
+}
+#frame:not(.mode-home) .tab-tip{opacity:0 !important;pointer-events:none !important}
+.od-smart-tag{
+  display:inline-block;margin-left:4px;padding:0 3px;border-radius:3px;
+  font-size:10px;font-weight:500;line-height:15px;color:#8e8e93;
+  background:#fff;border:1px solid #e5e5ea;vertical-align:1px;
+}
+.od-hero-tools{margin:6px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.od-hero-tool{
+  appearance:none;cursor:pointer;font-family:inherit;
+  height:26px;padding:0 8px;border-radius:6px;
+  font-size:11px;font-weight:500;color:var(--btn-blue);
+  background:transparent;border:.5px solid var(--btn-stroke);
+}
+.ar-remark{
+  width:100%;min-height:64px;resize:vertical;box-sizing:border-box;
+  padding:8px 10px;border-radius:8px;border:.5px solid rgba(26,26,26,.1);
+  font:inherit;font-size:12.5px;color:#1a1a1a;background:#fff;
+}
+.pay-ro-line{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:7px 0;border-top:1px solid rgba(26,26,26,.05);font-size:12.5px;
+}
+.pay-ro-line:first-child{border-top:0}
+.pay-ro-line b{font-variant-numeric:tabular-nums;font-weight:600}
 
 /* B2 播放时盖住 tab 像素图中央机器人（画在整图里，不能单独藏） */
 .home-ai-cover{
@@ -276,30 +306,6 @@ button{font:inherit;color:inherit}
 #frame.is-b2-open .home-ai-cover{opacity:1}
 /* 缩回末段揭开像素图中央图标，与大机器人交叉 */
 #frame.is-b2-open.is-b2-revealing .home-ai-cover{opacity:0}
-
-/* 首页左上角：进入提醒方案切换（默认圆环） */
-.intro-switch{
-  position:absolute;left:12px;top:12px;z-index:20;
-  display:none;align-items:center;gap:0;
-  padding:3px;border-radius:999px;
-  background:rgba(255,255,255,.92);
-  box-shadow:0 1px 3px rgba(0,0,0,.1);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  pointer-events:auto;
-}
-#frame.mode-home .intro-switch{display:inline-flex}
-#frame.mode-fullscreen .intro-switch{display:none}
-.intro-switch button{
-  appearance:none;border:0;cursor:pointer;font:inherit;
-  font-size:11px;font-weight:500;line-height:1;
-  padding:7px 10px;border-radius:999px;
-  color:#5a5558;background:transparent;
-  transition:background .18s var(--ease-out), color .18s var(--ease-out);
-}
-.intro-switch button.is-on{
-  background:#1B1319;color:#fff;
-}
-.intro-switch button:focus-visible{outline:2px solid rgba(226,135,155,.55);outline-offset:2px}
 
 /* B2：全屏浅蒙层 + 底部深色渐变（在 tab 下、机器人下） */
 .intro-veil{
@@ -359,62 +365,9 @@ button{font:inherit;color:inherit}
   -webkit-mask-size:100% 100%;mask-size:100% 100%;
 }
 
-/* 圆形提醒：挂在 tab 像素图坐标系内，底边与机器人底边齐平 */
-.orb{
-  position:absolute;left:194px;bottom:43px;
-  width:43px;height:43px;margin-left:-21.5px;
-  z-index:5;pointer-events:none;opacity:0;
-  transform-origin:50% 100%;
-  transition:opacity var(--dur-ui) var(--ease-out);
-  will-change:width,height,margin-left,opacity,transform;
-}
-.orb.is-open{pointer-events:auto;cursor:pointer}
-.orb.is-out{
-  /* 圆形窗口收束（内容不缩放）：128 → 图标框 43，底边始终贴机器人底边 */
-  width:43px !important;height:43px !important;
-  margin-left:-21.5px !important;
-  opacity:0 !important;transform:none;
-  transition:
-    width var(--dur-orb-out) var(--ease-press),
-    height var(--dur-orb-out) var(--ease-press),
-    margin-left var(--dur-orb-out) var(--ease-press),
-    opacity .22s ease;
-}
-.orb-shell{
-  position:absolute;inset:0;border-radius:50%;overflow:hidden;
-  background:#ddd;z-index:1;
-  box-shadow:0 14px 32px -12px rgba(40,18,26,.34);
-}
-/* 媒体放大 1.12：金属边落在圆裁切外，可见直径严格 = d128 */
-.orb-clip{
-  position:absolute;left:50%;top:50%;
-  width:143.36px;height:143.36px;margin-left:-71.68px;margin-top:-71.68px;
-  object-fit:cover;display:block;background:#ddd;
-  pointer-events:none;user-select:none;
-}
-/* 外侧柔光：不侵占圆内像素 */
-.orb-glow{
-  position:absolute;inset:-12px;border-radius:50%;z-index:0;pointer-events:none;
-  background:radial-gradient(50% 50% at 50% 50%,
-    rgba(247,179,196,.34), rgba(255,199,168,.20) 54%, rgba(255,199,168,0) 76%);
-  opacity:0;transition:opacity var(--dur-enter) var(--ease-out);filter:blur(2px);
-}
-.orb.is-open .orb-glow{opacity:1}
-/* 边框：mask 挖空中心得到真实环形；外径与 d128 圆形边界重合，内径 124，厚度严格 2px */
-.orb-ring{
-  position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;
-  padding:2px;
-  background:conic-gradient(from 152deg,
-    var(--p-cream), var(--p-apricot) 20%, var(--p-blush) 38%,
-    var(--p-rose) 54%, var(--p-coral) 72%, var(--p-berry) 88%, var(--p-cream));
-  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite:exclude;
-}
 @media (prefers-reduced-motion:reduce){
-  .orb,.orb.is-out,.orb-glow,.home-ai,.home-ai-cover,
-  .intro-veil,.intro-well,.intro-mascot,.intro-switch button{transition:none !important}
+  .home-ai,.home-ai-cover,
+  .intro-veil,.intro-well,.intro-mascot{transition:none !important}
 }
 
 
@@ -686,24 +639,8 @@ button{font:inherit;color:inherit}
 }
 
 .fn-list{padding:0 8px 4px;max-height:none;position:relative}
-.session-card.is-expanded .fn-list{
-  max-height:min(52vh,420px);overflow:auto;-webkit-overflow-scrolling:touch;
-}
-.session-card.is-expanded .fn-list::-webkit-scrollbar{width:0}
 .fn-group{margin:0 0 6px}
-
-/* 一屏优先：默认 4 行 + 底部渐隐 + 展开按钮 */
-.fn-more-wrap{padding:2px 8px 8px;display:flex;justify-content:center}
-.fn-more-wrap[hidden]{display:none !important}
-.fn-more{
-  appearance:none;cursor:pointer;font-family:inherit;
-  height:30px;padding:0 14px;border-radius:999px;
-  font-size:12px;font-weight:500;color:var(--btn-blue);
-  background:var(--btn-fill);border:.5px solid var(--btn-stroke-soft);
-  display:inline-flex;align-items:center;gap:4px;
-  transition:transform var(--dur-press) var(--ease-press),background var(--dur-ui) var(--ease-out);
-}
-.fn-more:active{transform:scale(.97)}
+.fn-more-wrap{display:none !important}
 
 /* 分类选择的 Chip 组（替代下拉） */
 .fn-chip-group{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
@@ -1234,7 +1171,7 @@ button{font:inherit;color:inherit}
 }
 .pay-line:first-child{border-top:0;padding-top:2px}
 .pay-main{
-  display:inline-flex;align-items:center;gap:6px;min-width:0;
+  display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 6px;min-width:0;
   font-size:12.5px;font-weight:500;color:#1a1a1a;
 }
 .pay-amt{
@@ -1279,6 +1216,37 @@ button{font:inherit;color:inherit}
   background:transparent;border:.5px solid var(--btn-stroke);
   display:inline-flex;align-items:center;gap:5px;
 }
+/* 会员卡权益选择（收款展开区内） */
+.mb-picks{
+  margin-top:8px;padding:10px 10px 8px;border-radius:10px;
+  background:rgba(90,120,220,.05);border:.5px solid rgba(90,120,220,.14);
+}
+.mb-picks-title{
+  margin:0 0 8px;font-size:11.5px;font-weight:500;color:#6a6a72;
+}
+.mb-picks-list{display:flex;flex-direction:column;gap:6px}
+.mb-pick{
+  appearance:none;cursor:pointer;font-family:inherit;text-align:left;
+  display:flex;align-items:flex-start;gap:8px;width:100%;
+  padding:8px 10px;border-radius:8px;
+  background:#fff;border:.5px solid rgba(26,26,26,.08);
+  transition:border-color .15s ease,background .15s ease,transform .12s ease;
+}
+.mb-pick:active{transform:scale(.99)}
+.mb-pick.is-on{
+  border-color:rgba(90,120,220,.45);background:rgba(90,120,220,.08);
+}
+.mb-pick-type{
+  flex:none;margin-top:1px;padding:1px 6px;border-radius:4px;
+  font-size:10px;font-weight:600;line-height:1.4;
+}
+.mb-pick-type.is-times{color:#2f6aa8;background:rgba(90,160,220,.14)}
+.mb-pick-type.is-discount{color:#b85a2a;background:rgba(232,140,80,.14)}
+.mb-pick-type.is-balance{color:#2d8a5a;background:rgba(80,180,120,.14)}
+.mb-pick-main{flex:1;min-width:0}
+.mb-pick-name{display:block;font-size:12.5px;font-weight:600;color:#1a1a1a;line-height:1.3}
+.mb-pick-detail{display:block;margin-top:2px;font-size:11px;color:#8a7f88;line-height:1.3}
+.pay-main-sub{font-size:11px;font-weight:500;color:#8a7f88}
 .pay-progress{margin-top:10px}
 .pay-bar{height:4px;border-radius:999px;background:rgba(26,26,26,.08);overflow:hidden}
 .pay-bar span{
@@ -1593,6 +1561,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     <button type="button" id="navHome" class="is-on">首页 · 提醒</button>
     <button type="button" id="navDemoPrice" class="is-on">价目表</button>
     <button type="button" id="navDemoOrder">开单</button>
+    <button type="button" id="navDemoArchive">归档</button>
+    <button type="button" id="navSimSelfPay">模拟新自助单</button>
     <button type="button" id="navSheet" class="is-on">半屏</button>
     <button type="button" id="navFull">全屏</button>
     <button type="button" id="navThink">演示思考 → 出结果</button>
@@ -1603,19 +1573,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 <div class="stage">
   <div class="frame-slot">
   <div id="frame" class="mode-home" data-mode="home">
-    <!-- 无 tab 首页图：顶贴边；tab 与圆形提醒为独立层，只抬安全区 -->
+    <!-- 无 tab 首页图：顶贴边；tab 与 B2 进场为独立层，只抬安全区 -->
     <img class="home-bg" src="assets/agent-chat/home-bg@3x.png" alt="" width="390" height="1604" decoding="async">
 
     <!-- Figma 708:251：白渐变衬托层，贴底；不随安全区移动 -->
     <div class="home-tab-fade" aria-hidden="true"></div>
 
-    <!-- 进入提醒方案切换：默认圆环 -->
-    <div class="intro-switch" id="introSwitch" role="group" aria-label="进入提醒方案">
-      <button type="button" data-scheme="orb" class="is-on" aria-pressed="true">圆环</button>
-      <button type="button" data-scheme="b2" aria-pressed="false">图标进出</button>
-    </div>
-
-    <!-- B2 蒙层 / 底渐变 / 透明机器人（与圆环方案并存，可切换） -->
+    <!-- B2：蒙层 / 底渐变 / 图标进出机器人 -->
     <div class="intro-veil" id="introVeil" aria-hidden="true"></div>
     <div class="intro-well" id="introWell" aria-hidden="true"></div>
     <div class="intro-mascot" id="introMascot" aria-hidden="true">
@@ -1636,21 +1600,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
       <button type="button" class="home-ai" id="homeAi" aria-label="唤起 AI 助手"></button>
       <div class="home-ai-cover" id="homeAiCover" aria-hidden="true"></div>
-
-      <div class="orb" id="orb" aria-hidden="true">
-        <span class="orb-glow"></span>
-        <div class="orb-shell">
-          <video id="orbClip" class="orb-clip"
-            width="480" height="480"
-            muted playsinline webkit-playsinline
-            preload="auto"
-            disablepictureinpicture
-            controlslist="nodownload nofullscreen noremoteplayback"
-            poster="assets/tab/intro-poster.jpg"
-            src="assets/tab/agent-intro.mp4"></video>
-        </div>
-        <span class="orb-ring" aria-hidden="true"></span>
-      </div>
+      <div class="tab-tip" id="tabTip" role="status" aria-live="polite" hidden>有待归档自助单</div>
     </nav>
 
     <div class="scrim" aria-hidden="true"></div>
@@ -1785,16 +1735,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                   <div class="od-titles">
                     <p class="od-title" id="odTitle">开单确认</p>
                   </div>
-                  <span class="od-pill" id="odPill">待批准</span>
+                  <span class="od-pill" id="odPill">待确认</span>
                 </header>
 
                 <div class="od-fields" id="odFields"></div>
                 <div class="od-amount-block" id="odAmountBlock" hidden></div>
-                <p class="od-hint" id="odHint">可改员工、业绩、提成与支付金额；批准后才会真正提交，拒绝则取消本次操作。</p>
+                <p class="od-hint" id="odHint">可改员工、业绩、提成与支付金额；确认后才会真正提交，拒绝则取消本次操作。</p>
 
                 <footer class="od-foot">
                   <button type="button" class="fn-act od-foot-reject fn-act-danger" id="btnOrderReject">拒绝</button>
-                  <button type="button" class="fn-act od-foot-approve fn-act-approve" id="btnOrderApprove">批准</button>
+                  <button type="button" class="fn-act od-foot-approve fn-act-approve" id="btnOrderApprove">确认开单</button>
                 </footer>
               </article>
 
@@ -1888,8 +1838,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var navThink = document.getElementById("navThink");
   var navDemoPrice = document.getElementById("navDemoPrice");
   var navDemoOrder = document.getElementById("navDemoOrder");
+  var navDemoArchive = document.getElementById("navDemoArchive");
+  var navSimSelfPay = document.getElementById("navSimSelfPay");
   var panelPrice = document.getElementById("panelPrice");
   var panelOrder = document.getElementById("panelOrder");
+  var tabTip = document.getElementById("tabTip");
+  var orderUserMsg = document.getElementById("orderUserMsg");
   var btnExpand = document.getElementById("btnExpand");
   var btnClose = document.getElementById("btnClose");
   var hold = document.getElementById("holdTalk");
@@ -1936,11 +1890,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var odToast = document.getElementById("orderFlowToast") || document.getElementById("odToast");
   var btnOrderApprove = document.getElementById("btnOrderApprove");
   var btnOrderReject = document.getElementById("btnOrderReject");
-  var demoMode = "price";
+  var demoMode = "price"; /* price | order | archive */
+  var flowKind = "order"; /* order | archive — 共用开单确认卡壳 */
   var odToastTimer = 0;
   var orderStep = "idle"; /* ask | draft | success | rejected */
+  var archiveAskMore = false;
+  var notifiedPendingIds = {};
+  var selfPaySeq = 3;
 
-  var priceState = { cat: "全部", onlyOn: false, expanded: false };
+  var priceState = { cat: "全部", onlyOn: false };
   var toastTimer = 0;
   var glowTimer = 0;
   /* 「全部」打乱顺序：进入时打一次，切回全部不重打乱 */
@@ -2378,33 +2336,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var rows = filteredRows();
     if (!rows.length) {
       fnList.innerHTML = '<div class="fn-empty">当前筛选下暂无项目</div>';
-      if (fnMoreWrap) fnMoreWrap.hidden = true;
-      sessionCard.classList.remove("is-expanded");
       requestAnimationFrame(updateScrollHint);
       return;
     }
 
-    /* 一屏优先：默认 3 行，其余折叠 */
-    var LIMIT = 3;
-    var collapsible = rows.length > LIMIT;
-    var expanded = !!priceState.expanded && collapsible;
-    var showRows = expanded ? rows : rows.slice(0, LIMIT);
-
-    fnList.innerHTML = showRows.map(itemHtml).join("");
-    sessionCard.classList.toggle("is-expanded", expanded);
+    fnList.innerHTML = rows.map(itemHtml).join("");
     bindRowEditEvents();
-
-    if (fnMoreWrap && fnMore) {
-      fnMoreWrap.hidden = !collapsible;
-      fnMore.textContent = expanded ? "收起" : "展开剩余 " + (rows.length - LIMIT) + " 项";
-      fnMore.setAttribute("aria-expanded", expanded ? "true" : "false");
-    }
     requestAnimationFrame(updateScrollHint);
   }
 
   function applyTab(cat) {
     priceState.cat = cat;
-    priceState.expanded = false;
     fnTabs.querySelectorAll(".fn-tab").forEach(function (t) {
       var on = t.dataset.cat === cat;
       t.classList.toggle("is-on", on);
@@ -2415,7 +2357,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function applyFilter(onlyOn) {
     priceState.onlyOn = onlyOn;
-    priceState.expanded = false;
     btnFilterOff.classList.toggle("is-on", onlyOn);
     btnFilterOff.textContent = onlyOn ? "查看全部" : "只看在售";
     renderPriceCard();
@@ -2499,19 +2440,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     applyFilter(!priceState.onlyOn);
   });
 
-  if (fnMore) {
-    fnMore.addEventListener("click", function () {
-      priceState.expanded = !priceState.expanded;
-      renderPriceCard();
-      if (priceState.expanded) {
-        requestAnimationFrame(function () {
-          try { fnList.scrollTop = 0; } catch (e) { /* */ }
-          updateScrollHint();
-        });
-      }
-    });
-  }
-
   btnGotoManage.addEventListener("click", function () {
     showToast("示意：将跳转「价目表管理」");
   });
@@ -2533,23 +2461,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     clearTimeout(setMode._t);
     setMode._t = setTimeout(function () {
       frame.classList.remove("is-mode-animating");
+      if (isHome) showTabTip();
     }, MOTION_REDUCED ? 0 : 450);
     requestAnimationFrame(updateScrollHint);
   }
 
-  /* ----- 进入首页提醒：圆环 / B2 图标进出（可切换，默认圆环） ----- */
-  var orb = document.getElementById("orb");
-  var orbClip = document.getElementById("orbClip");
+  /* ----- 进入首页提醒：B2 图标进出 ----- */
   var homeAi = document.getElementById("homeAi");
-  var introSwitch = document.getElementById("introSwitch");
   var introMascot = document.getElementById("introMascot");
   var introClip = document.getElementById("introClip");
-
-  var ORB_SIZE = 128;
-  var ORB_MEDIA_START = 0.80;
-  var ORB_SHOW_MS = 2400;
-  var ORB_POP_MS = 200;
-  var ORB_OUT_MS = 280;
 
   var B2_ICON_SCALE = 0.47; /* ≈45/96 */
   var B2_IN_MS = 380;
@@ -2568,135 +2488,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var B2_REVEAL_RATIO = 0.68;
   var B2_REVEAL_EXTRA_MS = 300; /* 图标再晚出现 0.3s */
 
-  var introScheme = "orb"; /* orb | b2 */
-  var orbBusy = false;
   var b2Busy = false;
   var introTimer = 0;
   var introPlayed = false;
 
-  function introBusy() { return orbBusy || b2Busy; }
-
-  function stopOrbClip() {
-    if (!orbClip) return;
-    try {
-      orbClip.pause();
-      orbClip.currentTime = ORB_MEDIA_START;
-    } catch (e) { /* ignore */ }
-  }
-
-  function orbReset() {
-    if (!orb) return;
-    orb.classList.remove("is-open", "is-out");
-    orb.setAttribute("aria-hidden", "true");
-    frame.classList.remove("is-orb-open");
-    orb.style.width = "";
-    orb.style.height = "";
-    orb.style.marginLeft = "";
-    orb.style.bottom = "";
-    orb.style.opacity = "";
-    orb.style.transform = "";
-    orb.style.transition = "";
-    orb.style.transformOrigin = "";
-  }
-
-  function stopOrb() {
-    clearTimeout(introTimer);
-    if (!orb) { orbBusy = false; return; }
-    if (orbBusy || orb.classList.contains("is-open")) {
-      stopOrbClip();
-      orbReset();
-    }
-    orbBusy = false;
-  }
+  function introBusy() { return b2Busy; }
 
   function introWait(ms) {
     return new Promise(function (r) {
       introTimer = setTimeout(r, ms);
-    });
-  }
-
-  function orbStartMedia() {
-    if (!orbClip) return Promise.resolve();
-    orbClip.muted = true;
-    orbClip.playsInline = true;
-    try {
-      orbClip.pause();
-      orbClip.currentTime = ORB_MEDIA_START;
-    } catch (e) { /* ignore */ }
-    return new Promise(function (resolve) {
-      if (Math.abs(orbClip.currentTime - ORB_MEDIA_START) < 0.05) return resolve();
-      var done = function () {
-        orbClip.removeEventListener("seeked", done);
-        resolve();
-      };
-      orbClip.addEventListener("seeked", done);
-      setTimeout(resolve, 140);
-    }).then(function () {
-      try {
-        var p = orbClip.play();
-        if (p && typeof p.then === "function") return p;
-      } catch (e) { /* ignore */ }
-    });
-  }
-
-  function orbWaitOut() {
-    return new Promise(function (resolve) {
-      if (MOTION_REDUCED) return resolve();
-      var done = false;
-      var finish = function () {
-        if (done) return;
-        done = true;
-        orb.removeEventListener("transitionend", onEnd);
-        resolve();
-      };
-      var onEnd = function (e) {
-        if (e.target !== orb) return;
-        if (e.propertyName === "width" || e.propertyName === "transform" || e.propertyName === "opacity") finish();
-      };
-      orb.addEventListener("transitionend", onEnd);
-      setTimeout(finish, ORB_OUT_MS + 80);
-    });
-  }
-
-  function playOrb() {
-    if (!orb || orbBusy || b2Busy) return Promise.resolve();
-    orbBusy = true;
-    introPlayed = true;
-    clearTimeout(introTimer);
-
-    frame.classList.add("is-orb-open");
-    orb.classList.remove("is-out");
-    orb.setAttribute("aria-hidden", "false");
-    orb.classList.add("is-open");
-
-    orb.style.transition = "none";
-    orb.style.width = ORB_SIZE + "px";
-    orb.style.height = ORB_SIZE + "px";
-    orb.style.marginLeft = -ORB_SIZE / 2 + "px";
-    orb.style.opacity = "0";
-    orb.style.transform = MOTION_REDUCED ? "none" : "scale(.92)";
-    orb.style.transformOrigin = "50% 100%";
-    void orb.offsetWidth;
-    if (!MOTION_REDUCED) {
-      orb.style.transition =
-        "opacity " + ORB_POP_MS + "ms ease, transform " + ORB_POP_MS + "ms cubic-bezier(.34,1.3,.52,1)";
-    }
-    orb.style.opacity = "1";
-    orb.style.transform = "none";
-
-    var t0 = performance.now();
-    return orbStartMedia().then(function () {
-      var elapsed = performance.now() - t0;
-      return introWait(Math.max(0, ORB_SHOW_MS - elapsed));
-    }).then(function () {
-      stopOrbClip();
-      orb.style.transition = "";
-      void orb.offsetWidth;
-      orb.classList.add("is-out");
-      return orbWaitOut();
-    }).then(function () {
-      orbReset();
-      orbBusy = false;
     });
   }
 
@@ -2757,7 +2557,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function stopIntro() {
-    stopOrb();
     stopB2();
   }
 
@@ -2808,7 +2607,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function playB2() {
-    if (!introMascot || !introClip || b2Busy || orbBusy) return Promise.resolve();
+    if (!introMascot || !introClip || b2Busy) return Promise.resolve();
     b2Busy = true;
     introPlayed = true;
     clearTimeout(introTimer);
@@ -2869,24 +2668,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function playIntro() {
-    if (introScheme === "b2") return playB2();
-    return playOrb();
-  }
-
-  function setIntroScheme(scheme, replay) {
-    if (scheme !== "orb" && scheme !== "b2") return;
-    introScheme = scheme;
-    if (introSwitch) {
-      introSwitch.querySelectorAll("button").forEach(function (btn) {
-        var on = btn.getAttribute("data-scheme") === scheme;
-        btn.classList.toggle("is-on", on);
-        btn.setAttribute("aria-pressed", on ? "true" : "false");
-      });
-    }
-    stopIntro();
-    if (replay && frame.dataset.mode === "home") {
-      setTimeout(function () { playIntro(); }, 220);
-    }
+    return playB2();
   }
 
   function enterHome(replay) {
@@ -2910,22 +2692,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   btnExpand.addEventListener("click", function () { setMode("fullscreen"); });
   btnClose.addEventListener("click", goHome);
   if (navHome) navHome.addEventListener("click", function () { enterHome(true); });
-  if (homeAi) homeAi.addEventListener("click", openAgent);
-  if (orb) {
-    orb.addEventListener("click", function () {
-      if (orb.classList.contains("is-open")) openAgent();
+  if (homeAi) {
+    homeAi.addEventListener("click", function () {
+      var goArchive = tabTipIsOn() || unnotifiedPending().length > 0;
+      dismissTabTip(true);
+      openAgent();
+      if (goArchive) setDemoMode("archive");
+    });
+  }
+  if (frame) {
+    frame.addEventListener("click", function () {
+      if (tabTipIsOn()) dismissTabTip(true);
     });
   }
   if (introMascot) {
     introMascot.addEventListener("click", function () {
       if (introMascot.classList.contains("is-open")) openAgent();
-    });
-  }
-  if (introSwitch) {
-    introSwitch.addEventListener("click", function (e) {
-      var btn = e.target.closest("button[data-scheme]");
-      if (!btn) return;
-      setIntroScheme(btn.getAttribute("data-scheme"), true);
     });
   }
   window.addEventListener("resize", function () {
@@ -3122,7 +2904,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     clearInterval(hop.labelTimer);
   }
 
-  /* ----- 开单：追问 → 确认草稿 → 批准/拒绝 → 成功 ----- */
+  /* ----- 开单：追问 → 确认草稿 → 确认开单/拒绝 → 成功 ----- */
   var PAY_ICON = {
     "支付宝": "assets/agent-chat/pay/alipay.svg",
     "微信": "assets/agent-chat/pay/wechat.svg",
@@ -3139,6 +2921,32 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var PAY_PRIMARY = ["支付宝", "现金", "微信", "银行卡"];
   var PAY_MORE = ["会员卡", "经理签单", "欠款", "大众点评", "美团", "抖音", "口碑"];
   var PAY_ALL = PAY_PRIMARY.concat(PAY_MORE);
+  /* 会员卡权益演示数据：项目次数 / 折扣 / 储值余额 */
+  var MEMBER_BENEFITS = [
+    {
+      id: "mb-times",
+      type: "times",
+      typeLabel: "项目次数",
+      label: "泡泡染次卡",
+      detail: "剩 3 次 · 可抵本单"
+    },
+    {
+      id: "mb-disc",
+      type: "discount",
+      typeLabel: "折扣",
+      label: "持卡会员 9 折",
+      detail: "应付金额按 9 折计收",
+      rate: 0.9
+    },
+    {
+      id: "mb-balance",
+      type: "balance",
+      typeLabel: "储值余额",
+      label: "储值余额",
+      detail: "可用 ¥520.00",
+      balance: 520
+    }
+  ];
   /* ----- 开单：员工 × 3 工位（多对多） ----- */
   var STAFF = [
     { id: "tony", name: "Tony薛", tag: "总监", rate: 0.30, short: "Tony薛" },
@@ -3185,6 +2993,192 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var perfEdit = null; /* { id, field: 'perf' | 'comm' } */
   var thinkDemoTimer = 0;
 
+  /* ----- 自助订单归档：演示造数 ----- */
+  var SELF_PAY_ORDERS = [
+    {
+      id: "sp1", status: "pending", isMember: true,
+      customerName: "李女士", phone: "13800008903", phoneTail: "8903",
+      memberType: "持卡会员", paid: 198, time: "14:32", dateLabel: "今天",
+      payments: [{ method: "微信", amount: "198" }],
+      items: [], remark: "", guestGender: null
+    },
+    {
+      id: "sp2", status: "pending", isMember: false,
+      customerName: "男散客", phone: "", phoneTail: "",
+      memberType: "", paid: 88, time: "13:05", dateLabel: "今天",
+      payments: [{ method: "微信", amount: "88" }],
+      items: [], remark: "", guestGender: "男"
+    },
+    {
+      id: "sp3", status: "pending", isMember: true,
+      customerName: "王小姐", phone: "13900001234", phoneTail: "1234",
+      memberType: "储值会员", paid: 320, time: "11:48", dateLabel: "今天",
+      payments: [
+        { method: "微信", amount: "120" },
+        { method: "会员卡", amount: "200" }
+      ],
+      items: [], remark: "", guestGender: null
+    },
+    /* done：仅供智能补全查历史 */
+    {
+      id: "sp-done1", status: "done", isMember: true,
+      customerName: "李女士", phone: "13800008903", phoneTail: "8903",
+      paid: 298, time: "10:00", dateLabel: "昨天",
+      payments: [{ method: "微信", amount: "298" }],
+      items: [{ name: "泡泡染", price: 298 }],
+      stations: [
+        { id: "big", name: "大工", staff: ["tony"] },
+        { id: "mid", name: "中工", staff: ["lin"] },
+        { id: "small", name: "小工", staff: [] }
+      ]
+    }
+  ];
+
+  function pendingSelfPay() {
+    return SELF_PAY_ORDERS.filter(function (o) { return o.status === "pending"; })
+      .sort(function (a, b) {
+        if (a.time === b.time) return (a.id < b.id ? -1 : 1);
+        return a.time < b.time ? 1 : -1;
+      });
+  }
+  function unnotifiedPending() {
+    return pendingSelfPay().filter(function (o) { return !notifiedPendingIds[o.id]; });
+  }
+  function selfPayById(id) {
+    for (var i = 0; i < SELF_PAY_ORDERS.length; i++) {
+      if (SELF_PAY_ORDERS[i].id === id) return SELF_PAY_ORDERS[i];
+    }
+    return null;
+  }
+  function markPendingNotified() {
+    pendingSelfPay().forEach(function (o) { notifiedPendingIds[o.id] = true; });
+  }
+  function tabTipIsOn() {
+    return !!(tabTip && tabTip.classList.contains("is-on"));
+  }
+  function updateTabTipText() {
+    if (!tabTip) return;
+    var n = unnotifiedPending().length;
+    if (!n) n = pendingSelfPay().length;
+    tabTip.textContent = n <= 1 ? "有待归档自助单" : (n + " 笔待归档");
+  }
+  function showTabTip() {
+    if (!tabTip) return;
+    if (!unnotifiedPending().length) return;
+    if (frame && !frame.classList.contains("mode-home")) return;
+    updateTabTipText();
+    tabTip.hidden = false;
+    requestAnimationFrame(function () { tabTip.classList.add("is-on"); });
+  }
+  function dismissTabTip(mark) {
+    if (!tabTip) return;
+    if (mark) markPendingNotified();
+    tabTip.classList.remove("is-on");
+    tabTip.hidden = true;
+  }
+  function simulateNewSelfPay() {
+    selfPaySeq += 1;
+    var id = "sp-new-" + selfPaySeq;
+    var mins = (10 + (selfPaySeq % 50));
+    var hh = 15 + Math.floor(selfPaySeq / 10);
+    var time = (hh < 10 ? "0" : "") + (hh % 24) + ":" + (mins < 10 ? "0" : "") + mins;
+    SELF_PAY_ORDERS.unshift({
+      id: id, status: "pending", isMember: selfPaySeq % 2 === 0,
+      customerName: selfPaySeq % 2 === 0 ? ("新会员" + selfPaySeq) : "男散客",
+      phone: "", phoneTail: selfPaySeq % 2 === 0 ? String(1000 + selfPaySeq) : "",
+      memberType: selfPaySeq % 2 === 0 ? "持卡会员" : "",
+      paid: [68, 88, 128, 198, 298][selfPaySeq % 5],
+      time: time, dateLabel: "今天",
+      payments: [{ method: "微信", amount: String([68, 88, 128, 198, 298][selfPaySeq % 5]) }],
+      items: [], remark: "", guestGender: selfPaySeq % 2 === 0 ? null : "男"
+    });
+    if (frame && frame.classList.contains("mode-home")) showTabTip();
+    else showOdToast("已模拟新自助单，回首页可见气泡");
+  }
+  function pickSmartItem(paid) {
+    var best = null;
+    var bestScore = -Infinity;
+    PRICE_ROWS.forEach(function (r) {
+      if (r[3] !== "在售") return;
+      var price = Number(r[2]) || 0;
+      if (price + 0.005 < paid) return;
+      var closeness = 1 - Math.min(1, Math.abs(price - paid) / Math.max(paid, 1));
+      var score = closeness * 0.5 + (r[1] === "泡泡染" ? 0.15 : 0) + 0.2;
+      if (score > bestScore) { bestScore = score; best = r; }
+    });
+    return best;
+  }
+  function findHistoryStations(order) {
+    var done = SELF_PAY_ORDERS.filter(function (o) { return o.status === "done"; });
+    var i;
+    for (i = 0; i < done.length; i++) {
+      var d = done[i];
+      var sameCust = order.isMember
+        ? (d.phone && d.phone === order.phone) || d.customerName === order.customerName
+        : d.guestGender === order.guestGender;
+      if (!sameCust || !d.stations) continue;
+      if (order._smartName && d.items && d.items[0] && d.items[0].name === order._smartName) {
+        return JSON.parse(JSON.stringify(d.stations));
+      }
+    }
+    for (i = 0; i < done.length; i++) {
+      if (done[i].stations && order._smartName && done[i].items && done[i].items[0] &&
+          done[i].items[0].name === order._smartName) {
+        return JSON.parse(JSON.stringify(done[i].stations));
+      }
+    }
+    return null;
+  }
+  function seedArchiveDraft(sp) {
+    var paid = Number(sp.paid) || 0;
+    var smart = null;
+    var contentMode = "quick";
+    var service = "快捷开单";
+    var serviceShort = "快捷开单";
+    var smartItem = false;
+    if (!sp.items || !sp.items.length) {
+      smart = pickSmartItem(paid);
+      if (smart) {
+        contentMode = "items";
+        service = smart[0] + "-" + smart[1];
+        serviceShort = smart[1];
+        smartItem = true;
+      }
+    } else {
+      contentMode = "items";
+      service = sp.items[0].name;
+      serviceShort = sp.items[0].name;
+    }
+    var probe = { isMember: sp.isMember, phone: sp.phone, customerName: sp.customerName,
+      guestGender: sp.guestGender, _smartName: serviceShort };
+    var stations = findHistoryStations(probe) || [
+      { id: "big", name: "大工", staff: ["he"] },
+      { id: "mid", name: "中工", staff: [] },
+      { id: "small", name: "小工", staff: [] }
+    ];
+    return {
+      archiveId: sp.id,
+      name: sp.isMember ? sp.customerName : ((sp.guestGender || "男") + "散客"),
+      phoneTail: sp.phoneTail || "",
+      memberType: sp.isMember ? (sp.memberType || "会员") : "",
+      isMember: !!sp.isMember,
+      guestGender: sp.guestGender || (sp.isMember ? null : "男"),
+      service: service,
+      serviceShort: serviceShort,
+      price: String(paid),
+      paid: paid,
+      contentMode: contentMode,
+      smartItem: smartItem,
+      coupon: null,
+      stations: stations,
+      rows: null,
+      payments: (sp.payments || []).map(function (p) {
+        return { method: p.method, amount: String(p.amount) };
+      }),
+      remark: sp.remark || ""
+    };
+  }
+
   function payIconHtml(name) {
     var src = PAY_ICON[name];
     if (!src) return "";
@@ -3198,13 +3192,72 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     return "";
   }
 
-  function payChipHtml(method, amount) {
+  function payMethodLabel(p) {
+    if (!p) return "";
+    if (p.method === "会员卡" && p.benefit && p.benefit.label) {
+      return p.method + " · " + p.benefit.label;
+    }
+    return p.method;
+  }
+
+  function payChipHtml(method, amount, benefit) {
+    var label = method;
+    if (method === "会员卡" && benefit && benefit.label) label = method + " · " + benefit.label;
     return (
       '<span class="od-pay-chip">' +
         '<span class="od-pay-method">' + payIconHtml(method) +
-          "<span>" + escapeHtml(method) + "</span></span>" +
+          "<span>" + escapeHtml(label) + "</span></span>" +
         '<span class="od-pay-amt">¥' + moneyText(amount) + "</span>" +
       "</span>"
+    );
+  }
+
+  function memberBenefitById(id) {
+    for (var i = 0; i < MEMBER_BENEFITS.length; i++) {
+      if (MEMBER_BENEFITS[i].id === id) return MEMBER_BENEFITS[i];
+    }
+    return null;
+  }
+
+  /* 会员权益理想填入额（未扣其他收款；多笔时由 balancePayments 封顶补齐） */
+  function memberBenefitAmount(b) {
+    var payable = payableNum();
+    if (!b) return 0;
+    if (b.type === "discount") {
+      return Math.round(payable * (b.rate || 1) * 100) / 100;
+    }
+    if (b.type === "balance") {
+      return Math.min(Number(b.balance) || 0, payable);
+    }
+    /* 项目次数：示意按应付全额抵扣 */
+    return payable;
+  }
+
+  function needsMemberBenefitPick() {
+    return orderData.payments.some(function (p) {
+      return p.method === "会员卡" && !p.benefit;
+    });
+  }
+
+  function memberBenefitPicksHtml(selectedId) {
+    return (
+      '<div class="mb-picks" data-mb-picks>' +
+        '<p class="mb-picks-title">选择会员卡权益</p>' +
+        '<div class="mb-picks-list">' +
+          MEMBER_BENEFITS.map(function (b) {
+            var on = selectedId && selectedId === b.id;
+            return (
+              '<button type="button" class="mb-pick' + (on ? " is-on" : "") + '" data-mb-benefit="' + b.id + '">' +
+                '<span class="mb-pick-type is-' + b.type + '">' + escapeHtml(b.typeLabel) + "</span>" +
+                '<span class="mb-pick-main">' +
+                  '<span class="mb-pick-name">' + escapeHtml(b.label) + "</span>" +
+                  '<span class="mb-pick-detail">' + escapeHtml(b.detail) + "</span>" +
+                "</span>" +
+              "</button>"
+            );
+          }).join("") +
+        "</div>" +
+      "</div>"
     );
   }
 
@@ -3306,9 +3359,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
   function paySummaryText() {
     if (!orderData.payments.length) return '<span class="is-warn">未收款</span>';
+    if (flowKind !== "archive" && needsMemberBenefitPick()) {
+      return '<span class="is-warn">请选择会员卡权益</span>';
+    }
     return orderData.payments.map(function (p) {
-      return payChipHtml(p.method, p.amount);
+      return payChipHtml(p.method, p.amount, p.benefit);
     }).join('<span class="od-pay-sep">+</span>');
+  }
+  function remarkSecHtml(open) {
+    var sum = orderData.remark
+      ? escapeHtml(orderData.remark.length > 18 ? orderData.remark.slice(0, 18) + "…" : orderData.remark)
+      : '<span class="is-muted">选填</span>';
+    var body =
+      '<textarea class="ar-remark" data-ar-remark="1" maxlength="200" placeholder="选填"' +
+        (orderPhase === "draft" ? "" : " readonly") + ">" +
+        escapeHtml(orderData.remark || "") + "</textarea>";
+    return sectionHtml("remark", "备注", sum, body, open);
   }
   function stationSummaryText() {
     /* 服务员工摘要：工位名做小标签 + 员工姓名，可换行完整显示 */
@@ -3360,6 +3426,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     syncPaymentsToPayable(before);
   }
   function approveState() {
+    if (flowKind === "archive") {
+      if (!assignedStaffIds().length) {
+        return { ok: true, msg: "未指定服务员工，仍可完成归档" };
+      }
+      return { ok: true, msg: "" };
+    }
+    if (needsMemberBenefitPick()) {
+      return { ok: false, msg: "请选择会员卡权益后再确认开单" };
+    }
     var rem = remainingAmount();
     if (rem > 0.005) return { ok: false, msg: "还需收 ¥" + moneyText(rem) };
     if (rem < -0.005) return { ok: false, msg: "收款超出应付 ¥" + moneyText(Math.abs(rem)) };
@@ -3368,27 +3443,50 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function heroHtml() {
     var editable = orderPhase === "draft";
-    var priceEditing = editable && perfEdit && perfEdit.field === "price";
+    var archive = flowKind === "archive";
+    var priceEditing = editable && !archive && perfEdit && perfEdit.field === "price";
     var amtHtml = priceEditing
       ? '<input class="od-hero-input" type="text" inputmode="decimal" data-price-input="1"' +
           ' value="' + moneyText(payableNum()) + '" aria-label="修改本单实收价">'
-      : editable
+      : editable && !archive
         ? '<button type="button" class="od-hero-amt" data-edit-price="1" aria-label="修改本单实收价">' +
             '<small>¥</small>' + moneyText(payableNum()) + "</button>"
         : '<p class="od-hero-amt is-static"><small>¥</small>' + moneyText(payableNum()) + "</p>";
-    var couponChip = orderData.coupon
+    var couponChip = !archive && orderData.coupon
       ? '<span class="od-hero-coupon">' + escapeHtml(orderData.coupon.name) +
           " −¥" + moneyText(orderData.coupon.amount) + "</span>"
       : "";
+    var smartTag = archive && orderData.smartItem && orderData.contentMode === "items"
+      ? '<span class="od-smart-tag">智能补全</span>'
+      : "";
+    var custSub = "";
+    if (archive && !orderData.isMember) {
+      custSub = editable
+        ? ' <button type="button" class="od-hero-tool" data-ar-gender="1">切换' +
+            (orderData.guestGender === "女" ? "男" : "女") + "散客</button>"
+        : "";
+    } else if (orderData.phoneTail) {
+      custSub = '<span class="od-hero-sub"> · 尾号 ' + escapeHtml(orderData.phoneTail) +
+        (orderData.memberType ? " · " + escapeHtml(orderData.memberType) : "") + "</span>";
+    } else if (orderData.memberType) {
+      custSub = '<span class="od-hero-sub"> · ' + escapeHtml(orderData.memberType) + "</span>";
+    }
+    var tools = "";
+    if (archive && editable) {
+      tools =
+        '<div class="od-hero-tools">' +
+          (orderData.contentMode === "items"
+            ? '<button type="button" class="od-hero-tool" data-ar-quick="1">改为快捷开单</button>'
+            : '<button type="button" class="od-hero-tool" data-ar-items="1">恢复智能项目</button>') +
+        "</div>";
+    }
     return (
       '<div class="od-hero">' +
         '<div class="od-hero-main">' +
           '<p class="od-hero-amt-row">' + amtHtml + "</p>" +
-          '<p class="od-hero-service">' + escapeHtml(orderData.serviceShort) + "</p>" +
-          '<p class="od-hero-customer">' + escapeHtml(orderData.name) +
-            '<span class="od-hero-sub"> · 尾号 ' + escapeHtml(orderData.phoneTail) +
-            (orderData.memberType ? " · " + escapeHtml(orderData.memberType) : "") +
-            "</span></p>" +
+          '<p class="od-hero-service">' + escapeHtml(orderData.serviceShort) + smartTag + "</p>" +
+          '<p class="od-hero-customer">' + escapeHtml(orderData.name) + custSub + "</p>" +
+          tools +
         "</div>" +
         couponChip +
       "</div>"
@@ -3543,12 +3641,38 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function paySecHtml(open) {
+    if (flowKind === "archive") {
+      var roLines =
+        '<div class="pay-ro-line"><span>实付金额</span><b>¥' + moneyText(orderData.paid != null ? orderData.paid : payableNum()) + "</b></div>" +
+        orderData.payments.map(function (p) {
+          return (
+            '<div class="pay-ro-line"><span>' + payIconHtml(p.method) + " " + escapeHtml(p.method) +
+              "</span><b>¥" + moneyText(p.amount) + "</b></div>"
+          );
+        }).join("");
+      return sectionHtml(
+        "pay",
+        "收款",
+        paySummaryText(),
+        '<div class="pay-list">' + roLines + '</div><p class="pay-prog-txt">顾客已付清 · 不可修改</p>',
+        open,
+        true
+      );
+    }
+    var memberIdx = -1;
     var lines = orderData.payments.map(function (p, i) {
+      if (p.method === "会员卡" && memberIdx < 0) memberIdx = i;
+      var mainLabel = payMethodLabel(p);
+      var sub = p.method === "会员卡" && p.benefit
+        ? '<span class="pay-main-sub">' + escapeHtml(p.benefit.typeLabel) + "</span>"
+        : "";
       return (
         '<div class="pay-line" data-idx="' + i + '">' +
-          '<span class="pay-main">' + payIconHtml(p.method) + escapeHtml(p.method) + "</span>" +
+          '<span class="pay-main">' + payIconHtml(p.method) +
+            "<span>" + escapeHtml(mainLabel) + "</span>" + sub +
+          "</span>" +
           '<span class="pay-amt"><i>¥</i>' +
-            '<input type="text" inputmode="decimal" data-pay-amt="' + i + '" value="' + moneyText(p.amount) + '" aria-label="' + escapeHtml(p.method) + '金额">' +
+            '<input type="text" inputmode="decimal" data-pay-amt="' + i + '" value="' + moneyText(p.amount) + '" aria-label="' + escapeHtml(mainLabel) + '金额">' +
           "</span>" +
           (orderData.payments.length > 1
             ? '<button type="button" class="pay-del" data-del="' + i + '" aria-label="删除这笔收款">✕</button>'
@@ -3557,20 +3681,28 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       );
     }).join("");
 
+    var benefitPick = "";
+    if (memberIdx >= 0) {
+      var mp = orderData.payments[memberIdx];
+      benefitPick = memberBenefitPicksHtml(mp.benefit && mp.benefit.id);
+    }
+
     var total = paidTotal();
     var rem = remainingAmount();
     var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
-    var full = Math.abs(rem) < 0.005;
+    var full = Math.abs(rem) < 0.005 && !needsMemberBenefitPick();
     var over = rem < -0.005;
     var prog =
       '<div class="pay-progress' + (full ? " is-full" : "") + (over ? " is-over" : "") + '">' +
         '<div class="pay-bar"><span style="width:' + pct + '%"></span></div>' +
         '<p class="pay-prog-txt" data-prog-txt>' +
-          (full
-            ? "已收满 ¥" + moneyText(total)
-            : over
-              ? "超出应付 ¥" + moneyText(Math.abs(rem))
-              : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem)) +
+          (needsMemberBenefitPick()
+            ? "请选择会员卡权益"
+            : full
+              ? "已收满 ¥" + moneyText(total)
+              : over
+                ? "超出应付 ¥" + moneyText(Math.abs(rem))
+                : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem)) +
         "</p>" +
       "</div>";
 
@@ -3603,7 +3735,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       "pay",
       "收款",
       paySummaryText(),
-      '<div class="pay-list">' + lines + "</div>" + addHtml + picks + prog,
+      '<div class="pay-list">' + lines + "</div>" + benefitPick + addHtml + picks + prog,
       open,
       true
     );
@@ -3636,7 +3768,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         "<span>收款</span>" +
         "<span>" +
           orderData.payments.map(function (p) {
-            return payChipHtml(p.method, p.amount);
+            return payChipHtml(p.method, p.amount, p.benefit);
           }).join("<br>") +
         "</span>" +
       "</div>";
@@ -3688,10 +3820,24 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     showFollowCard(true, withEnter !== false);
   }
 
+  function renderArchiveSuccessActions() {
+    var left = pendingSelfPay();
+    if (left.length) {
+      odActions.innerHTML =
+        '<button type="button" class="od-chip is-primary" data-act="ar-next">继续归档下一笔</button>' +
+        '<button type="button" class="od-chip is-muted" data-act="ar-later">稍后处理</button>';
+    } else {
+      odActions.innerHTML =
+        '<button type="button" class="od-chip is-muted" data-act="ar-later">没有待办了</button>';
+    }
+    showFollowCard(true, true);
+  }
+
   function renderOrderCard() {
+    var archive = flowKind === "archive";
     if (orderPhase === "success") {
-      odTitle.textContent = "开单成功";
-      odPill.textContent = "已收款";
+      odTitle.textContent = archive ? "归档成功" : "开单成功";
+      odPill.textContent = archive ? "已归档" : "已收款";
       orderCard.setAttribute("data-phase", "success");
       odFields.innerHTML = heroHtml() + successLinesHtml();
       if (odHint) {
@@ -3699,42 +3845,62 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         odHint.textContent = "";
       }
       var payStr = orderData.payments.map(function (p) {
-        return escapeHtml(p.method) + ' <b>¥' + moneyText(p.amount) + "</b>";
+        return escapeHtml(payMethodLabel(p)) + ' <b>¥' + moneyText(p.amount) + "</b>";
       }).join(" + ");
-      var today = todayStats();
-      odFollow.innerHTML =
-        '<p class="od-fl-title">开单成功。</p>' +
-        '<p class="od-fl-line">本单收款方式：' + (payStr || "未收款") + "。</p>" +
-        '<p class="od-fl-line">本单服务员工 <b>' + assignedStaffIds().length + "</b> 人。</p>" +
-        '<p class="od-fl-line">今天已开 <b>' + today.count + "</b> 单，共实收 <b>¥" +
-          moneyGroup(today.amount) + "</b>。</p>" +
-        '<p class="od-fl-line is-ask">接下来想做什么？</p>';
-      renderSuccessActions();
+      if (archive) {
+        odFollow.innerHTML =
+          '<p class="od-fl-title">已归档。</p>' +
+          '<p class="od-fl-line">本单已写入订单流水（示意）。</p>' +
+          '<p class="od-fl-line">收款方式：' + (payStr || "—") + "。</p>" +
+          '<p class="od-fl-line">服务员工 <b>' + assignedStaffIds().length + "</b> 人。</p>" +
+          '<p class="od-fl-line is-ask">接下来想做什么？</p>';
+        renderArchiveSuccessActions();
+      } else {
+        var today = todayStats();
+        odFollow.innerHTML =
+          '<p class="od-fl-title">开单成功。</p>' +
+          '<p class="od-fl-line">本单收款方式：' + (payStr || "未收款") + "。</p>" +
+          '<p class="od-fl-line">本单服务员工 <b>' + assignedStaffIds().length + "</b> 人。</p>" +
+          '<p class="od-fl-line">今天已开 <b>' + today.count + "</b> 单，共实收 <b>¥" +
+            moneyGroup(today.amount) + "</b>。</p>" +
+          '<p class="od-fl-line is-ask">接下来想做什么？</p>';
+        renderSuccessActions();
+      }
     } else if (orderPhase === "rejected") {
-      odTitle.textContent = "已拒绝";
-      odPill.textContent = "已取消";
+      odTitle.textContent = archive ? "已跳过" : "已拒绝";
+      odPill.textContent = archive ? "未归档" : "已取消";
       orderCard.setAttribute("data-phase", "rejected");
       odFields.innerHTML = heroHtml();
       if (odHint) odHint.hidden = true;
-      renderRejectActions();
+      if (archive) {
+        odFollow.innerHTML = "已跳过本单。可从待办列表继续归档。";
+        odActions.innerHTML =
+          '<button type="button" class="od-chip is-primary" data-act="ar-back">返回待办</button>';
+        showFollowCard(true, true);
+      } else {
+        renderRejectActions();
+      }
     } else {
-      odTitle.textContent = "开单确认";
-      odPill.textContent = "待批准";
+      odTitle.textContent = archive ? "归档确认" : "开单确认";
+      odPill.textContent = archive ? "待归档" : "待确认";
       orderCard.setAttribute("data-phase", "draft");
       odFields.innerHTML =
         heroHtml() +
         stationSecHtml(orderOpenSec === "stations") +
-        couponSecHtml(orderOpenSec === "coupon") +
-        paySecHtml(orderOpenSec === "pay");
+        (archive ? "" : couponSecHtml(orderOpenSec === "coupon")) +
+        paySecHtml(orderOpenSec === "pay") +
+        (archive ? remarkSecHtml(orderOpenSec === "remark") : "");
       var state = approveState();
       if (odHint) {
         odHint.hidden = !state.msg;
         odHint.textContent = state.msg;
       }
       if (btnOrderApprove) {
+        btnOrderApprove.textContent = archive ? "完成归档" : "确认开单";
         btnOrderApprove.disabled = !state.ok;
         btnOrderApprove.setAttribute("aria-disabled", state.ok ? "false" : "true");
       }
+      if (btnOrderReject) btnOrderReject.textContent = archive ? "稍后" : "拒绝";
       hideFollowCard();
     }
 
@@ -3754,12 +3920,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function refreshDerived() {
-    /* 轻量刷新：收款进度 / 汇总 / 批准可用性，不重建 DOM，保住输入焦点 */
+    /* 轻量刷新：收款进度 / 汇总 / 确认开单可用性，不重建 DOM，保住输入焦点 */
     if (orderPhase !== "draft") return;
     var total = paidTotal();
     var rem = remainingAmount();
+    var needBenefit = needsMemberBenefitPick();
     var pct = payableNum() > 0 ? Math.max(0, Math.min(100, Math.round((total / payableNum()) * 100))) : 0;
-    var full = Math.abs(rem) < 0.005;
+    var full = Math.abs(rem) < 0.005 && !needBenefit;
     var over = rem < -0.005;
     var prog = odFields.querySelector(".pay-progress");
     if (prog) {
@@ -3769,11 +3936,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (bar) bar.style.width = pct + "%";
       var txt = prog.querySelector("[data-prog-txt]");
       if (txt) {
-        txt.textContent = full
-          ? "已收满 ¥" + moneyText(total)
-          : over
-            ? "超出应付 ¥" + moneyText(Math.abs(rem))
-            : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem);
+        txt.textContent = needBenefit
+          ? "请选择会员卡权益"
+          : full
+            ? "已收满 ¥" + moneyText(total)
+            : over
+              ? "超出应付 ¥" + moneyText(Math.abs(rem))
+              : "已收 ¥" + moneyText(total) + " · 还需 ¥" + moneyText(rem);
       }
     }
     var sec = odFields.querySelector('.od-sec[data-sec="pay"]');
@@ -3857,6 +4026,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       return;
     }
     var isFirst = !orderData.payments.length;
+    if (method === "会员卡") {
+      /* 会员卡需先选权益，金额暂为 0 */
+      orderData.payments.push({ method: method, amount: "0", benefit: null });
+      orderOpenSec = "pay";
+      renderOrderCard();
+      showOdToast("请选择会员卡权益");
+      return;
+    }
     /* 首笔来自追问卡选择，直接按应付全额带入；后续「添加收款方式」恒为 0 元，由用户填写 */
     orderData.payments.push({ method: method, amount: isFirst ? String(payableNum()) : "0" });
     orderOpenSec = "pay";
@@ -3868,6 +4045,36 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (!el) return;
       try { el.focus(); el.select(); } catch (err) { /* */ }
     });
+  }
+
+  function applyMemberBenefit(benefitId) {
+    var b = memberBenefitById(benefitId);
+    if (!b) return;
+    var idx = -1;
+    orderData.payments.forEach(function (p, i) {
+      if (p.method === "会员卡" && idx < 0) idx = i;
+    });
+    if (idx < 0) {
+      orderData.payments.push({ method: "会员卡", amount: "0", benefit: null });
+      idx = orderData.payments.length - 1;
+    }
+    orderData.payments[idx].benefit = {
+      id: b.id,
+      type: b.type,
+      typeLabel: b.typeLabel,
+      label: b.label,
+      detail: b.detail
+    };
+    /* 按权益规则写入理想金额；多笔时与手改金额相同：封顶并让其他笔吸收差额，总额=应付 */
+    orderData.payments[idx].amount = String(memberBenefitAmount(b));
+    if (orderData.payments.length >= 2) {
+      balancePayments(idx, true);
+    } else if (moneyNum(orderData.payments[idx].amount) > payableNum() + 0.005) {
+      orderData.payments[idx].amount = String(payableNum());
+    }
+    orderOpenSec = "pay";
+    renderOrderCard();
+    showOdToast("已选用「" + b.label + "」");
   }
 
   odFields.addEventListener("click", function (e) {
@@ -3882,8 +4089,44 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       return;
     }
 
+    if (flowKind === "archive") {
+      var gBtn = e.target.closest("[data-ar-gender]");
+      if (gBtn) {
+        orderData.guestGender = orderData.guestGender === "女" ? "男" : "女";
+        orderData.name = orderData.guestGender + "散客";
+        renderOrderCard();
+        return;
+      }
+      var qBtn = e.target.closest("[data-ar-quick]");
+      if (qBtn) {
+        orderData.contentMode = "quick";
+        orderData.service = "快捷开单";
+        orderData.serviceShort = "快捷开单";
+        orderData.smartItem = false;
+        renderOrderCard();
+        showOdToast("已切换为快捷开单");
+        return;
+      }
+      var iBtn = e.target.closest("[data-ar-items]");
+      if (iBtn) {
+        var again = pickSmartItem(orderData.paid || payableNum());
+        if (again) {
+          orderData.contentMode = "items";
+          orderData.service = again[0] + "-" + again[1];
+          orderData.serviceShort = again[1];
+          orderData.smartItem = true;
+          renderOrderCard();
+          showOdToast("已恢复智能项目");
+        } else {
+          showOdToast("暂无合适项目");
+        }
+        return;
+      }
+    }
+
     var priceBtn = e.target.closest("[data-edit-price]");
     if (priceBtn) {
+      if (flowKind === "archive") return;
       perfEdit = { id: "price", field: "price" };
       renderOrderCard();
       return;
@@ -3953,6 +4196,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var pick = e.target.closest(".pay-pick");
     if (pick) {
       addPayment(pick.getAttribute("data-method"));
+      return;
+    }
+
+    var mbBtn = e.target.closest("[data-mb-benefit]");
+    if (mbBtn) {
+      applyMemberBenefit(mbBtn.getAttribute("data-mb-benefit"));
       return;
     }
 
@@ -4084,12 +4333,66 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     closeOrderEdits();
   }
 
+  function renderArchiveAskChips() {
+    var list = pendingSelfPay();
+    var primary = document.getElementById("askChipsPrimary");
+    var more = document.getElementById("askChipsMore");
+    var morePanel = document.getElementById("askMorePanel");
+    if (!primary) return;
+    function chip(o) {
+      var tag = o.isMember ? "会" : "散";
+      var label = tag + " · " + (o.isMember ? o.customerName : "散客") +
+        " · ¥" + moneyText(o.paid) + " · " + o.time;
+      return '<button type="button" class="ask-pay" data-ar-id="' + o.id + '">' +
+        escapeHtml(label) + "</button>";
+    }
+    if (!list.length) {
+      primary.innerHTML = '<button type="button" class="ask-pay is-skip" data-ar-later="1">暂无待办</button>';
+      if (more) more.innerHTML = "";
+      if (morePanel) morePanel.hidden = true;
+      askCard.classList.remove("is-more-on");
+      return;
+    }
+    var head = list.slice(0, 3);
+    var rest = list.slice(3);
+    primary.innerHTML =
+      head.map(chip).join("") +
+      '<button type="button" class="ask-pay is-skip" data-ar-later="1">稍后处理</button>' +
+      (rest.length
+        ? '<button type="button" class="ask-pay is-skip pay-opt is-more" data-ar-more="1">' +
+            (archiveAskMore ? "收起" : "查看更多") + "</button>"
+        : "");
+    if (more) more.innerHTML = rest.map(chip).join("");
+    if (morePanel) morePanel.hidden = !archiveAskMore || !rest.length;
+    askCard.classList.toggle("is-more-on", !!archiveAskMore && rest.length > 0);
+  }
+
   function showAskStage() {
     orderStep = "ask";
     orderPhase = "draft";
     hideOrderStages();
-    askText.textContent = "李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？";
-    renderAskChips();
+    if (flowKind === "archive") {
+      var list = pendingSelfPay();
+      var tip = list[0];
+      askText.textContent = list.length
+        ? ("有 " + list.length + " 笔顾客自助买单待归档" +
+            (tip ? ("，最近一笔是" + (tip.isMember ? tip.customerName : "散客") +
+              " · " + (tip.payments[0] ? tip.payments[0].method : "已付") +
+              " ¥" + moneyText(tip.paid) + " · " + tip.time) : "") + "。")
+        : "当前没有待归档的自助订单。";
+      if (orderUserMsg) {
+        orderUserMsg.querySelector(".bubble-user").textContent = "帮我处理待归档的自助订单。";
+      }
+      archiveAskMore = false;
+      renderArchiveAskChips();
+    } else {
+      askText.textContent = "李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？";
+      if (orderUserMsg) {
+        orderUserMsg.querySelector(".bubble-user").textContent =
+          "帮我开单，李女士泡泡染。托尼薛总监呃，现金支付宝。";
+      }
+      renderAskChips();
+    }
     revealWithEnter(askCard);
     requestAnimationFrame(updateScrollHint);
   }
@@ -4103,7 +4406,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     function revealDraft() {
       orderReplyBubble.innerHTML = orderData.payments.map(function (p) {
         return payIconHtml(p.method) + "<span>" + escapeHtml(p.method) + "</span>";
-      }).join("");
+      }).join("") || (flowKind === "archive" ? "<span>已付清</span>" : "");
       revealWithEnter(orderReply, "reply");
       orderCard.hidden = false;
       renderOrderCard();
@@ -4117,6 +4420,18 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     else revealDraft();
   }
 
+  function openArchiveDraft(id) {
+    var sp = selfPayById(id);
+    if (!sp || sp.status !== "pending") {
+      showOdToast("该单已不在待办");
+      showAskStage();
+      return;
+    }
+    flowKind = "archive";
+    orderData = seedArchiveDraft(sp);
+    showDraftStage();
+  }
+
   var todayBase = { count: 6, amount: 1842 };
   var todayExtra = { count: 0, amount: 0 };
   function todayStats() {
@@ -4128,6 +4443,43 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function approveOrder() {
     closeOrderEdits();
+    if (flowKind === "archive") {
+      if (!assignedStaffIds().length) showOdToast("未指定服务员工");
+      if (orderData.contentMode === "items" && orderData.serviceShort === "快捷开单") {
+        orderData.contentMode = "quick";
+      }
+      if (orderData.contentMode !== "items") {
+        orderData.contentMode = "quick";
+        orderData.service = "快捷开单";
+        orderData.serviceShort = "快捷开单";
+        orderData.smartItem = false;
+      }
+      var sp = selfPayById(orderData.archiveId);
+      if (sp) {
+        sp.status = "done";
+        sp.remark = orderData.remark || "";
+        sp.items = orderData.contentMode === "items"
+          ? [{ name: orderData.serviceShort, price: orderData.paid, smart: !!orderData.smartItem }]
+          : [];
+        sp.stations = JSON.parse(JSON.stringify(orderData.stations));
+      }
+      notifiedPendingIds[orderData.archiveId] = true;
+      orderStep = "success";
+      orderPhase = "success";
+      renderOrderCard();
+      if (orderCard) {
+        orderCard.classList.remove("is-phase-pop");
+        void orderCard.offsetWidth;
+        if (!MOTION_REDUCED) orderCard.classList.add("is-phase-pop");
+        setTimeout(function () { orderCard.classList.remove("is-phase-pop"); }, 600);
+      }
+      showOdToast("已归档");
+      requestAnimationFrame(function () {
+        try { orderCard.scrollIntoView({ behavior: MOTION_REDUCED ? "auto" : "smooth", block: "nearest" }); } catch (e) { /* */ }
+        updateScrollHint();
+      });
+      return;
+    }
     todayExtra.count += 1;
     todayExtra.amount += paidTotal();
     orderStep = "success";
@@ -4154,6 +4506,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   function rejectOrder() {
     closeOrderEdits();
+    if (flowKind === "archive") {
+      orderStep = "ask";
+      orderPhase = "draft";
+      showOdToast("已稍后处理");
+      motionExitThen(orderCard, function () {
+        hideFollowCard();
+        showAskStage();
+        requestAnimationFrame(updateScrollHint);
+      });
+      return;
+    }
     orderStep = "rejected";
     orderPhase = "rejected";
     showOdToast("已取消开单");
@@ -4164,6 +4527,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function startOrderFlow(playThink) {
+    flowKind = "order";
     orderData = seedOrderDraft();
     orderPhase = "draft";
     orderStep = "ask";
@@ -4185,9 +4549,55 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }, 2600);
   }
 
+  function startArchiveFlow(playThink) {
+    flowKind = "archive";
+    dismissTabTip(true);
+    orderPhase = "draft";
+    orderStep = "ask";
+    orderOpenSec = null;
+    stationRoster = null;
+    perfEdit = null;
+    archiveAskMore = false;
+    hideOrderStages();
+    if (!playThink) {
+      showAskStage();
+      return;
+    }
+    useHopTarget("order");
+    messages.scrollTop = 0;
+    startThinking();
+    clearTimeout(thinkDemoTimer);
+    thinkDemoTimer = setTimeout(function () {
+      stopThinking();
+      showAskStage();
+    }, 2200);
+  }
+
   askCard.addEventListener("click", function (e) {
+    if (orderStep !== "ask") return;
+    if (flowKind === "archive") {
+      var moreBtn = e.target.closest("[data-ar-more]");
+      if (moreBtn) {
+        archiveAskMore = !archiveAskMore;
+        renderArchiveAskChips();
+        requestAnimationFrame(updateScrollHint);
+        return;
+      }
+      var laterBtn = e.target.closest("[data-ar-later]");
+      if (laterBtn) {
+        showOdToast(pendingSelfPay().length ? "已稍后处理" : "暂无待办");
+        return;
+      }
+      var arBtn = e.target.closest("[data-ar-id]");
+      if (!arBtn) return;
+      askCard.querySelectorAll(".is-picked").forEach(function (el) { el.classList.remove("is-picked"); });
+      arBtn.classList.add("is-picked");
+      var aid = arBtn.getAttribute("data-ar-id");
+      setTimeout(function () { openArchiveDraft(aid); }, MOTION_REDUCED ? 0 : 160);
+      return;
+    }
     var btn = e.target.closest("[data-pay]");
-    if (!btn || orderStep !== "ask") return;
+    if (!btn) return;
     var pay = btn.getAttribute("data-pay");
     if (pay === "更多") {
       askCard.classList.toggle("is-more-on");
@@ -4198,11 +4608,23 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     btn.classList.add("is-picked");
     if (pay === "跳过") {
       orderData.payments = [{ method: "现金", amount: payableNum() }];
+      orderOpenSec = null;
       showOdToast("已跳过，默认现金");
+    } else if (pay === "会员卡") {
+      orderData.payments = [{ method: "会员卡", amount: "0", benefit: null }];
+      orderOpenSec = "pay";
+      showOdToast("请在收款中选择会员卡权益");
     } else {
       orderData.payments = [{ method: pay, amount: payableNum() }];
+      orderOpenSec = null;
     }
     setTimeout(function () { showDraftStage(); }, MOTION_REDUCED ? 0 : 160);
+  });
+
+  odFields.addEventListener("input", function (e) {
+    var ta = e.target.closest("[data-ar-remark]");
+    if (!ta || flowKind !== "archive" || orderPhase !== "draft") return;
+    orderData.remark = String(ta.value || "").slice(0, 200);
   });
 
   btnOrderApprove.addEventListener("click", function () {
@@ -4218,6 +4640,22 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var btn = e.target.closest("[data-act]");
     if (!btn) return;
     var act = btn.getAttribute("data-act");
+    if (act === "ar-next") {
+      var next = pendingSelfPay()[0];
+      if (!next) {
+        showAskStage();
+        return;
+      }
+      hideFollowCard();
+      openArchiveDraft(next.id);
+      return;
+    }
+    if (act === "ar-back" || act === "ar-later") {
+      hideFollowCard();
+      if (orderCard) orderCard.hidden = true;
+      showAskStage();
+      return;
+    }
     if (act === "again") {
       startOrderFlow(true);
       return;
@@ -4231,17 +4669,26 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function setDemoMode(mode, opts) {
     opts = opts || {};
     demoMode = mode;
+    var isPrice = mode === "price";
     var isOrder = mode === "order";
-    panelPrice.hidden = isOrder;
-    panelOrder.hidden = !isOrder;
-    navDemoPrice.classList.toggle("is-on", !isOrder);
-    navDemoOrder.classList.toggle("is-on", isOrder);
+    var isArchive = mode === "archive";
+    panelPrice.hidden = !isPrice;
+    panelOrder.hidden = isPrice;
+    if (navDemoPrice) navDemoPrice.classList.toggle("is-on", isPrice);
+    if (navDemoOrder) navDemoOrder.classList.toggle("is-on", isOrder);
+    if (navDemoArchive) navDemoArchive.classList.toggle("is-on", isArchive);
     stopThinking();
     messages.scrollTop = 0;
     if (isOrder) {
+      flowKind = "order";
       if (opts.replay !== false) startOrderFlow(true);
       else showAskStage();
+    } else if (isArchive) {
+      flowKind = "archive";
+      if (opts.replay !== false) startArchiveFlow(true);
+      else showAskStage();
     } else {
+      flowKind = "order";
       sessionCard.hidden = false;
       if (agentNote) agentNote.hidden = false;
       renderPriceCard();
@@ -4252,11 +4699,27 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   navDemoPrice.addEventListener("click", function () { setDemoMode("price"); });
   navDemoOrder.addEventListener("click", function () { setDemoMode("order"); });
+  if (navDemoArchive) {
+    navDemoArchive.addEventListener("click", function () {
+      openAgent();
+      setDemoMode("archive");
+    });
+  }
+  if (navSimSelfPay) {
+    navSimSelfPay.addEventListener("click", function () {
+      simulateNewSelfPay();
+      enterHome(true);
+    });
+  }
 
   function runThinkDemo() {
     clearTimeout(thinkDemoTimer);
     if (demoMode === "order") {
       startOrderFlow(true);
+      return;
+    }
+    if (demoMode === "archive") {
+      startArchiveFlow(true);
       return;
     }
     useHopTarget("price");
@@ -4277,10 +4740,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   navThink.addEventListener("click", runThinkDemo);
 
-  /* 初始：价目表演示 */
+  /* 初始：价目表演示；首页若有未提示自助单则弹出 TAB 气泡 */
   sessionCard.hidden = false;
   motionEnter(sessionCard);
   requestAnimationFrame(updateScrollHint);
+  setTimeout(function () { showTabTip(); }, 700);
 })();
 
 /* run-on-phone */
