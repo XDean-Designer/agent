@@ -25,6 +25,7 @@ OUT_WHITE = Path(r"D:/AI agent/out/agent-keyed-on-white.png")
 OUT_ANT = Path(r"D:/AI agent/out/agent-keyed-antenna-white.png")
 
 OUT_SIZE = 512
+HEADROOM = 28  # 顶部留白，避免天线尖贴画布被裁
 PRE_BLUR = 0.55
 T_OPAQUE = 15.0
 T_CLEAR = 38.0
@@ -327,10 +328,86 @@ def compose_rgba(bgr_src: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     return np.clip(rgba, 0, 255).astype(np.uint8)
 
 
-def resize_rgba(rgba: np.ndarray, size: int) -> np.ndarray:
+def restore_antenna_cap(rgba: np.ndarray) -> np.ndarray:
+    """片源天线粉球顶常贴画布被切平：估圆心后整球重绘上半球，补圆顶。"""
+    h, w = rgba.shape[:2]
+    out = rgba.copy()
+    rgb = out[:, :, :3].astype(np.float32)
+    alpha = out[:, :, 3].astype(np.float32) / 255.0
+    r, g, b = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+    tip = (
+        (r > 145)
+        & (r >= g + 20)
+        & (r >= b + 10)
+        & (alpha > 0.22)
+        & (g < 200)
+    )
+    ys, xs = np.where(tip)
+    if len(ys) < 20:
+        return out
+    y0 = int(ys.min())
+    # 960 源约贴顶；resize 前修。略放宽阈值
+    if y0 > 80:
+        return out
+    band_h = min(48, h - y0)
+    band = tip[y0 : y0 + band_h]
+    widths = [int(band[i].sum()) for i in range(band_h)]
+    max_w = max(widths) if widths else 0
+    if max_w < 8:
+        return out
+    wi = int(np.argmax(widths))
+    row_xs = np.where(band[wi])[0]
+    if len(row_xs) < 4:
+        return out
+    cx = float(row_xs.mean())
+    # 球半径略放大，保证圆顶完整
+    R = max(max_w * 0.55, 7.0) + 2.5
+    # 圆心放在最大弦附近，上半球可画出尖顶
+    cy = float(y0 + wi)
+    # 采样球颜色（偏粉）
+    sample = rgb[tip & (np.arange(h)[:, None] <= y0 + 22)]
+    if sample.size == 0:
+        sample = rgb[tip]
+    mean_col = sample.mean(axis=0)
+    # 高光偏粉白
+    hi = np.clip(mean_col * 0.55 + np.array([255.0, 210.0, 210.0]) * 0.45, 0, 255)
+
+    yy, xx = np.mgrid[0:h, 0:w]
+    dist = np.sqrt((yy - cy) ** 2 + (xx - cx) ** 2)
+    # 重绘整球（含被切掉的上顶），不碰杆（球下方茎）
+    ball = dist <= R + 0.9
+    # 茎在球下方中轴，避免抹掉
+    stem_keep = tip & (yy > cy + R * 0.55) & (np.abs(xx - cx) <= max(2.0, R * 0.22))
+    paint = ball & ~stem_keep
+    if not np.any(paint):
+        return out
+    edge = np.clip((R + 0.9 - dist) / 1.4, 0.0, 1.0)
+    # 简单顶部高光
+    hx, hy = cx - R * 0.28, cy - R * 0.32
+    highlight = np.exp(-(((xx - hx) ** 2 + (yy - hy) ** 2) / (2 * (R * 0.35) ** 2)))
+    col = mean_col[None, None, :] * (1.0 - 0.35 * highlight[..., None]) + hi[None, None, :] * (
+        0.35 * highlight[..., None]
+    )
+    a_ball = edge * paint.astype(np.float32)
+    for c in range(3):
+        rgb[:, :, c] = np.where(a_ball > 0.04, col[:, :, c], rgb[:, :, c])
+    alpha = np.where(a_ball > 0.04, np.maximum(alpha, a_ball), alpha)
+    out[:, :, :3] = np.clip(rgb, 0, 255)
+    out[:, :, 3] = np.clip(alpha * 255.0, 0, 255)
+    return out.astype(np.uint8)
+
+
+def resize_rgba(rgba: np.ndarray, size: int, headroom: int = HEADROOM) -> np.ndarray:
     im = Image.fromarray(rgba, "RGBA")
-    im = im.resize((size, size), Image.Resampling.LANCZOS)
-    out = np.asarray(im).astype(np.float32)
+    # 略缩小并下移，给天线尖留透明头顶
+    pad = max(0, int(headroom))
+    inner = max(8, size - pad)
+    im = im.resize((inner, inner), Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    x = (size - inner) // 2
+    y = min(pad, size - inner)
+    canvas.paste(im, (x, y), im)
+    out = np.asarray(canvas).astype(np.float32)
     # LANCZOS reintroduces soft fringe — crush again after resize
     a = out[:, :, 3] / 255.0
     a = crush_alpha(a, floor=max(ALPHA_CRUSH, 0.16))
@@ -407,6 +484,7 @@ def main() -> None:
         tdir = Path(td)
         for i, (bgr, a) in enumerate(zip(bgrs, cleaned)):
             rgba = compose_rgba(bgr, a)
+            rgba = restore_antenna_cap(rgba)
             rgba = resize_rgba(rgba, OUT_SIZE)
             frames.append(rgba)
             Image.fromarray(rgba, "RGBA").save(tdir / f"f{i:04d}.png")
@@ -482,6 +560,8 @@ def main() -> None:
             f"choke{CHOKE}",
             f"crush{ALPHA_CRUSH}",
             "bbox-clear",
+            "antenna-cap",
+            f"headroom{HEADROOM}",
             f"{OUT_SIZE}px",
         ],
     }

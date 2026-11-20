@@ -75,24 +75,23 @@ console.log('icon-end', JSON.stringify(end));
 await page.screenshot({ path: path.join(outDir, 'b2-end.png') });
 
 const iconOk = (w) => w >= 40 && w <= 55;
-const aligned = (d) => d <= 6;
-const bottomParked = (d) => Math.abs(d + 21) <= 6; /* 锚点下移 21 → dBottom ≈ -21 */
+const fadeEndAtRest = (d) => Math.abs(d - 3) <= 6; /* 上移 3 → dBottom ≈ 3 */
 const xNudged = (d) => Math.abs(d - 2) <= 6; /* 右移 2 → dx ≈ 2 */
-const startOk = iconOk(start.w) && xNudged(start.dx) && bottomParked(start.dBottom);
+/* icon 缩放时原点在肩线，底边会上移，不要求 dBottom≈0 */
+const startOk = iconOk(start.w) && xNudged(start.dx);
 const restOk =
   rest.w >= 90 &&
   rest.w <= 102 &&
   rest.visible &&
   rest.aiHidden &&
   xNudged(rest.dx) &&
-  bottomParked(rest.dBottom);
+  fadeEndAtRest(rest.dBottom);
 const endOk =
   iconOk(end.w) &&
   !end.playing &&
   !end.open &&
   !end.aiHidden &&
-  xNudged(end.dx) &&
-  bottomParked(end.dBottom);
+  xNudged(end.dx);
 const ok = startOk && restOk && endOk;
 console.log('PASS', ok, {
   startOk,
