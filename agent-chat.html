@@ -74,10 +74,42 @@ button{font:inherit;color:inherit}
 .site-nav .hint{margin-top:12px;font-size:10.5px;line-height:1.4;color:rgba(255,255,255,.42)}
 
 .stage{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  margin-left:220px;padding:28px 24px;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;gap:28px;
+  margin-left:220px;margin-right:0;padding:28px 24px 28px 24px;
+  box-sizing:border-box;
 }
 .frame-slot{display:contents}
+.prd-sync{
+  flex:none;width:min(360px,32vw);max-height:min(844px,calc(100vh - 56px));
+  overflow:auto;align-self:center;
+  border-radius:16px;padding:14px 14px 18px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+  color:#f0f0f2;backdrop-filter:blur(14px);
+  scrollbar-width:thin;
+}
+.prd-sync-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);
+}
+.prd-sync-head h2{margin:0;font-size:13px;font-weight:650;letter-spacing:.02em}
+.prd-sync-sec{
+  margin:0;font-size:11px;font-weight:500;color:rgba(255,220,180,.85);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:58%;
+}
+.prd-sync-body{font-size:12px;line-height:1.55;color:rgba(255,255,255,.78)}
+.prd-sync-panel[hidden]{display:none !important}
+.prd-sync-panel h3{
+  margin:12px 0 6px;font-size:12px;font-weight:650;color:#fff;
+}
+.prd-sync-panel h3:first-child{margin-top:0}
+.prd-sync-panel ul{margin:0;padding-left:1.1em}
+.prd-sync-panel li{margin:0 0 4px}
+.prd-sync-panel .prd-tag{
+  display:inline-block;margin:0 4px 0 0;padding:1px 6px;border-radius:4px;
+  font-size:10px;font-weight:600;color:#1a1a1a;background:rgba(255,204,157,.92);
+}
+.prd-sync-panel p{margin:0 0 8px}
+.prd-sync-panel .prd-muted{color:rgba(255,255,255,.48);font-size:11px}
 
 #frame{
   width:var(--lw);height:var(--lh);position:relative;overflow:hidden;
@@ -1501,6 +1533,116 @@ button{font:inherit;color:inherit}
   background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
   transform:scale(.97);
 }
+.ask-pay.is-pick-member{
+  color:#fff;font-weight:600;
+  background:var(--btn-blue);border-color:var(--btn-blue);
+}
+.ask-pay.is-pick-member:active{opacity:.88}
+.ask-pay.is-ask-done{
+  color:#fff;font-weight:600;
+  background:var(--btn-blue);border-color:var(--btn-blue);
+}
+.ask-say-demo{
+  appearance:none;cursor:pointer;font-family:inherit;display:inline-block;
+  margin:10px 0 0;padding:0;border:0;background:transparent;
+  font-size:11.5px;font-weight:550;color:#8a7f88;
+  border-bottom:.5px dashed rgba(138,127,136,.45);
+}
+.ask-say-demo:active{color:var(--btn-blue)}
+.ask-say-demo[hidden]{display:none !important}
+.order-ask-agent{
+  margin:0 0 10px;padding:10px 12px;border-radius:14px 14px 14px 4px;
+  background:rgba(255,255,255,.88);border:1px solid rgba(80,40,70,.08);
+  font-size:calc(var(--fs-body) - 1px);color:#3a3a42;line-height:1.45;
+  box-shadow:0 6px 18px -14px rgba(80,30,50,.28);
+}
+.ask-block{margin-top:10px}
+.ask-block:first-child{margin-top:8px}
+.ask-sub{
+  margin:0 0 8px;font-size:12px;font-weight:650;color:#5a5560;line-height:1.3;
+}
+.ask-block .ask-chips{margin-top:0}
+.ask-pay-hint{
+  margin:0;padding:10px 12px;border-radius:10px;
+  font-size:12.5px;font-weight:600;color:#8a5a68;
+  background:rgba(194,80,106,.08);border:.5px dashed rgba(194,80,106,.28);
+}
+.ask-block.is-locked{opacity:.55;pointer-events:none}
+.msg-reply{
+  display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 0 10px;
+}
+.msg-reply .ask-edit{
+  appearance:none;cursor:pointer;font-family:inherit;flex:none;
+  margin:0;padding:2px 0;border:0;background:transparent;
+  font-size:11px;font-weight:550;color:#8a7f88;
+  border-bottom:.5px dashed rgba(138,127,136,.45);
+}
+.msg-reply .ask-edit:active{color:var(--btn-blue)}
+
+/* ---------- 选择顾客（对齐 kaidan s4） ---------- */
+#pickCustomer{
+  position:absolute;inset:0;z-index:40;
+  background:#fff;display:flex;flex-direction:column;
+  border-radius:inherit;overflow:hidden;
+}
+#pickCustomer[hidden]{display:none !important}
+.pick-search{
+  flex:none;height:50px;display:flex;align-items:center;gap:12px;
+  padding:8px 12px 0;background:#fff;box-sizing:border-box;
+}
+.pick-search .box{
+  flex:1;height:32px;background:#f5f5f5;border-radius:16px;
+  display:flex;align-items:center;gap:8px;padding:0 12px;min-width:0;
+}
+.pick-search .box img{width:16px;height:16px;flex:none}
+.pick-search .box input{
+  flex:1;min-width:0;border:0;background:transparent;outline:none;
+  font:inherit;font-size:14px;color:#111;
+}
+.pick-search .box input::placeholder{color:#878787}
+.pick-search .cancel{
+  appearance:none;border:0;background:none;cursor:pointer;padding:0;
+  font-family:inherit;font-size:15px;font-weight:500;color:#878787;white-space:nowrap;
+}
+.pick-list{
+  flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:#fff;padding-bottom:24px;
+}
+.pick-group-h{
+  height:28px;background:#f9f9f9;
+  display:flex;align-items:center;padding:0 12px;
+  font-size:13px;font-weight:700;color:#111;position:sticky;top:0;z-index:1;
+}
+.pick-row{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 28px 14px 12px;cursor:pointer;border:0;background:transparent;
+  width:100%;text-align:left;font-family:inherit;box-sizing:border-box;
+}
+.pick-row:active{background:#fafafa}
+.pick-row .avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex:none}
+.pick-row .avatar img{width:44px;height:44px;object-fit:cover;display:block}
+.pick-row .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.pick-row .info .line1{display:flex;align-items:center;gap:6px}
+.pick-row .info .line1 .nm{font-size:15px;font-weight:700;color:#111;white-space:nowrap}
+.pick-row .info .line1 .vip{
+  font-size:10px;padding:2px 5px;border-radius:2px;background:#333;color:#fff;font-weight:700;
+}
+.pick-row .info .line1 .vip.grad b{
+  background-image:linear-gradient(to right,#ffe6ce,#ffba75);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  font-weight:400;
+}
+.pick-row .info .line1 .cnt{font-size:12px;color:#111;white-space:nowrap}
+.pick-row .info .line1 .phone{flex:1;text-align:right;font-size:13px;color:#888;white-space:nowrap}
+.pick-row .info .sub{
+  font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.pick-index{
+  position:absolute;right:4px;top:58px;bottom:12px;width:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-size:9px;font-weight:700;color:#ffcc9d;line-height:1.2;
+  z-index:2;pointer-events:none;
+}
 .ask-more-panel{
   display:grid;grid-template-rows:0fr;opacity:0;
   margin-top:0;padding-top:0;border-top:1px dashed transparent;
@@ -1517,8 +1659,13 @@ button{font:inherit;color:inherit}
   margin-top:8px;padding-top:8px;
   border-top-color:rgba(26,26,26,.08);
 }
-.ask-card[hidden],.msg-reply[hidden]{display:none !important}
-.msg-reply{display:flex;justify-content:flex-end;margin:0 0 10px}
+.ask-card[hidden],.msg-reply[hidden],.bubble-agent[hidden]{display:none !important}
+#orderAskThread{display:flex;flex-direction:column}
+.order-ask-replies{display:flex;flex-direction:column}
+.order-ask-replies .msg-reply{margin:0 0 10px}
+.msg-reply{
+  display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 0 10px;
+}
 .bubble-reply{
   max-width:86%;padding:9px 12px;border-radius:14px 14px 4px 14px;
   background:linear-gradient(145deg,#ffe4ec,#ffd3df);
@@ -1682,6 +1829,7 @@ html.is-mobile body {
   inset: 0;
   width: 100%;
 }
+html.is-mobile .prd-sync{display:none !important}
 html.is-mobile .stage {
   margin: 0;
   padding: 0;
@@ -1693,6 +1841,7 @@ html.is-mobile .stage {
   align-items: flex-start;
   justify-content: center;
   overflow: hidden;
+  gap: 0;
 }
 /* 裁剪容器：贴合 visualViewport，保证输入条在可见屏内 */
 html.is-mobile .frame-slot {
@@ -1741,10 +1890,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   <div class="nav-actions">
     <button type="button" id="navHome" class="is-on">首页 · 提醒</button>
     <button type="button" id="navDemoPrice" class="is-on">价目表</button>
-    <button type="button" id="navDemoOrder">开单</button>
-    <button type="button" id="navDemoOrderMulti">开单 · 三项</button>
-    <button type="button" id="navDemoArchive">归档</button>
-    <button type="button" id="navDemoCards">卡管理</button>
+    <button type="button" id="navDemoOrder" title="主演示：缺项智能追问">开单（主）</button>
+    <button type="button" id="navDemoOrderMulti" title="对照：顾客+项目已齐">开单 · 三项</button>
+    <button type="button" id="navDemoArchive" title="对照能力">归档</button>
+    <button type="button" id="navDemoCards" title="对照能力">卡管理</button>
     <button type="button" id="navSimSelfPay">模拟新自助单</button>
     <button type="button" id="navThink">演示思考 → 出结果</button>
   </div>
@@ -1881,7 +2030,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
             <div class="demo-panel" id="panelOrder" data-demo="order" hidden>
               <div class="msg-user" id="orderUserMsg">
-                <div class="bubble-user">帮我开单，李女士泡泡染。托尼薛总监呃，现金支付宝。</div>
+                <div class="bubble-user">帮我开一单泡泡染。</div>
               </div>
 
               <div class="thinking" id="thinkingOrder" aria-live="polite">
@@ -1893,11 +2042,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <span class="think-label" id="thinkLabelOrder">思考中</span>
               </div>
 
-              <div class="ask-card" id="askCard" hidden>
-                <p id="askText">李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？</p>
-                <div class="ask-chips" id="askChipsPrimary"></div>
-                <div class="ask-more-panel" id="askMorePanel">
-                  <div class="ask-chips" id="askChipsMore"></div>
+              <div id="orderAskThread">
+                <div class="bubble-agent" id="orderAgentNote" hidden>泡泡染收到～还差几样就能出单啦。</div>
+                <div id="orderAskReplies" class="order-ask-replies"></div>
+                <div class="ask-card" id="askCard" hidden>
+                  <p id="askText">先说下是哪位顾客？直接跟我说名字，或者点下面也行。</p>
+                  <div class="ask-chips" id="askChipsPrimary"></div>
+                  <div class="ask-more-panel" id="askMorePanel">
+                    <div class="ask-chips" id="askChipsMore"></div>
+                  </div>
+                  <button type="button" class="ask-say-demo" id="askSayDemo" hidden>试试说一句</button>
                 </div>
               </div>
 
@@ -1997,8 +2151,124 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         </footer>
       </div>
     </section>
+
+    <div id="pickCustomer" hidden aria-label="选择顾客">
+      <div class="pick-search">
+        <div class="box">
+          <input type="search" id="pickSearchInput" placeholder="输入顾客姓名/手机号/编号/备注" autocomplete="off">
+          <img src="assets/agent-chat/pick/ic_search.svg" alt="">
+        </div>
+        <button type="button" class="cancel" id="btnPickCancel">取消</button>
+      </div>
+      <div class="pick-list" id="pickList"></div>
+      <div class="pick-index" id="pickIndex" aria-hidden="true"></div>
+    </div>
   </div><!-- #frame -->
   </div><!-- .frame-slot -->
+
+  <aside class="prd-sync" id="prdSync" aria-label="PRD 同步">
+    <div class="prd-sync-head">
+      <h2>PRD · 同步</h2>
+      <p class="prd-sync-sec" id="prdSyncSecLabel">§1.4 体验优化</p>
+    </div>
+    <div class="prd-sync-body">
+      <div class="prd-sync-panel" data-prd="home" id="prdPanelHome">
+        <h3>目标</h3>
+        <ul>
+          <li><span class="prd-tag">又快</span>离店窗口内最少轮次完成开单</li>
+          <li><span class="prd-tag">又稳</span>缺什么写在界面上；可「改」不重跑</li>
+          <li><span class="prd-tag">又听得懂</span>店里话、短句、「×× 块」</li>
+        </ul>
+        <h3>原则（P1–P6）</h3>
+        <ul>
+          <li>链路短 · 白话 · 主路径清楚</li>
+          <li>说/点双通道 · 防错不拖堂</li>
+          <li>先结果后细节（追问零复杂，确认卡默认折）</li>
+        </ul>
+        <p class="prd-muted">侧栏切演示时，本窗跟到对应专章摘要。</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="price" id="prdPanelPrice" hidden>
+        <h3>§4 价目表</h3>
+        <ul>
+          <li>只读单行：状态 | 名 | 价</li>
+          <li>分类 Tab · 只看在售 · 左滑删除</li>
+        </ul>
+        <p class="prd-muted">原则：主路径清楚；结果卡 ≠ 聊天泡。</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="order-project" id="prdPanelOrderProject" hidden>
+        <h3>开单（主）· 项目确认</h3>
+        <p>只说项目起问 → 「按 泡泡染 298 块 开，对吗？」</p>
+        <ul>
+          <li><b>对，就这个</b> / <b>换一个</b>（在售短列表）</li>
+          <li>白话金额「×× 块」· 可「试试说一句」</li>
+        </ul>
+        <p class="prd-muted">§1.4 智能追问 · P2 白话</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="order-customer" id="prdPanelOrderCustomer" hidden>
+        <h3>开单（主）· 顾客</h3>
+        <ul>
+          <li><b>男散客</b> · <b>女散客</b>（描边）</li>
+          <li><b>选择会员</b>（主按钮）→ 选择顾客页，仅会员</li>
+          <li>会员池 <code>STORE_MEMBERS</code> 与归档共用</li>
+        </ul>
+        <p class="prd-muted">§1.4 智能追问 · P1 少二级页（最近需求仍进列表找人）</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="order-checkout" id="prdPanelOrderCheckout" hidden>
+        <h3>开单（主）· 结账同卡</h3>
+        <ul>
+          <li><b>谁做的？</b> 点 1 人即选中；「还要加人」；「稍后补」</li>
+          <li><b>怎么收钱？</b> 未选人时显示「先选谁做的」</li>
+          <li>主支付：微信 / 支付宝 / 现金；更多含会员卡</li>
+          <li>回声旁可「改」；进卡半句提示</li>
+        </ul>
+        <p class="prd-muted">§1.4 离店加速 · P1 链路短 · P5 防错</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="order-draft" id="prdPanelOrderDraft" hidden>
+        <h3>开单 · 确认卡</h3>
+        <ul>
+          <li>首屏：谁 · 做什么 · 收多少 · 确认/拒绝</li>
+          <li>员工明细 / 优惠 / 权益 <b>默认折叠</b></li>
+          <li>仅会员卡默认展开收款（卡里的钱）</li>
+        </ul>
+        <p class="prd-muted">§1.4 P6 先结果后细节 · §6 确认卡</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="order-multi" id="prdPanelOrderMulti" hidden>
+        <h3>开单 · 三项（对照）</h3>
+        <p>首句已含顾客 + 三项 → 跳过项目/顾客，直接 <b>员工+收款同卡</b>。</p>
+        <ul>
+          <li>与主路径同一套结账组件</li>
+          <li>确认卡内再按项细调员工/权益</li>
+        </ul>
+        <p class="prd-muted">§1.4 入口角色 · 对照路径</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="archive" id="prdPanelArchive" hidden>
+        <h3>§7 自助归档</h3>
+        <ul>
+          <li>待办 chips → 归档确认卡</li>
+          <li>切换会员用同一 <code>STORE_MEMBERS</code></li>
+          <li>项目「更换」对齐价目表 + 快捷开单</li>
+        </ul>
+        <p class="prd-muted">对照能力；原则仍适用白话与少步骤。</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="cards" id="prdPanelCards" hidden>
+        <h3>§5 卡管理</h3>
+        <ul>
+          <li>五类 Tab：储值 / 计次 / 折扣 / 套餐 / 周期</li>
+          <li>色相区分 · 「更多」展开字段</li>
+          <li>底栏 Toast：去开卡 / 去管理会员卡</li>
+        </ul>
+        <p class="prd-muted">对照能力 · Tab 均分居中不溢出</p>
+      </div>
+    </div>
+  </aside>
 </div><!-- .stage -->
 
 <script>
@@ -2094,6 +2364,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var askChipsMore = document.getElementById("askChipsMore");
   var orderReply = document.getElementById("orderReply");
   var orderReplyBubble = document.getElementById("orderReplyBubble");
+  var orderAgentNote = document.getElementById("orderAgentNote");
+  var orderAskThread = document.getElementById("orderAskThread");
+  var orderAskReplies = document.getElementById("orderAskReplies");
   var odTitle = document.getElementById("odTitle");
   var odPill = document.getElementById("odPill");
   var odFields = document.getElementById("odFields");
@@ -2107,6 +2380,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var demoMode = "price"; /* price | order | orderMulti | archive | cards */
   var orderDemoVariant = "single"; /* single | multi */
   var flowKind = "order"; /* order | archive — 共用开单确认卡壳 */
+  var orderAskStep = "project"; /* project | projectPick | customer | checkout */
+  var orderAskStaffIds = [];
+  var orderAskStaffExpand = false;
+  var orderAskStaffLater = false;
+  var pickCustomer = document.getElementById("pickCustomer");
+  var pickList = document.getElementById("pickList");
+  var pickIndex = document.getElementById("pickIndex");
+  var pickSearchInput = document.getElementById("pickSearchInput");
+  var btnPickCancel = document.getElementById("btnPickCancel");
+  var askSayDemo = document.getElementById("askSayDemo");
 
   /* ----- 卡管理：会员卡模板演示 ----- */
   var MC_TYPES = [
@@ -2878,6 +3161,54 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (isHome) showTabTip();
     }, MOTION_REDUCED ? 0 : 450);
     requestAnimationFrame(updateScrollHint);
+    syncPrdPanel();
+  }
+
+  var prdSyncSecLabel = document.getElementById("prdSyncSecLabel");
+  function syncPrdPanel() {
+    var key = "home";
+    var label = "§1.4 体验优化";
+    var isHome = frame && frame.classList.contains("mode-home");
+    if (isHome) {
+      key = "home";
+    } else if (demoMode === "price") {
+      key = "price";
+      label = "§4 价目表";
+    } else if (demoMode === "cards") {
+      key = "cards";
+      label = "§5 卡管理";
+    } else if (demoMode === "archive") {
+      key = "archive";
+      label = "§7 自助归档";
+    } else if (demoMode === "orderMulti") {
+      if (orderStep === "ask") {
+        key = "order-multi";
+        label = "开单 · 三项（对照）";
+      } else {
+        key = "order-draft";
+        label = "开单确认卡";
+      }
+    } else if (demoMode === "order") {
+      if (orderStep === "ask") {
+        if (orderAskStep === "project" || orderAskStep === "projectPick") {
+          key = "order-project";
+          label = "开单 · 项目确认";
+        } else if (orderAskStep === "customer") {
+          key = "order-customer";
+          label = "开单 · 顾客";
+        } else {
+          key = "order-checkout";
+          label = "开单 · 结账同卡";
+        }
+      } else {
+        key = "order-draft";
+        label = "开单确认卡";
+      }
+    }
+    if (prdSyncSecLabel) prdSyncSecLabel.textContent = label;
+    document.querySelectorAll(".prd-sync-panel").forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-prd") !== key;
+    });
   }
 
   /* ----- 进入首页提醒：B2 图标进出 ----- */
@@ -3493,21 +3824,54 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var perfEdit = null; /* { id, field, itemId? } */
   var thinkDemoTimer = 0;
 
-  /* 归档：切换为会员的演示列表 */
-  var ARCHIVE_MEMBERS = [
-    { id: "am1", name: "李女士", phoneTail: "8903", memberType: "持卡会员", phone: "13800008903" },
-    { id: "am2", name: "王小姐", phoneTail: "1234", memberType: "储值会员", phone: "13900001234" },
-    { id: "am3", name: "陈先生", phoneTail: "6677", memberType: "持卡会员", phone: "13700006677" },
-    { id: "am4", name: "赵女士", phoneTail: "4521", memberType: "次卡会员", phone: "13600004521" }
+  /* 全店统一会员池：开单选择顾客 / 归档切换会员 共用 */
+  var PICK_AV = "assets/agent-chat/pick/";
+  var STORE_MEMBERS = [
+    {
+      id: "m-li", name: "李女士", label: "李女士", phoneTail: "3344", memberType: "持卡会员",
+      phone: "18600003344", group: "L", vip: true, cards: 2,
+      sub: "最近消费：2026.8.10 泡泡染【¥298.00】", avatar: PICK_AV + "avatar_female2.png"
+    },
+    {
+      id: "m-chen", name: "陈女士", label: "陈女士", phoneTail: "0255", memberType: "持卡会员",
+      phone: "19900000255", group: "C", vip: true, cards: 3,
+      sub: "最近消费：2026.8.15 水光三次卡【¥300.00】", avatar: PICK_AV + "avatar_female2.png"
+    },
+    {
+      id: "m-cxr", name: "陈昕然", label: "陈昕然", phoneTail: "0256", memberType: "会员",
+      phone: "19900000256", group: "C", vip: false, cards: 0,
+      sub: "最近消费：未消费", avatar: PICK_AV + "avatar_male2.png"
+    },
+    {
+      id: "m-gao", name: "高海泉", label: "高海泉", phoneTail: "1122", memberType: "会员",
+      phone: "13800001122", group: "G", vip: false, cards: 0,
+      sub: "最近消费：未消费", avatar: PICK_AV + "avatar_male2.png"
+    },
+    {
+      id: "m-wang", name: "王小姐", label: "王小姐", phoneTail: "1234", memberType: "储值会员",
+      phone: "13900001234", group: "W", vip: false, cards: 1,
+      sub: "最近消费：2026.8.12 总监剪发【¥198.00】", avatar: PICK_AV + "avatar_female2.png"
+    },
+    {
+      id: "m-ma", name: "马婷", label: "马婷", phoneTail: "6677", memberType: "会员",
+      phone: "13600006677", group: "M", vip: false, cards: 0,
+      sub: "最近消费：未消费", avatar: PICK_AV + "avatar_female2.png"
+    },
+    {
+      id: "m-zhao", name: "赵女士", label: "赵女士", phoneTail: "4521", memberType: "次卡会员",
+      phone: "13600004521", group: "Z", vip: false, cards: 2,
+      sub: "最近消费：2026.8.08 头皮护理洗【¥128.00】", avatar: PICK_AV + "avatar_female2.png"
+    }
   ];
+  var ARCHIVE_MEMBERS = STORE_MEMBERS;
 
   /* ----- 自助订单归档：演示造数 ----- */
   var SELF_PAY_ORDERS = [
     {
       id: "sp1", status: "pending", isMember: true,
-      customerName: "李女士", phone: "13800008903", phoneTail: "8903",
-      memberType: "持卡会员", paid: 198, time: "14:32", dateLabel: "今天",
-      payments: [{ method: "微信", amount: "198" }],
+      customerName: "李女士", phone: "18600003344", phoneTail: "3344",
+      memberType: "持卡会员", paid: 298, time: "14:32", dateLabel: "今天",
+      payments: [{ method: "微信", amount: "298" }],
       items: [], remark: "", guestGender: null
     },
     {
@@ -3520,17 +3884,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     {
       id: "sp3", status: "pending", isMember: true,
       customerName: "王小姐", phone: "13900001234", phoneTail: "1234",
-      memberType: "储值会员", paid: 320, time: "11:48", dateLabel: "今天",
+      memberType: "储值会员", paid: 198, time: "11:48", dateLabel: "今天",
       payments: [
-        { method: "微信", amount: "120" },
-        { method: "会员卡", amount: "200" }
+        { method: "微信", amount: "98" },
+        { method: "会员卡", amount: "100" }
       ],
       items: [], remark: "", guestGender: null
     },
     /* done：仅供智能补全查历史 */
     {
       id: "sp-done1", status: "done", isMember: true,
-      customerName: "李女士", phone: "13800008903", phoneTail: "8903",
+      customerName: "李女士", phone: "18600003344", phoneTail: "3344",
       paid: 298, time: "10:00", dateLabel: "昨天",
       payments: [{ method: "微信", amount: "298" }],
       items: [{ name: "泡泡染", price: 298 }],
@@ -5401,26 +5765,412 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     requestAnimationFrame(renderOrderCard);
   });
 
-  function renderAskChips() {
-    function chip(name, extraClass) {
+  var ORDER_ASK_PAY_PRIMARY = ["微信", "支付宝", "现金"];
+  var ORDER_ASK_PAY_MORE = ["会员卡"].concat(PAY_MORE.filter(function (n) { return n !== "会员卡"; }));
+  var ORDER_ASK_GUESTS = [
+    {
+      id: "guest-m", label: "男散客", name: "男散客",
+      phoneTail: "", memberType: "", phone: ""
+    },
+    {
+      id: "guest-f", label: "女散客", name: "女散客",
+      phoneTail: "", memberType: "", phone: ""
+    }
+  ];
+  var ORDER_ASK_SAY = {
+    project: { text: "对，泡泡染", action: "projectOk" },
+    projectPick: { text: "改成总监剪发", action: "projectName", value: "总监剪发" },
+    customer: { text: "李女士", action: "member", value: "m-li" },
+    checkout: { text: "Tony，微信", action: "checkout", staff: ["tony"], pay: "微信" }
+  };
+  var ASK_REPLY_ORDER = ["project", "customer", "staff", "pay"];
+
+  function storeMemberById(id) {
+    for (var i = 0; i < STORE_MEMBERS.length; i++) if (STORE_MEMBERS[i].id === id) return STORE_MEMBERS[i];
+    return null;
+  }
+  function orderAskGuestById(id) {
+    for (var i = 0; i < ORDER_ASK_GUESTS.length; i++) if (ORDER_ASK_GUESTS[i].id === id) return ORDER_ASK_GUESTS[i];
+    return null;
+  }
+  function moneyPlain(v) {
+    return Math.round(Number(v) || 0) + " 块";
+  }
+  function askProjectLabel() {
+    return (orderData.serviceShort || "项目") + " " + moneyPlain(orderData.price || 0);
+  }
+  function staffReadyForPay() {
+    return orderAskStaffLater || orderAskStaffIds.length > 0;
+  }
+  function applyAskProjectByName(name) {
+    var row = null;
+    for (var i = 0; i < PRICE_ROWS.length; i++) {
+      if (PRICE_ROWS[i][1] === name && PRICE_ROWS[i][3] === "在售") { row = PRICE_ROWS[i]; break; }
+    }
+    if (!row) return false;
+    var cat = row[0];
+    var price = String(row[2]);
+    var item = orderItems()[0];
+    if (item) {
+      item.name = name;
+      item.service = cat + "-" + name;
+      item.price = price;
+    }
+    orderData.serviceShort = name;
+    orderData.service = cat + "-" + name;
+    orderData.price = price;
+    if (isMultiItem()) {
+      /* 单项目路径不会进这里 */
+    } else {
+      syncItemStationsFromRoot();
+    }
+    return true;
+  }
+  function applyPickedCustomer(c) {
+    if (!c) return;
+    closePickCustomer();
+    orderData.name = c.name;
+    orderData.phoneTail = c.phoneTail || "";
+    orderData.memberType = c.memberType || "";
+    upsertOrderAskReply("customer", "<span>" + escapeHtml(c.label || c.name) + "</span>");
+    orderAskStep = "checkout";
+    orderAskStaffIds = [];
+    orderAskStaffExpand = false;
+    orderAskStaffLater = false;
+    renderSmartOrderAsk();
+    requestAnimationFrame(updateScrollHint);
+  }
+  function closePickCustomer() {
+    if (!pickCustomer) return;
+    pickCustomer.hidden = true;
+    if (pickSearchInput) pickSearchInput.value = "";
+  }
+  function renderPickList(query) {
+    if (!pickList) return;
+    var q = String(query || "").trim().toLowerCase();
+    var rows = STORE_MEMBERS.filter(function (c) {
+      if (!q) return true;
+      return (c.name + " " + c.phone + " " + (c.sub || "")).toLowerCase().indexOf(q) >= 0;
+    }).slice().sort(function (a, b) {
+      if (a.group === b.group) return a.name < b.name ? -1 : 1;
+      return a.group < b.group ? -1 : 1;
+    });
+    var html = "";
+    var lastGroup = null;
+    rows.forEach(function (c) {
+      if (c.group !== lastGroup) {
+        lastGroup = c.group;
+        html += '<div class="pick-group-h">' + escapeHtml(c.group) + "</div>";
+      }
+      html +=
+        '<button type="button" class="pick-row" data-pick-id="' + c.id + '">' +
+          '<div class="avatar"><img src="' + escapeHtml(c.avatar) + '" alt=""></div>' +
+          '<div class="info">' +
+            '<div class="line1">' +
+              '<span class="nm">' + escapeHtml(c.name) + "</span>" +
+              (c.vip ? '<span class="vip grad"><b>VIP</b></span>' : "") +
+              (c.cards ? '<span class="cnt">(' + c.cards + ")</span>" : "") +
+              '<span class="phone">' + escapeHtml(c.phone) + "</span>" +
+            "</div>" +
+            '<div class="sub">' + escapeHtml(c.sub) + "</div>" +
+          "</div>" +
+        "</button>";
+    });
+    pickList.innerHTML = html || '<p class="pick-group-h" style="background:#fff;color:#999;font-weight:500">无匹配会员</p>';
+    if (pickIndex) {
+      pickIndex.innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map(function (ch) {
+        return "<span>" + ch + "</span>";
+      }).join("");
+    }
+  }
+  function openPickCustomer() {
+    if (!pickCustomer) return;
+    renderPickList("");
+    pickCustomer.hidden = false;
+    if (pickSearchInput) {
+      try { pickSearchInput.focus(); } catch (e) { /* */ }
+    }
+  }
+
+  function clearOrderAskReplies() {
+    if (orderAskReplies) orderAskReplies.innerHTML = "";
+  }
+  function bumpAskCard() {
+    if (orderAskThread && askCard) orderAskThread.appendChild(askCard);
+  }
+  function appendOrderAskReply(html, key) {
+    if (!orderAskReplies) return null;
+    var row = document.createElement("div");
+    row.className = "msg-reply";
+    if (key) row.setAttribute("data-ask-key", key);
+    row.innerHTML =
+      '<div class="bubble-reply">' + html + "</div>" +
+      (key ? '<button type="button" class="ask-edit" data-ask-edit="' + key + '">改</button>' : "");
+    orderAskReplies.appendChild(row);
+    motionEnter(row, "reply");
+    bumpAskCard();
+    return row;
+  }
+  function upsertOrderAskReply(key, html) {
+    if (!orderAskReplies || !key) return appendOrderAskReply(html, key);
+    var existing = orderAskReplies.querySelector('.msg-reply[data-ask-key="' + key + '"]');
+    if (existing) {
+      var bubble = existing.querySelector(".bubble-reply");
+      if (bubble) bubble.innerHTML = html;
+      return existing;
+    }
+    return appendOrderAskReply(html, key);
+  }
+  function trimAskRepliesKeys(keys) {
+    if (!orderAskReplies) return;
+    var drop = {};
+    (keys || []).forEach(function (k) { drop[k] = true; });
+    Array.prototype.slice.call(orderAskReplies.children).forEach(function (el) {
+      if (el.classList.contains("order-ask-agent")) {
+        el.parentNode.removeChild(el);
+        return;
+      }
+      var k = el.getAttribute("data-ask-key");
+      if (k && drop[k]) el.parentNode.removeChild(el);
+    });
+  }
+  function appendOrderAskAgent(text) {
+    if (!orderAskReplies) return null;
+    var row = document.createElement("div");
+    row.className = "order-ask-agent";
+    row.textContent = text;
+    orderAskReplies.appendChild(row);
+    motionEnter(row);
+    bumpAskCard();
+    return row;
+  }
+  function beginAskEdit(key) {
+    if (flowKind !== "order") return;
+    closePickCustomer();
+    if (orderCard) orderCard.hidden = true;
+    hideFollowCard();
+    orderStep = "ask";
+    orderPhase = "draft";
+    if (key === "project") {
+      trimAskRepliesKeys(["project"]);
+      orderAskStep = "project";
+    } else if (key === "customer") {
+      trimAskRepliesKeys(["customer", "pay"]);
+      orderAskStep = "customer";
+      orderData.payments = [];
+      orderOpenSec = null;
+    } else if (key === "staff") {
+      trimAskRepliesKeys(["staff"]);
+      orderAskStep = "checkout";
+      orderAskStaffIds = [];
+      orderAskStaffExpand = false;
+      orderAskStaffLater = false;
+      applyAskStaffIds([]);
+    } else if (key === "pay") {
+      trimAskRepliesKeys(["pay"]);
+      orderAskStep = "checkout";
+      orderData.payments = [];
+      orderOpenSec = null;
+    }
+    if (askCard) {
+      askCard.hidden = false;
+      renderSmartOrderAsk();
+      motionEnter(askCard);
+    }
+    bumpAskCard();
+    requestAnimationFrame(updateScrollHint);
+    syncPrdPanel();
+  }
+  function syncItemStationsFromRoot() {
+    var items = orderItems();
+    if (!isMultiItem() && items[0]) items[0].stations = orderData.stations;
+  }
+  function syncAllItemStations(stations) {
+    orderData.stations = stations;
+    orderItems().forEach(function (it) { it.stations = JSON.parse(JSON.stringify(stations)); });
+  }
+  function applyAskStaffIds(ids) {
+    var stations = blankStations();
+    (ids || []).forEach(function (sid, idx) {
+      if (idx === 0) stations[0].staff.push(sid);
+      else if (idx === 1) stations[1].staff.push(sid);
+      else if (idx === 2) stations[2].staff.push(sid);
+      else stations[0].staff.push(sid);
+    });
+    if (isMultiItem()) syncAllItemStations(stations);
+    else {
+      orderData.stations = stations;
+      syncItemStationsFromRoot();
+    }
+  }
+  function staffAskSummary(ids) {
+    return (ids || []).map(function (id) {
+      var s = staffById(id);
+      return s ? (s.short || s.name) : id;
+    }).join("、") || "稍后补";
+  }
+  function renderPayAskChips(opts) {
+    opts = opts || {};
+    function chip(name) {
       return (
-        '<button type="button" class="ask-pay' + (extraClass ? " " + extraClass : "") + '" data-pay="' + name + '">' +
+        '<button type="button" class="ask-pay" data-pay="' + name + '">' +
           payIconHtml(name) + "<span>" + name + "</span>" +
         "</button>"
       );
     }
+    var primary = opts.smart ? ORDER_ASK_PAY_PRIMARY : PAY_PRIMARY;
+    var more = opts.smart ? ORDER_ASK_PAY_MORE : PAY_MORE;
     askChipsPrimary.innerHTML =
-      PAY_PRIMARY.map(function (n) { return chip(n); }).join("") +
-      '<button type="button" class="ask-pay is-skip" data-pay="跳过">跳过</button>' +
+      primary.map(chip).join("") +
+      (opts.smart ? "" : '<button type="button" class="ask-pay is-skip" data-pay="跳过">跳过</button>') +
       '<button type="button" class="ask-pay is-skip pay-opt is-more" data-pay="更多">更多</button>';
-    askChipsMore.innerHTML = PAY_MORE.map(function (n) { return chip(n); }).join("");
+    askChipsMore.innerHTML = more.map(chip).join("");
     askCard.classList.remove("is-more-on");
+  }
+  function renderAskChips() {
+    renderPayAskChips({ smart: false });
+  }
+  function setAskSayVisible(on) {
+    if (!askSayDemo) return;
+    askSayDemo.hidden = !on;
+    if (on) {
+      var tip = ORDER_ASK_SAY[orderAskStep];
+      askSayDemo.textContent = tip ? ("试试说一句 · 「" + tip.text + "」") : "试试说一句";
+    }
+  }
+  function payChipsHtml(smart) {
+    function chip(name) {
+      return (
+        '<button type="button" class="ask-pay" data-pay="' + name + '">' +
+          payIconHtml(name) + "<span>" + name + "</span>" +
+        "</button>"
+      );
+    }
+    var primary = smart ? ORDER_ASK_PAY_PRIMARY : PAY_PRIMARY;
+    var more = smart ? ORDER_ASK_PAY_MORE : PAY_MORE;
+    return {
+      primary:
+        primary.map(chip).join("") +
+        (smart ? "" : '<button type="button" class="ask-pay is-skip" data-pay="跳过">跳过</button>') +
+        '<button type="button" class="ask-pay is-skip pay-opt is-more" data-pay="更多">更多</button>',
+      more: more.map(chip).join("")
+    };
+  }
+  function renderCheckoutAsk() {
+    var svc = isMultiItem()
+      ? (orderData.serviceShort || "这几项")
+      : (orderData.serviceShort || "项目");
+    askText.textContent =
+      "好，" + (orderData.name || "这位顾客") + " · " + svc + "。选完人就能收钱啦。";
+    var ready = staffReadyForPay();
+    var showAllStaff = orderAskStaffExpand || !orderAskStaffIds.length;
+    var staffHtml = "";
+    if (showAllStaff) {
+      staffHtml = STAFF.map(function (s) {
+        var on = orderAskStaffIds.indexOf(s.id) >= 0;
+        return '<button type="button" class="ask-pay' + (on ? " is-picked" : "") +
+          '" data-ask-staff-pick="' + s.id + '">' + escapeHtml(s.short || s.name) + "</button>";
+      }).join("");
+    } else {
+      staffHtml = orderAskStaffIds.map(function (id) {
+        var s = staffById(id);
+        return '<button type="button" class="ask-pay is-picked" data-ask-staff-pick="' + id + '">' +
+          escapeHtml(s ? (s.short || s.name) : id) + "</button>";
+      }).join("");
+    }
+    staffHtml +=
+      (!orderAskStaffExpand && orderAskStaffIds.length
+        ? '<button type="button" class="ask-pay is-skip" data-ask-staff-more="1">还要加人</button>'
+        : "") +
+      '<button type="button" class="ask-pay is-skip" data-ask-staff-later="1">' +
+        (orderAskStaffLater ? "已稍后补" : "稍后补") + "</button>";
+
+    var payPart = payChipsHtml(true);
+    var payBlock = ready
+      ? ('<p class="ask-sub">怎么收钱？</p><div class="ask-chips">' + payPart.primary + "</div>")
+      : '<p class="ask-pay-hint">先选谁做的</p>';
+
+    askChipsPrimary.innerHTML =
+      '<div class="ask-block">' +
+        '<p class="ask-sub">谁做的？</p>' +
+        '<div class="ask-chips">' + staffHtml + "</div>" +
+      "</div>" +
+      '<div class="ask-block' + (ready ? "" : " is-locked") + '">' + payBlock + "</div>";
+    askChipsMore.innerHTML = ready ? payPart.more : "";
+    askCard.classList.toggle("is-more-on", false);
+    setAskSayVisible(true);
+  }
+  function renderSmartOrderAsk() {
+    askCard.classList.remove("is-more-on");
+    if (orderAskStep === "project") {
+      askText.textContent = "按 " + askProjectLabel() + " 开，对吗？";
+      askChipsPrimary.innerHTML =
+        '<button type="button" class="ask-pay is-ask-done" data-ask-project="ok">对，就这个</button>' +
+        '<button type="button" class="ask-pay" data-ask-project="swap">换一个</button>';
+      askChipsMore.innerHTML = "";
+      setAskSayVisible(true);
+      syncPrdPanel();
+      return;
+    }
+    if (orderAskStep === "projectPick") {
+      askText.textContent = "想换成哪个？点一下就行。";
+      var onsale = PRICE_ROWS.filter(function (r) { return r[3] === "在售"; }).slice(0, 8);
+      askChipsPrimary.innerHTML = onsale.map(function (r) {
+        return '<button type="button" class="ask-pay" data-ask-item="' + escapeHtml(r[1]) + '">' +
+          escapeHtml(r[1]) + " " + moneyPlain(r[2]) + "</button>";
+      }).join("");
+      askChipsMore.innerHTML = "";
+      setAskSayVisible(true);
+      syncPrdPanel();
+      return;
+    }
+    if (orderAskStep === "customer") {
+      askText.textContent = "先说下是哪位顾客？";
+      askChipsPrimary.innerHTML =
+        '<button type="button" class="ask-pay" data-ask-guest="guest-m">男散客</button>' +
+        '<button type="button" class="ask-pay" data-ask-guest="guest-f">女散客</button>' +
+        '<button type="button" class="ask-pay is-pick-member" data-ask-pick-member="1">选择会员</button>';
+      askChipsMore.innerHTML = "";
+      setAskSayVisible(true);
+      syncPrdPanel();
+      return;
+    }
+    renderCheckoutAsk();
+    syncPrdPanel();
+  }
+  function resetSmartOrderDraft() {
+    orderData = seedOrderDraft();
+    orderData.name = "";
+    orderData.phoneTail = "";
+    orderData.memberType = "";
+    orderData.stations = blankStations();
+    orderData.payments = [];
+    syncItemStationsFromRoot();
+    orderAskStep = "project";
+    orderAskStaffIds = [];
+    orderAskStaffExpand = false;
+    orderAskStaffLater = false;
+    closePickCustomer();
+  }
+  function resetMultiSmartOrderDraft() {
+    orderData = seedMultiOrderDraft();
+    orderAskStaffIds = [];
+    orderAskStaffExpand = false;
+    orderAskStaffLater = false;
+    applyAskStaffIds([]);
+    orderData.payments = [];
+    orderAskStep = "checkout";
+    closePickCustomer();
   }
 
   function hideOrderStages() {
     askCard.hidden = true;
+    if (orderAgentNote) orderAgentNote.hidden = true;
+    if (askSayDemo) askSayDemo.hidden = true;
+    clearOrderAskReplies();
     orderReply.hidden = true;
     orderCard.hidden = true;
+    closePickCustomer();
     hideFollowCard();
     closeOrderEdits();
   }
@@ -5476,31 +6226,54 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         orderUserMsg.querySelector(".bubble-user").textContent = "帮我处理待归档的自助订单。";
       }
       archiveAskMore = false;
+      if (askSayDemo) askSayDemo.hidden = true;
       renderArchiveAskChips();
+      revealWithEnter(askCard);
     } else if (orderDemoVariant === "multi") {
-      askText.textContent =
-        "李女士三项：泡泡染 298、总监剪发 198、头皮护理洗 128，员工按项目分开，收款方式选哪个？";
       if (orderUserMsg) {
         orderUserMsg.querySelector(".bubble-user").textContent =
           "帮我开单，李女士泡泡染、总监剪发、头皮护理洗一起做。";
       }
-      renderAskChips();
-    } else {
-      askText.textContent = "李女士泡泡染 298 元，Tony薛 / 陈嘉怡 / 何苏叶 分别上大工、中工、小工，收款方式选哪个？";
-      if (orderUserMsg) {
-        orderUserMsg.querySelector(".bubble-user").textContent =
-          "帮我开单，李女士泡泡染。托尼薛总监呃，现金支付宝。";
+      resetMultiSmartOrderDraft();
+      if (orderAgentNote) {
+        orderAgentNote.textContent =
+          "三项都记下啦，李女士的～还差员工和收款，可以说或点选。";
+        revealWithEnter(orderAgentNote);
       }
-      renderAskChips();
+      renderSmartOrderAsk();
+      revealWithEnter(askCard);
+    } else {
+      if (orderUserMsg) {
+        orderUserMsg.querySelector(".bubble-user").textContent = "帮我开一单泡泡染。";
+      }
+      resetSmartOrderDraft();
+      if (orderAgentNote) {
+        orderAgentNote.textContent = "泡泡染收到～还差几样就能出单啦。";
+        revealWithEnter(orderAgentNote);
+      }
+      renderSmartOrderAsk();
+      revealWithEnter(askCard);
     }
-    revealWithEnter(askCard);
     requestAnimationFrame(updateScrollHint);
+    syncPrdPanel();
+  }
+
+  function finishAskToDraft(payMethod) {
+    var tip = payMethod === "会员卡"
+      ? "先用卡里的钱付；其它下一步再选。"
+      : "好，按这个收；有优惠下一步再选。";
+    if (askSayDemo) askSayDemo.hidden = true;
+    appendOrderAskAgent(tip);
+    setTimeout(function () { showDraftStage(); }, MOTION_REDUCED ? 0 : 360);
   }
 
   function showDraftStage() {
     orderStep = "draft";
     orderPhase = "draft";
-    orderOpenSec = null;
+    /* 开单确认卡默认折叠员工/券/权益；仅会员卡展开收款 */
+    var isMemberPay = flowKind === "order" && orderData.payments && orderData.payments[0] &&
+      orderData.payments[0].method === "会员卡";
+    orderOpenSec = flowKind === "archive" ? null : (isMemberPay ? "pay" : null);
     stationRoster = null;
     itemBenefitOpen = null;
     archiveMemberPickOpen = false;
@@ -5508,10 +6281,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     archiveItemPickCat = "全部";
     perfEdit = null;
     function revealDraft() {
-      orderReplyBubble.innerHTML = orderData.payments.map(function (p) {
-        return payIconHtml(p.method) + "<span>" + escapeHtml(p.method) + "</span>";
-      }).join("") || (flowKind === "archive" ? "<span>已付清</span>" : "");
-      revealWithEnter(orderReply, "reply");
+      if (askSayDemo) askSayDemo.hidden = true;
+      if (flowKind === "archive") {
+        orderReplyBubble.innerHTML = orderData.payments.map(function (p) {
+          return payIconHtml(p.method) + "<span>" + escapeHtml(p.method) + "</span>";
+        }).join("") || "<span>已付清</span>";
+        revealWithEnter(orderReply, "reply");
+      } else if (orderReply) {
+        orderReply.hidden = true;
+      }
       orderCard.hidden = false;
       renderOrderCard();
       motionEnter(orderCard);
@@ -5522,6 +6300,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
     if (askCard && !askCard.hidden) motionExitThen(askCard, revealDraft);
     else revealDraft();
+    syncPrdPanel();
   }
 
   function openArchiveDraft(id) {
@@ -5606,6 +6385,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       try { orderCard.scrollIntoView({ behavior: MOTION_REDUCED ? "auto" : "smooth", block: "nearest" }); } catch (e) { /* */ }
       updateScrollHint();
     });
+    syncPrdPanel();
   }
 
   function rejectOrder() {
@@ -5634,7 +6414,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     opts = opts || {};
     flowKind = "order";
     orderDemoVariant = opts.multi ? "multi" : "single";
-    orderData = opts.multi ? seedMultiOrderDraft() : seedOrderDraft();
+    if (opts.multi) resetMultiSmartOrderDraft();
+    else resetSmartOrderDraft();
     orderPhase = "draft";
     orderStep = "ask";
     orderOpenSec = null;
@@ -5686,6 +6467,98 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }, 2200);
   }
 
+  function commitAskPayment(pay) {
+    if (!staffReadyForPay()) return;
+    applyAskStaffIds(orderAskStaffLater ? [] : orderAskStaffIds.slice());
+    upsertOrderAskReply(
+      "staff",
+      "<span>" + escapeHtml(orderAskStaffLater ? "稍后补" : staffAskSummary(orderAskStaffIds)) + "</span>"
+    );
+    if (pay === "跳过") {
+      orderData.payments = [{ method: "现金", amount: String(effectivePayable()) }];
+      pay = "现金";
+    } else if (pay === "会员卡") {
+      orderData.payments = [{ method: "会员卡", amount: String(effectivePayable()), gift: "0" }];
+    } else {
+      orderData.payments = [{ method: pay, amount: String(effectivePayable()) }];
+    }
+    upsertOrderAskReply("pay", payIconHtml(pay) + "<span>" + escapeHtml(pay) + "</span>");
+    finishAskToDraft(pay);
+  }
+
+  function pickAskStaff(sid) {
+    orderAskStaffLater = false;
+    if (!orderAskStaffExpand && orderAskStaffIds.length === 0) {
+      orderAskStaffIds = [sid];
+    } else if (!orderAskStaffExpand && orderAskStaffIds.length === 1 && orderAskStaffIds[0] === sid) {
+      /* 再点同一人：保持 */
+    } else if (!orderAskStaffExpand && orderAskStaffIds.length >= 1 && orderAskStaffIds.indexOf(sid) < 0) {
+      /* 未展开时点别人 = 换成此人（更快） */
+      orderAskStaffIds = [sid];
+    } else {
+      var ix = orderAskStaffIds.indexOf(sid);
+      if (ix >= 0) orderAskStaffIds.splice(ix, 1);
+      else orderAskStaffIds.push(sid);
+    }
+    applyAskStaffIds(orderAskStaffIds.slice());
+    upsertOrderAskReply("staff", "<span>" + escapeHtml(staffAskSummary(orderAskStaffIds)) + "</span>");
+    renderSmartOrderAsk();
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  function runAskSayDemo() {
+    var tip = ORDER_ASK_SAY[orderAskStep];
+    if (!tip) return;
+    if (tip.action === "projectOk") {
+      upsertOrderAskReply("project", "<span>" + escapeHtml(tip.text) + "</span>");
+      orderAskStep = orderData.name ? "checkout" : "customer";
+      renderSmartOrderAsk();
+      return;
+    }
+    if (tip.action === "projectName") {
+      applyAskProjectByName(tip.value);
+      upsertOrderAskReply("project", "<span>" + escapeHtml(tip.text) + "</span>");
+      orderAskStep = orderData.name ? "checkout" : "customer";
+      renderSmartOrderAsk();
+      return;
+    }
+    if (tip.action === "member") {
+      applyPickedCustomer(storeMemberById(tip.value));
+      return;
+    }
+    if (tip.action === "checkout") {
+      orderAskStaffLater = false;
+      orderAskStaffExpand = false;
+      orderAskStaffIds = (tip.staff || []).slice();
+      applyAskStaffIds(orderAskStaffIds.slice());
+      upsertOrderAskReply("staff", "<span>" + escapeHtml(staffAskSummary(orderAskStaffIds)) + "</span>");
+      commitAskPayment(tip.pay);
+    }
+  }
+
+  if (btnPickCancel) {
+    btnPickCancel.addEventListener("click", function () { closePickCustomer(); });
+  }
+  if (pickSearchInput) {
+    pickSearchInput.addEventListener("input", function () {
+      renderPickList(pickSearchInput.value);
+    });
+  }
+  if (pickList) {
+    pickList.addEventListener("click", function (e) {
+      var row = e.target.closest("[data-pick-id]");
+      if (!row) return;
+      applyPickedCustomer(storeMemberById(row.getAttribute("data-pick-id")));
+    });
+  }
+  if (askSayDemo) {
+    askSayDemo.addEventListener("click", function () {
+      if (orderStep !== "ask" || flowKind !== "order") return;
+      runAskSayDemo();
+      requestAnimationFrame(updateScrollHint);
+    });
+  }
+
   askCard.addEventListener("click", function (e) {
     if (orderStep !== "ask") return;
     if (flowKind === "archive") {
@@ -5709,29 +6582,89 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       setTimeout(function () { openArchiveDraft(aid); }, MOTION_REDUCED ? 0 : 160);
       return;
     }
+
+    /* 智能追问：项目 → 顾客 → 员工+收款同卡 */
+    if (flowKind === "order") {
+      var projBtn = e.target.closest("[data-ask-project]");
+      if (projBtn && orderAskStep === "project") {
+        var pact = projBtn.getAttribute("data-ask-project");
+        if (pact === "ok") {
+          upsertOrderAskReply("project", "<span>对，就这个</span>");
+          orderAskStep = orderData.name ? "checkout" : "customer";
+          renderSmartOrderAsk();
+          requestAnimationFrame(updateScrollHint);
+          return;
+        }
+        orderAskStep = "projectPick";
+        renderSmartOrderAsk();
+        requestAnimationFrame(updateScrollHint);
+        return;
+      }
+      var itemBtn = e.target.closest("[data-ask-item]");
+      if (itemBtn && orderAskStep === "projectPick") {
+        var iname = itemBtn.getAttribute("data-ask-item");
+        applyAskProjectByName(iname);
+        upsertOrderAskReply("project", "<span>" + escapeHtml(iname) + "</span>");
+        orderAskStep = orderData.name ? "checkout" : "customer";
+        renderSmartOrderAsk();
+        requestAnimationFrame(updateScrollHint);
+        return;
+      }
+      if (orderAskStep === "customer" && e.target.closest("[data-ask-pick-member]")) {
+        openPickCustomer();
+        return;
+      }
+      var guestBtn = e.target.closest("[data-ask-guest]");
+      if (guestBtn && orderAskStep === "customer") {
+        guestBtn.classList.add("is-picked");
+        var guest = orderAskGuestById(guestBtn.getAttribute("data-ask-guest"));
+        setTimeout(function () { applyPickedCustomer(guest); }, MOTION_REDUCED ? 0 : 140);
+        return;
+      }
+      if (orderAskStep === "checkout") {
+        var pickStaff = e.target.closest("[data-ask-staff-pick]");
+        if (pickStaff) {
+          pickAskStaff(pickStaff.getAttribute("data-ask-staff-pick"));
+          return;
+        }
+        if (e.target.closest("[data-ask-staff-more]")) {
+          orderAskStaffExpand = true;
+          renderSmartOrderAsk();
+          return;
+        }
+        if (e.target.closest("[data-ask-staff-later]")) {
+          orderAskStaffLater = true;
+          orderAskStaffIds = [];
+          orderAskStaffExpand = false;
+          applyAskStaffIds([]);
+          upsertOrderAskReply("staff", "<span>稍后补</span>");
+          renderSmartOrderAsk();
+          requestAnimationFrame(updateScrollHint);
+          return;
+        }
+      }
+    }
+
     var btn = e.target.closest("[data-pay]");
     if (!btn) return;
+    if (flowKind === "order" && orderAskStep === "checkout" && !staffReadyForPay()) return;
     var pay = btn.getAttribute("data-pay");
     if (pay === "更多") {
       askCard.classList.toggle("is-more-on");
       requestAnimationFrame(updateScrollHint);
       return;
     }
-    askCard.querySelectorAll(".is-picked").forEach(function (el) { el.classList.remove("is-picked"); });
     btn.classList.add("is-picked");
-    if (pay === "跳过") {
-      orderData.payments = [{ method: "现金", amount: String(effectivePayable()) }];
-      orderOpenSec = null;
-      showOdToast("已跳过，默认现金");
-    } else if (pay === "会员卡") {
-      orderData.payments = [{ method: "会员卡", amount: String(effectivePayable()), gift: "0" }];
-      orderOpenSec = "pay";
-    } else {
-      orderData.payments = [{ method: pay, amount: String(effectivePayable()) }];
-      orderOpenSec = null;
-    }
-    setTimeout(function () { showDraftStage(); }, MOTION_REDUCED ? 0 : 160);
+    commitAskPayment(pay);
   });
+
+  if (orderAskReplies) {
+    orderAskReplies.addEventListener("click", function (e) {
+      var edit = e.target.closest("[data-ask-edit]");
+      if (!edit) return;
+      beginAskEdit(edit.getAttribute("data-ask-edit"));
+    });
+  }
 
   odFields.addEventListener("input", function (e) {
     var ta = e.target.closest("[data-ar-remark]");
@@ -5817,6 +6750,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       motionEnter(sessionCard);
     }
     requestAnimationFrame(updateScrollHint);
+    syncPrdPanel();
   }
 
   navDemoPrice.addEventListener("click", function () { setDemoMode("price"); });
