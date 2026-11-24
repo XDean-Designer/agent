@@ -1,0 +1,214 @@
+{
+  "fileKey": "XklWFkHzzSROjjkZhbZtKc",
+  "nodeId": "152:63",
+  "port": 8765,
+  "basePath": "/agent-chat.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "bitmapPlaceholder": null,
+  "keepRealBitmaps": true,
+  "iconsMustBeSvg": true,
+  "sliceBitmapsOnlyWhenUserAsks": false,
+  "screens": [
+    {
+      "capture": "bubble-user",
+      "name": "Bubble-用户",
+      "captureId": "c7d9a3df-3814-43d5-bbac-20163115ff19",
+      "delay": 1800
+    },
+    {
+      "capture": "bubble-agent",
+      "name": "Bubble-Agent短文",
+      "captureId": "dc80dfb4-19d2-4a82-9d7e-8d62c90b1c64",
+      "delay": 1800
+    },
+    {
+      "capture": "bubble-reply",
+      "name": "Bubble-用户回声",
+      "captureId": "149eaba1-137b-44db-8c69-a13d9d3c4d56",
+      "delay": 2000
+    },
+    {
+      "capture": "state-thinking",
+      "name": "State-思考中",
+      "captureId": "2f2c5906-2dce-44c4-9721-e73e51f687c6",
+      "delay": 2000
+    },
+    {
+      "capture": "card-price",
+      "name": "Card-价目-InfoTable",
+      "captureId": "1049ec9b-944a-41e0-ad5f-b16c4f48d9fa",
+      "delay": 2000
+    },
+    {
+      "capture": "card-ask-project",
+      "name": "Card-追问-项目",
+      "captureId": "7b36315b-aa76-4149-8396-c64e8b67f1fa",
+      "delay": 2000
+    },
+    {
+      "capture": "card-ask-customer",
+      "name": "Card-追问-顾客",
+      "captureId": "3ce18373-4a5e-4e4f-9425-ed2feb15c5a9",
+      "delay": 2000
+    },
+    {
+      "capture": "card-ask-bundle",
+      "name": "Card-追问白卡-合并",
+      "captureId": "4a77a57b-4082-4f2c-937a-a73e511febea",
+      "delay": 2000
+    },
+    {
+      "capture": "card-order-draft",
+      "name": "Card-开单确认-待确认",
+      "captureId": "c8c7d882-f4fd-4c1c-bac0-ffd8b0aa0081",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-stations",
+      "name": "Card-开单确认-员工展开",
+      "captureId": "ddc04e26-5dd3-48e8-a5c2-0dfcd6b67f1e",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-coupon",
+      "name": "Card-开单确认-优惠展开",
+      "captureId": "9932ac9b-1364-425c-bb05-448547af67a2",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-pay",
+      "name": "Card-开单确认-收款展开",
+      "captureId": "75151794-10a3-4264-ad83-60f4ba5d1d75",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-pay-member",
+      "name": "Card-开单确认-会员卡收款",
+      "captureId": "3a93012d-c57d-4e21-8f3d-4512690ee534",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-success",
+      "name": "Card-开单确认-成功",
+      "captureId": "1d2d387f-5d34-4b0e-a54d-b4513f8e8172",
+      "delay": 2800
+    },
+    {
+      "capture": "card-order-multi-draft",
+      "name": "Card-开单-三项确认-折叠",
+      "captureId": "a63ea583-9295-4cde-bd17-dd41cc1d5dc2",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-multi",
+      "name": "Card-开单-三项-员工展开",
+      "captureId": "192a1ebf-cfcb-4801-bc87-2424e1f97568",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-multi-coupon",
+      "name": "Card-开单-三项-优惠展开",
+      "captureId": "92613e3a-08cf-4bae-927d-5ad34498af85",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-multi-pay",
+      "name": "Card-开单-三项-收款展开",
+      "captureId": "68f248c5-1e6e-49e2-80d1-604b6d07d3ac",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-multi-benefit",
+      "name": "Card-开单-三项-权益展开",
+      "captureId": "e59e76aa-39a3-4415-ae70-47fad8aaacd9",
+      "delay": 2600
+    },
+    {
+      "capture": "card-archive",
+      "name": "Card-归档确认",
+      "captureId": "a795571f-06a3-444b-8d69-18b4526b977f",
+      "delay": 2400
+    },
+    {
+      "capture": "card-cards",
+      "name": "Card-卡管理",
+      "captureId": "40eeba30-47a2-4f54-a0d6-0db57f87bba0",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-balance",
+      "name": "Card-卡管理-储值卡",
+      "captureId": "a0eb8c5c-6d9a-4d92-ba92-15bab7036456",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-times",
+      "name": "Card-卡管理-计次卡",
+      "captureId": "3f0aaf6d-8de4-4516-84db-8db7aaea3690",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-discount",
+      "name": "Card-卡管理-折扣卡",
+      "captureId": "337dbcf2-54fc-4669-85c4-284a6600472f",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-pack",
+      "name": "Card-卡管理-套餐卡",
+      "captureId": "8b3af25b-dc18-4579-a781-d6f17a77256e",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-period",
+      "name": "Card-卡管理-周期卡",
+      "captureId": "9d41c0b5-4a2f-42e1-a707-bad0e6a0f44f",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-expand",
+      "name": "Card-卡管理-模板展开",
+      "captureId": "54f5afa3-9f09-43c8-bf07-afbf09cfbec8",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-staff-roster",
+      "name": "Card-开单确认-选员工面板",
+      "captureId": "e26e2164-dead-4b43-952e-d8cad5732ee9",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-staff-multi",
+      "name": "Card-开单确认-多员工已选",
+      "captureId": "c56c47f7-3d83-4fa0-96a4-27b78e317d5a",
+      "delay": 2400
+    },
+    {
+      "capture": "page-pick-member",
+      "name": "Page-选择会员",
+      "captureId": "90b9ce10-1244-42af-b8be-13451301ab5d",
+      "delay": 2200
+    },
+    {
+      "capture": "table-empty",
+      "name": "InfoTable-空态",
+      "captureId": "2b46a6e2-acd8-4789-8923-c1e0dc286c69",
+      "delay": 2000
+    },
+    {
+      "capture": "table-swipe",
+      "name": "InfoTable-行左滑删除",
+      "captureId": "58700a76-7b96-4d7d-b031-41a91e06c6bb",
+      "delay": 2200
+    },
+    {
+      "capture": "shell-header-composer",
+      "name": "Shell-全屏Header+Composer",
+      "captureId": "2f16c0f3-77e9-4a75-ad53-d470ccb57c73",
+      "delay": 1800
+    }
+  ]
+}

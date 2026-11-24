@@ -1,0 +1,61 @@
+{
+  "fileKey": "XklWFkHzzSROjjkZhbZtKc",
+  "nodeId": "152:63",
+  "port": 8765,
+  "basePath": "/agent-chat.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "keepRealBitmaps": true,
+  "screens": [
+    {
+      "capture": "card-cards-balance",
+      "name": "Card-卡管理-储值卡",
+      "captureId": "a0eb8c5c-6d9a-4d92-ba92-15bab7036456",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-times",
+      "name": "Card-卡管理-计次卡",
+      "captureId": "3f0aaf6d-8de4-4516-84db-8db7aaea3690",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-discount",
+      "name": "Card-卡管理-折扣卡",
+      "captureId": "337dbcf2-54fc-4669-85c4-284a6600472f",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-pack",
+      "name": "Card-卡管理-套餐卡",
+      "captureId": "8b3af25b-dc18-4579-a781-d6f17a77256e",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-period",
+      "name": "Card-卡管理-周期卡",
+      "captureId": "9d41c0b5-4a2f-42e1-a707-bad0e6a0f44f",
+      "delay": 2200
+    },
+    {
+      "capture": "card-cards-expand",
+      "name": "Card-卡管理-模板展开",
+      "captureId": "54f5afa3-9f09-43c8-bf07-afbf09cfbec8",
+      "delay": 2200
+    },
+    {
+      "capture": "card-order-staff-roster",
+      "name": "Card-开单确认-选员工面板",
+      "captureId": "e26e2164-dead-4b43-952e-d8cad5732ee9",
+      "delay": 2400
+    },
+    {
+      "capture": "card-order-staff-multi",
+      "name": "Card-开单确认-多员工已选",
+      "captureId": "c56c47f7-3d83-4fa0-96a4-27b78e317d5a",
+      "delay": 2400
+    }
+  ]
+}

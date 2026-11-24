@@ -1,0 +1,85 @@
+{
+  "finishedAt": "2026-11-24T03:35:48.781Z",
+  "results": [
+    {
+      "capture": "card-order-stations",
+      "name": "Card-开单确认-员工展开",
+      "captureId": "ddc04e26-5dd3-48e8-a5c2-0dfcd6b67f1e",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-stations",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 15604
+    },
+    {
+      "capture": "card-order-coupon",
+      "name": "Card-开单确认-优惠展开",
+      "captureId": "9932ac9b-1364-425c-bb05-448547af67a2",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-coupon",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12869
+    },
+    {
+      "capture": "card-order-pay",
+      "name": "Card-开单确认-收款展开",
+      "captureId": "75151794-10a3-4264-ad83-60f4ba5d1d75",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-pay",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13795
+    },
+    {
+      "capture": "card-order-pay-member",
+      "name": "Card-开单确认-会员卡收款",
+      "captureId": "3a93012d-c57d-4e21-8f3d-4512690ee534",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-pay-member",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14357
+    },
+    {
+      "capture": "card-order-multi-draft",
+      "name": "Card-开单-三项确认-折叠",
+      "captureId": "a63ea583-9295-4cde-bd17-dd41cc1d5dc2",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-draft",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14937
+    },
+    {
+      "capture": "card-order-multi-coupon",
+      "name": "Card-开单-三项-优惠展开",
+      "captureId": "92613e3a-08cf-4bae-927d-5ad34498af85",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-coupon",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14986
+    },
+    {
+      "capture": "card-order-multi-pay",
+      "name": "Card-开单-三项-收款展开",
+      "captureId": "68f248c5-1e6e-49e2-80d1-604b6d07d3ac",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-pay",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13764
+    },
+    {
+      "capture": "card-order-multi-benefit",
+      "name": "Card-开单-三项-权益展开",
+      "captureId": "e59e76aa-39a3-4415-ae70-47fad8aaacd9",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-benefit",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 15987
+    }
+  ]
+}

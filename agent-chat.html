@@ -613,6 +613,7 @@ button{font:inherit;color:inherit}
 }
 .think-label.is-swap{opacity:0}
 
+/* ---------- InfoTable 信息表（价目为参照实现）：分类蓝 Tab + 灰条左文右数 + 底栏蓝按钮 ---------- */
 /* ---------- P1 功能卡：轻拟物价目册（区别于聊天气泡） ---------- */
 .bubble-agent{
   margin:0 0 10px;padding:12px 14px;border-radius:16px 16px 16px 6px;
@@ -1562,22 +1563,9 @@ button{font:inherit;color:inherit}
   margin:0 0 8px;font-size:12px;font-weight:650;color:#5a5560;line-height:1.3;
 }
 .ask-block .ask-chips{margin-top:0}
-.ask-pay-hint{
-  margin:0;padding:10px 12px;border-radius:10px;
-  font-size:12.5px;font-weight:600;color:#8a5a68;
-  background:rgba(194,80,106,.08);border:.5px dashed rgba(194,80,106,.28);
-}
-.ask-block.is-locked{opacity:.55;pointer-events:none}
 .msg-reply{
   display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 0 10px;
 }
-.msg-reply .ask-edit{
-  appearance:none;cursor:pointer;font-family:inherit;flex:none;
-  margin:0;padding:2px 0;border:0;background:transparent;
-  font-size:11px;font-weight:550;color:#8a7f88;
-  border-bottom:.5px dashed rgba(138,127,136,.45);
-}
-.msg-reply .ask-edit:active{color:var(--btn-blue)}
 
 /* ---------- 选择顾客（对齐 kaidan s4） ---------- */
 #pickCustomer{
@@ -1830,6 +1818,52 @@ html.is-mobile body {
   width: 100%;
 }
 html.is-mobile .prd-sync{display:none !important}
+
+/* ----- Figma capture: hide chrome + dormant layers ----- */
+html.capture-mode .site-nav,
+html.capture-mode .site-nav-scrim,
+html.capture-mode .prd-sync{display:none !important}
+html.capture-mode .stage{margin-left:0 !important;padding:0 !important}
+/* 去掉桌面「手机壳」投影，避免导 Figma 后整屏外圈阴影过重 */
+html.capture-mode #frame{
+  box-shadow:none !important;
+}
+/*
+ * html-to-design 对「大 blur + 负 spread」/多层 box-shadow 会画成过重双晕。
+ * 抓取时改用单层、无负 spread 的轻阴影，接近真机视觉且 Figma 不叠重。
+ */
+html.capture-mode .bubble-agent,
+html.capture-mode .ask-card,
+html.capture-mode .od-follow-card{
+  box-shadow:0 4px 12px rgba(80,30,50,.12) !important;
+}
+html.capture-mode .session-card,
+html.capture-mode .order-card{
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 5px 14px rgba(80,30,50,.12) !important;
+}
+html.capture-mode .bubble-reply{
+  box-shadow:0 3px 8px rgba(180,60,90,.16) !important;
+}
+html.capture-mode .robot{
+  filter:drop-shadow(0 6px 12px rgba(120,40,70,.14)) !important;
+}
+html.capture-mode .home-bg,
+html.capture-mode .home-tab-fade,
+html.capture-mode .home-tab,
+html.capture-mode .intro-veil,
+html.capture-mode .intro-well,
+html.capture-mode .intro-mascot,
+html.capture-mode .scrim{display:none !important}
+html.capture-mode #pickCustomer[hidden]{display:none !important}
+html.capture-mode .demo-panel[hidden],
+html.capture-mode .ask-card[hidden],
+html.capture-mode .order-card[hidden],
+html.capture-mode .od-follow-card[hidden],
+html.capture-mode .thinking:not(.is-on),
+html.capture-mode .msg-reply[hidden],
+html.capture-mode .bubble-agent[hidden],
+html.capture-mode .session-card[hidden],
+html.capture-mode #cardsCard[hidden]{display:none !important}
 html.is-mobile .stage {
   margin: 0;
   padding: 0;
@@ -2176,35 +2210,35 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         <h3>目标</h3>
         <ul>
           <li><span class="prd-tag">又快</span>离店窗口内最少轮次完成开单</li>
-          <li><span class="prd-tag">又稳</span>缺什么写在界面上；可「改」不重跑</li>
+          <li><span class="prd-tag">又稳</span>缺项写在卡上；确认卡可改细节</li>
           <li><span class="prd-tag">又听得懂</span>店里话、短句、「×× 块」</li>
         </ul>
         <h3>原则（P1–P6）</h3>
         <ul>
           <li>链路短 · 白话 · 主路径清楚</li>
           <li>说/点双通道 · 防错不拖堂</li>
-          <li>先结果后细节（追问零复杂，确认卡默认折）</li>
+          <li>先单独后合并 · 先结果后细节</li>
         </ul>
         <p class="prd-muted">侧栏切演示时，本窗跟到对应专章摘要。</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="price" id="prdPanelPrice" hidden>
-        <h3>§4 价目表</h3>
+        <h3>§4 价目表 · InfoTable</h3>
         <ul>
-          <li>只读单行：状态 | 名 | 价</li>
-          <li>分类 Tab · 只看在售 · 左滑删除</li>
+          <li>分类蓝 Tab · 灰条行左文右数</li>
+          <li>底栏蓝主按钮 / 幽灵次按钮</li>
         </ul>
-        <p class="prd-muted">原则：主路径清楚；结果卡 ≠ 聊天泡。</p>
+        <p class="prd-muted">信息表规范实例 · 结果卡 ≠ 聊天泡。</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="order-project" id="prdPanelOrderProject" hidden>
-        <h3>开单（主）· 项目确认</h3>
-        <p>只说项目起问 → 「按 泡泡染 298 块 开，对吗？」</p>
+        <h3>开单（主）· 服务项目</h3>
+        <p>单独追问（可换项目列表）→ 「项目按 泡泡染 开，对吗？」</p>
         <ul>
           <li><b>对，就这个</b> / <b>换一个</b>（在售短列表）</li>
-          <li>白话金额「×× 块」· 可「试试说一句」</li>
+          <li>价格不在此步确认</li>
         </ul>
-        <p class="prd-muted">§1.4 智能追问 · P2 白话</p>
+        <p class="prd-muted">§1.4 先单独 · 选项多可进子页</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="order-customer" id="prdPanelOrderCustomer" hidden>
@@ -2214,18 +2248,18 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           <li><b>选择会员</b>（主按钮）→ 选择顾客页，仅会员</li>
           <li>会员池 <code>STORE_MEMBERS</code> 与归档共用</li>
         </ul>
-        <p class="prd-muted">§1.4 智能追问 · P1 少二级页（最近需求仍进列表找人）</p>
+        <p class="prd-muted">§1.4 先单独 · 选会员进子页</p>
       </div>
 
-      <div class="prd-sync-panel" data-prd="order-checkout" id="prdPanelOrderCheckout" hidden>
-        <h3>开单（主）· 结账同卡</h3>
+      <div class="prd-sync-panel" data-prd="order-bundle" id="prdPanelOrderBundle" hidden>
+        <h3>开单（主）· 员工+收款</h3>
         <ul>
-          <li><b>谁做的？</b> 点 1 人即选中；「还要加人」；「稍后补」</li>
-          <li><b>怎么收钱？</b> 未选人时显示「先选谁做的」</li>
-          <li>主支付：微信 / 支付宝 / 现金；更多含会员卡</li>
-          <li>回声旁可「改」；进卡半句提示</li>
+          <li>主文只读带价「按 ×× 块」（不追问价格）</li>
+          <li><b>谁做的？</b> 与 <b>怎么收钱？</b> 同卡同时可选</li>
+          <li>点 1 人即选；还要加人；稍后补；未选人也可直接收款</li>
+          <li>回声无「改」；进卡半句提示；改价在确认卡</li>
         </ul>
-        <p class="prd-muted">§1.4 离店加速 · P1 链路短 · P5 防错</p>
+        <p class="prd-muted">§1.4 后合并 · 选项少同卡</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="order-draft" id="prdPanelOrderDraft" hidden>
@@ -2240,9 +2274,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
       <div class="prd-sync-panel" data-prd="order-multi" id="prdPanelOrderMulti" hidden>
         <h3>开单 · 三项（对照）</h3>
-        <p>首句已含顾客 + 三项 → 跳过项目/顾客，直接 <b>员工+收款同卡</b>。</p>
+        <p>首句已含顾客 + 三项 → 跳过项目/顾客，直接 <b>员工+收款</b> 合并卡。</p>
         <ul>
-          <li>与主路径同一套结账组件</li>
+          <li>与主路径同一套合并追问组件</li>
           <li>确认卡内再按项细调员工/权益</li>
         </ul>
         <p class="prd-muted">§1.4 入口角色 · 对照路径</p>
@@ -2380,7 +2414,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var demoMode = "price"; /* price | order | orderMulti | archive | cards */
   var orderDemoVariant = "single"; /* single | multi */
   var flowKind = "order"; /* order | archive — 共用开单确认卡壳 */
-  var orderAskStep = "project"; /* project | projectPick | customer | checkout */
+  var orderAskStep = "project"; /* project | projectPick | customer | bundle */
   var orderAskStaffIds = [];
   var orderAskStaffExpand = false;
   var orderAskStaffLater = false;
@@ -3197,8 +3231,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           key = "order-customer";
           label = "开单 · 顾客";
         } else {
-          key = "order-checkout";
-          label = "开单 · 结账同卡";
+          key = "order-bundle";
+          label = "开单 · 员工收款";
         }
       } else {
         key = "order-draft";
@@ -5781,7 +5815,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     project: { text: "对，泡泡染", action: "projectOk" },
     projectPick: { text: "改成总监剪发", action: "projectName", value: "总监剪发" },
     customer: { text: "李女士", action: "member", value: "m-li" },
-    checkout: { text: "Tony，微信", action: "checkout", staff: ["tony"], pay: "微信" }
+    bundle: { text: "Tony，微信", action: "bundle", staff: ["tony"], pay: "微信" }
   };
   var ASK_REPLY_ORDER = ["project", "customer", "staff", "pay"];
 
@@ -5796,11 +5830,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   function moneyPlain(v) {
     return Math.round(Number(v) || 0) + " 块";
   }
-  function askProjectLabel() {
-    return (orderData.serviceShort || "项目") + " " + moneyPlain(orderData.price || 0);
+  function askProjectNameOnly() {
+    return orderData.serviceShort || "项目";
   }
-  function staffReadyForPay() {
-    return orderAskStaffLater || orderAskStaffIds.length > 0;
+  function askPriceNum() {
+    if (isMultiItem()) {
+      return orderItems().reduce(function (s, it) { return s + (Number(it.price) || 0); }, 0);
+    }
+    return Number(orderData.price) || 0;
+  }
+  function resetBundleAskFlags() {
+    orderAskStaffIds = [];
+    orderAskStaffExpand = false;
+    orderAskStaffLater = false;
   }
   function applyAskProjectByName(name) {
     var row = null;
@@ -5833,10 +5875,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orderData.phoneTail = c.phoneTail || "";
     orderData.memberType = c.memberType || "";
     upsertOrderAskReply("customer", "<span>" + escapeHtml(c.label || c.name) + "</span>");
-    orderAskStep = "checkout";
-    orderAskStaffIds = [];
-    orderAskStaffExpand = false;
-    orderAskStaffLater = false;
+    orderAskStep = "bundle";
+    resetBundleAskFlags();
     renderSmartOrderAsk();
     requestAnimationFrame(updateScrollHint);
   }
@@ -5903,9 +5943,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var row = document.createElement("div");
     row.className = "msg-reply";
     if (key) row.setAttribute("data-ask-key", key);
-    row.innerHTML =
-      '<div class="bubble-reply">' + html + "</div>" +
-      (key ? '<button type="button" class="ask-edit" data-ask-edit="' + key + '">改</button>' : "");
+    row.innerHTML = '<div class="bubble-reply">' + html + "</div>";
     orderAskReplies.appendChild(row);
     motionEnter(row, "reply");
     bumpAskCard();
@@ -5943,43 +5981,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     motionEnter(row);
     bumpAskCard();
     return row;
-  }
-  function beginAskEdit(key) {
-    if (flowKind !== "order") return;
-    closePickCustomer();
-    if (orderCard) orderCard.hidden = true;
-    hideFollowCard();
-    orderStep = "ask";
-    orderPhase = "draft";
-    if (key === "project") {
-      trimAskRepliesKeys(["project"]);
-      orderAskStep = "project";
-    } else if (key === "customer") {
-      trimAskRepliesKeys(["customer", "pay"]);
-      orderAskStep = "customer";
-      orderData.payments = [];
-      orderOpenSec = null;
-    } else if (key === "staff") {
-      trimAskRepliesKeys(["staff"]);
-      orderAskStep = "checkout";
-      orderAskStaffIds = [];
-      orderAskStaffExpand = false;
-      orderAskStaffLater = false;
-      applyAskStaffIds([]);
-    } else if (key === "pay") {
-      trimAskRepliesKeys(["pay"]);
-      orderAskStep = "checkout";
-      orderData.payments = [];
-      orderOpenSec = null;
-    }
-    if (askCard) {
-      askCard.hidden = false;
-      renderSmartOrderAsk();
-      motionEnter(askCard);
-    }
-    bumpAskCard();
-    requestAnimationFrame(updateScrollHint);
-    syncPrdPanel();
   }
   function syncItemStationsFromRoot() {
     var items = orderItems();
@@ -6056,13 +6057,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       more: more.map(chip).join("")
     };
   }
-  function renderCheckoutAsk() {
+  function renderBundleAsk() {
     var svc = isMultiItem()
       ? (orderData.serviceShort || "这几项")
       : (orderData.serviceShort || "项目");
+    var amt = askPriceNum();
     askText.textContent =
-      "好，" + (orderData.name || "这位顾客") + " · " + svc + "。选完人就能收钱啦。";
-    var ready = staffReadyForPay();
+      "好，" + (orderData.name || "这位顾客") + " · " + svc +
+      "，按 " + moneyPlain(amt) + "。选一下员工和收款方式就行。";
+
     var showAllStaff = orderAskStaffExpand || !orderAskStaffIds.length;
     var staffHtml = "";
     if (showAllStaff) {
@@ -6086,24 +6089,23 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         (orderAskStaffLater ? "已稍后补" : "稍后补") + "</button>";
 
     var payPart = payChipsHtml(true);
-    var payBlock = ready
-      ? ('<p class="ask-sub">怎么收钱？</p><div class="ask-chips">' + payPart.primary + "</div>")
-      : '<p class="ask-pay-hint">先选谁做的</p>';
-
     askChipsPrimary.innerHTML =
       '<div class="ask-block">' +
         '<p class="ask-sub">谁做的？</p>' +
         '<div class="ask-chips">' + staffHtml + "</div>" +
       "</div>" +
-      '<div class="ask-block' + (ready ? "" : " is-locked") + '">' + payBlock + "</div>";
-    askChipsMore.innerHTML = ready ? payPart.more : "";
+      '<div class="ask-block">' +
+        '<p class="ask-sub">怎么收钱？</p>' +
+        '<div class="ask-chips">' + payPart.primary + "</div>" +
+      "</div>";
+    askChipsMore.innerHTML = payPart.more;
     askCard.classList.toggle("is-more-on", false);
     setAskSayVisible(true);
   }
   function renderSmartOrderAsk() {
     askCard.classList.remove("is-more-on");
     if (orderAskStep === "project") {
-      askText.textContent = "按 " + askProjectLabel() + " 开，对吗？";
+      askText.textContent = "项目按 " + askProjectNameOnly() + " 开，对吗？";
       askChipsPrimary.innerHTML =
         '<button type="button" class="ask-pay is-ask-done" data-ask-project="ok">对，就这个</button>' +
         '<button type="button" class="ask-pay" data-ask-project="swap">换一个</button>';
@@ -6135,7 +6137,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       syncPrdPanel();
       return;
     }
-    renderCheckoutAsk();
+    renderBundleAsk();
     syncPrdPanel();
   }
   function resetSmartOrderDraft() {
@@ -6147,19 +6149,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     orderData.payments = [];
     syncItemStationsFromRoot();
     orderAskStep = "project";
-    orderAskStaffIds = [];
-    orderAskStaffExpand = false;
-    orderAskStaffLater = false;
+    resetBundleAskFlags();
     closePickCustomer();
   }
   function resetMultiSmartOrderDraft() {
     orderData = seedMultiOrderDraft();
-    orderAskStaffIds = [];
-    orderAskStaffExpand = false;
-    orderAskStaffLater = false;
+    resetBundleAskFlags();
     applyAskStaffIds([]);
     orderData.payments = [];
-    orderAskStep = "checkout";
+    orderAskStep = "bundle";
     closePickCustomer();
   }
 
@@ -6237,7 +6235,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       resetMultiSmartOrderDraft();
       if (orderAgentNote) {
         orderAgentNote.textContent =
-          "三项都记下啦，李女士的～还差员工和收款，可以说或点选。";
+          "三项都记下啦，李女士的～选员工和收款就行。";
         revealWithEnter(orderAgentNote);
       }
       renderSmartOrderAsk();
@@ -6468,11 +6466,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
 
   function commitAskPayment(pay) {
-    if (!staffReadyForPay()) return;
     applyAskStaffIds(orderAskStaffLater ? [] : orderAskStaffIds.slice());
     upsertOrderAskReply(
       "staff",
-      "<span>" + escapeHtml(orderAskStaffLater ? "稍后补" : staffAskSummary(orderAskStaffIds)) + "</span>"
+      "<span>" + escapeHtml(orderAskStaffLater || !orderAskStaffIds.length
+        ? "稍后补"
+        : staffAskSummary(orderAskStaffIds)) + "</span>"
     );
     if (pay === "跳过") {
       orderData.payments = [{ method: "现金", amount: String(effectivePayable()) }];
@@ -6511,14 +6510,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!tip) return;
     if (tip.action === "projectOk") {
       upsertOrderAskReply("project", "<span>" + escapeHtml(tip.text) + "</span>");
-      orderAskStep = orderData.name ? "checkout" : "customer";
+      orderAskStep = orderData.name ? "bundle" : "customer";
+      if (orderAskStep === "bundle") resetBundleAskFlags();
       renderSmartOrderAsk();
       return;
     }
     if (tip.action === "projectName") {
       applyAskProjectByName(tip.value);
       upsertOrderAskReply("project", "<span>" + escapeHtml(tip.text) + "</span>");
-      orderAskStep = orderData.name ? "checkout" : "customer";
+      orderAskStep = orderData.name ? "bundle" : "customer";
+      if (orderAskStep === "bundle") resetBundleAskFlags();
       renderSmartOrderAsk();
       return;
     }
@@ -6526,7 +6527,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       applyPickedCustomer(storeMemberById(tip.value));
       return;
     }
-    if (tip.action === "checkout") {
+    if (tip.action === "bundle") {
       orderAskStaffLater = false;
       orderAskStaffExpand = false;
       orderAskStaffIds = (tip.staff || []).slice();
@@ -6583,14 +6584,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       return;
     }
 
-    /* 智能追问：项目 → 顾客 → 员工+收款同卡 */
+    /* 智能追问：项目 → 顾客 → 员工+收款合并（价格只读带入，不重复确认） */
     if (flowKind === "order") {
       var projBtn = e.target.closest("[data-ask-project]");
       if (projBtn && orderAskStep === "project") {
         var pact = projBtn.getAttribute("data-ask-project");
         if (pact === "ok") {
           upsertOrderAskReply("project", "<span>对，就这个</span>");
-          orderAskStep = orderData.name ? "checkout" : "customer";
+          orderAskStep = orderData.name ? "bundle" : "customer";
+          if (orderAskStep === "bundle") resetBundleAskFlags();
           renderSmartOrderAsk();
           requestAnimationFrame(updateScrollHint);
           return;
@@ -6605,7 +6607,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         var iname = itemBtn.getAttribute("data-ask-item");
         applyAskProjectByName(iname);
         upsertOrderAskReply("project", "<span>" + escapeHtml(iname) + "</span>");
-        orderAskStep = orderData.name ? "checkout" : "customer";
+        orderAskStep = orderData.name ? "bundle" : "customer";
+        if (orderAskStep === "bundle") resetBundleAskFlags();
         renderSmartOrderAsk();
         requestAnimationFrame(updateScrollHint);
         return;
@@ -6621,7 +6624,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         setTimeout(function () { applyPickedCustomer(guest); }, MOTION_REDUCED ? 0 : 140);
         return;
       }
-      if (orderAskStep === "checkout") {
+      if (orderAskStep === "bundle") {
         var pickStaff = e.target.closest("[data-ask-staff-pick]");
         if (pickStaff) {
           pickAskStaff(pickStaff.getAttribute("data-ask-staff-pick"));
@@ -6647,7 +6650,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
     var btn = e.target.closest("[data-pay]");
     if (!btn) return;
-    if (flowKind === "order" && orderAskStep === "checkout" && !staffReadyForPay()) return;
     var pay = btn.getAttribute("data-pay");
     if (pay === "更多") {
       askCard.classList.toggle("is-more-on");
@@ -6657,14 +6659,6 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     btn.classList.add("is-picked");
     commitAskPayment(pay);
   });
-
-  if (orderAskReplies) {
-    orderAskReplies.addEventListener("click", function (e) {
-      var edit = e.target.closest("[data-ask-edit]");
-      if (!edit) return;
-      beginAskEdit(edit.getAttribute("data-ask-edit"));
-    });
-  }
 
   odFields.addEventListener("input", function (e) {
     var ta = e.target.closest("[data-ar-remark]");
@@ -6812,11 +6806,320 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   navThink.addEventListener("click", runThinkDemo);
 
-  /* 初始：价目表演示；首页若有未提示自助单则弹出 TAB 气泡 */
-  sessionCard.hidden = false;
-  motionEnter(sessionCard);
-  requestAnimationFrame(updateScrollHint);
-  setTimeout(function () { showTabTip(); }, 700);
+  /* ----- Figma capture (?capture=) — must live in this IIFE (needs setMode etc.) ----- */
+  var __figmaCapture = new URLSearchParams(location.search).get("capture");
+  (function runFigmaCapture() {
+    var cap = __figmaCapture;
+    if (!cap) return;
+    document.documentElement.classList.add("capture-mode");
+    var userMsg = document.getElementById("userMsg");
+    try { stopIntro(); } catch (e) { /* */ }
+    setMode("fullscreen");
+
+    function hideAllPanels() {
+      if (panelPrice) panelPrice.hidden = true;
+      if (panelOrder) panelOrder.hidden = true;
+      if (panelCards) panelCards.hidden = true;
+    }
+    function showPriceOnly() {
+      hideAllPanels();
+      if (panelPrice) panelPrice.hidden = false;
+      demoMode = "price";
+      flowKind = "order";
+      if (typeof renderPriceCard === "function") renderPriceCard();
+    }
+    function prepOrderAsk(step, multi) {
+      hideAllPanels();
+      if (panelOrder) panelOrder.hidden = false;
+      demoMode = multi ? "orderMulti" : "order";
+      flowKind = "order";
+      startOrderFlow(false, { multi: !!multi });
+      orderAskStep = step;
+      if (step === "bundle") {
+        if (!orderData.name) {
+          orderData.name = "李女士";
+          orderData.phoneTail = "8903";
+          orderData.memberType = "持卡会员";
+        }
+        resetBundleAskFlags();
+      }
+      if (orderAgentNote) orderAgentNote.hidden = true;
+      clearOrderAskReplies();
+      if (askCard) {
+        askCard.hidden = false;
+        renderSmartOrderAsk();
+      }
+      if (orderCard) orderCard.hidden = true;
+      if (orderReply) orderReply.hidden = true;
+      stopThinking();
+    }
+    function prepOrderDraft(multi, opts) {
+      opts = opts || {};
+      hideAllPanels();
+      if (panelOrder) panelOrder.hidden = false;
+      demoMode = multi ? "orderMulti" : "order";
+      flowKind = "order";
+      startOrderFlow(false, { multi: !!multi });
+      if (!orderData.name) {
+        orderData.name = "李女士";
+        orderData.phoneTail = "8903";
+        orderData.memberType = "持卡会员";
+      }
+      var staffIds = opts.staffIds || ["tony"];
+      orderAskStaffIds = staffIds.slice();
+      if (opts.staffAllOnBig) {
+        orderData.stations = [
+          { id: "big", name: "大工", staff: staffIds.slice() },
+          { id: "mid", name: "中工", staff: [] },
+          { id: "small", name: "小工", staff: [] }
+        ];
+        if (typeof syncItemStationsFromRoot === "function") syncItemStationsFromRoot();
+        if (typeof resyncRows === "function") resyncRows();
+      } else {
+        applyAskStaffIds(staffIds);
+      }
+      var payMethod = opts.payMethod || "微信";
+      var amt = String(typeof effectivePayable === "function" ? effectivePayable() : orderData.price || 298);
+      if (payMethod === "会员卡") {
+        orderData.payments = [{ method: "会员卡", amount: amt, gift: "30" }];
+      } else {
+        orderData.payments = [{ method: payMethod, amount: amt }];
+      }
+      clearOrderAskReplies();
+      if (askCard) askCard.hidden = true;
+      if (orderAgentNote) orderAgentNote.hidden = true;
+      showDraftStage();
+      /* showDraftStage 后覆盖展开态 */
+      if (opts.openSec !== undefined) orderOpenSec = opts.openSec;
+      if (opts.benefitOpen) {
+        var items = typeof orderItems === "function" ? orderItems() : [];
+        var target = items[0];
+        if (opts.benefitItemIndex != null && items[opts.benefitItemIndex]) {
+          target = items[opts.benefitItemIndex];
+        }
+        itemBenefitOpen = target ? target.id : null;
+        if (itemBenefitOpen) orderOpenSec = "stations";
+      }
+      if (opts.rosterOpen) {
+        var rosterItem = (typeof orderItems === "function" && orderItems()[0]) || null;
+        stationRoster = rosterItem && rosterItem.id
+          ? (rosterItem.id + "|" + opts.rosterOpen)
+          : opts.rosterOpen;
+        orderOpenSec = "stations";
+      }
+      if (typeof renderOrderCard === "function") renderOrderCard();
+    }
+    function prepCards(opts) {
+      opts = opts || {};
+      hideAllPanels();
+      if (panelCards) panelCards.hidden = false;
+      demoMode = "cards";
+      startCardsFlow(false);
+      mcState.type = opts.type || "balance";
+      mcState.openId = opts.openId || null;
+      mcState.showAll = !!opts.showAll;
+      if (typeof renderCardsCard === "function") renderCardsCard();
+      if (cardsAgentNote) cardsAgentNote.hidden = false;
+      if (thinkingCards) thinkingCards.classList.remove("is-on");
+    }
+
+    if (cap === "bubble-user") {
+      showPriceOnly();
+      if (thinking) thinking.classList.remove("is-on");
+      if (agentNote) agentNote.hidden = true;
+      if (sessionCard) sessionCard.hidden = true;
+      return;
+    }
+    if (cap === "bubble-agent") {
+      showPriceOnly();
+      if (thinking) thinking.classList.remove("is-on");
+      if (agentNote) agentNote.hidden = false;
+      if (sessionCard) sessionCard.hidden = true;
+      if (userMsg) userMsg.hidden = true;
+      return;
+    }
+    if (cap === "bubble-reply") {
+      prepOrderAsk("bundle", false);
+      upsertOrderAskReply("staff", "<span>Tony薛</span>");
+      upsertOrderAskReply("pay", (typeof payIconHtml === "function" ? payIconHtml("微信") : "") + "<span>微信</span>");
+      if (askCard) askCard.hidden = true;
+      return;
+    }
+    if (cap === "state-thinking") {
+      showPriceOnly();
+      if (agentNote) agentNote.hidden = true;
+      if (sessionCard) sessionCard.hidden = true;
+      useHopTarget("price");
+      startThinking();
+      return;
+    }
+    if (cap === "card-price") {
+      showPriceOnly();
+      if (thinking) thinking.classList.remove("is-on");
+      if (agentNote) agentNote.hidden = false;
+      if (sessionCard) sessionCard.hidden = false;
+      return;
+    }
+    if (cap === "card-ask-project") {
+      prepOrderAsk("project", false);
+      return;
+    }
+    if (cap === "card-ask-customer") {
+      prepOrderAsk("customer", false);
+      upsertOrderAskReply("project", "<span>对，就这个</span>");
+      return;
+    }
+    if (cap === "card-ask-bundle") {
+      prepOrderAsk("bundle", false);
+      upsertOrderAskReply("project", "<span>对，就这个</span>");
+      upsertOrderAskReply("customer", "<span>李女士</span>");
+      return;
+    }
+    if (cap === "card-order-draft") {
+      prepOrderDraft(false, { openSec: null });
+      return;
+    }
+    if (cap === "card-order-stations") {
+      prepOrderDraft(false, { openSec: "stations" });
+      return;
+    }
+    if (cap === "card-order-coupon") {
+      prepOrderDraft(false, { openSec: "coupon" });
+      return;
+    }
+    if (cap === "card-order-pay") {
+      prepOrderDraft(false, { openSec: "pay", payMethod: "微信" });
+      return;
+    }
+    if (cap === "card-order-pay-member") {
+      prepOrderDraft(false, { openSec: "pay", payMethod: "会员卡" });
+      return;
+    }
+    if (cap === "card-order-success") {
+      prepOrderDraft(false, { openSec: null });
+      setTimeout(function () {
+        if (typeof approveOrder === "function") approveOrder();
+      }, 80);
+      return;
+    }
+    if (cap === "card-order-multi-draft") {
+      prepOrderDraft(true, { openSec: null });
+      return;
+    }
+    if (cap === "card-order-multi") {
+      prepOrderDraft(true, { openSec: "stations" });
+      return;
+    }
+    if (cap === "card-order-multi-coupon") {
+      prepOrderDraft(true, { openSec: "coupon" });
+      return;
+    }
+    if (cap === "card-order-multi-pay") {
+      prepOrderDraft(true, { openSec: "pay", payMethod: "微信" });
+      return;
+    }
+    if (cap === "card-order-multi-benefit") {
+      prepOrderDraft(true, { openSec: "stations", benefitOpen: true, benefitItemIndex: 0 });
+      return;
+    }
+    if (cap === "card-archive") {
+      hideAllPanels();
+      if (panelOrder) panelOrder.hidden = false;
+      demoMode = "archive";
+      startArchiveFlow(false);
+      var pending = typeof pendingSelfPay === "function" ? pendingSelfPay() : [];
+      if (pending[0] && typeof openArchiveDraft === "function") openArchiveDraft(pending[0].id);
+      return;
+    }
+    if (cap === "card-cards" || cap === "card-cards-balance") {
+      prepCards({ type: "balance" });
+      return;
+    }
+    if (cap === "card-cards-times") {
+      prepCards({ type: "times" });
+      return;
+    }
+    if (cap === "card-cards-discount") {
+      prepCards({ type: "discount" });
+      return;
+    }
+    if (cap === "card-cards-pack") {
+      prepCards({ type: "pack" });
+      return;
+    }
+    if (cap === "card-cards-period") {
+      prepCards({ type: "period" });
+      return;
+    }
+    if (cap === "card-cards-expand") {
+      prepCards({ type: "balance", openId: "b1" });
+      return;
+    }
+    if (cap === "card-order-staff-roster") {
+      prepOrderDraft(false, { openSec: "stations", rosterOpen: "big", staffIds: ["tony"] });
+      return;
+    }
+    if (cap === "card-order-staff-multi") {
+      prepOrderDraft(false, {
+        openSec: "stations",
+        staffIds: ["tony", "he"],
+        staffAllOnBig: true
+      });
+      return;
+    }
+    if (cap === "page-pick-member") {
+      prepOrderAsk("customer", false);
+      if (typeof openPickCustomer === "function") openPickCustomer();
+      return;
+    }
+    if (cap === "table-empty") {
+      showPriceOnly();
+      if (thinking) thinking.classList.remove("is-on");
+      if (agentNote) agentNote.hidden = false;
+      if (sessionCard) sessionCard.hidden = false;
+      if (typeof applyTab === "function") applyTab("烫护");
+      if (typeof applyFilter === "function") applyFilter(true);
+      if (fnList && !fnList.querySelector(".fn-empty")) {
+        fnList.innerHTML = '<p class="fn-empty">当前分类暂无在售项目</p>';
+        if (fnMoreWrap) fnMoreWrap.hidden = true;
+      }
+      return;
+    }
+    if (cap === "table-swipe") {
+      showPriceOnly();
+      if (thinking) thinking.classList.remove("is-on");
+      if (agentNote) agentNote.hidden = false;
+      if (sessionCard) sessionCard.hidden = false;
+      setTimeout(function () {
+        var swipe = fnList && fnList.querySelector(".fn-swipe");
+        if (swipe) {
+          swipe.classList.add("is-open");
+          var trackEl = swipe.querySelector(".fn-swipe-track");
+          if (trackEl) trackEl.style.transform = "translateX(-84px)";
+        }
+      }, 100);
+      return;
+    }
+    if (cap === "shell-header-composer") {
+      hideAllPanels();
+      if (panelPrice) {
+        panelPrice.hidden = false;
+        if (userMsg) userMsg.hidden = true;
+        if (thinking) thinking.classList.remove("is-on");
+        if (agentNote) agentNote.hidden = true;
+        if (sessionCard) sessionCard.hidden = true;
+      }
+      return;
+    }
+  })();
+
+  /* 初始：价目表演示；抓取模式跳过 */
+  if (!__figmaCapture) {
+    sessionCard.hidden = false;
+    motionEnter(sessionCard);
+    requestAnimationFrame(updateScrollHint);
+    setTimeout(function () { showTabTip(); }, 700);
+  }
 })();
 
 /* run-on-phone */

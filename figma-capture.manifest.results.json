@@ -1,0 +1,15 @@
+{
+  "finishedAt": "2026-11-24T03:38:27.150Z",
+  "results": [
+    {
+      "capture": "card-order-multi",
+      "name": "Card-开单-三项-员工展开",
+      "captureId": "192a1ebf-cfcb-4801-bc87-2424e1f97568",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 38137
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "finishedAt": "2026-11-24T03:53:33.394Z",
+  "results": [
+    {
+      "capture": "card-order-staff-roster",
+      "name": "Card-开单确认-选员工面板",
+      "captureId": "e26e2164-dead-4b43-952e-d8cad5732ee9",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-staff-roster",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 17368
+    }
+  ]
+}
