@@ -489,6 +489,7 @@ button{font:inherit;color:inherit}
   scrollbar-width:thin;
 }
 .msg-user{display:flex;justify-content:flex-end;margin:4px 0 12px}
+.msg-user[hidden]{display:none !important}
 /* ---------- motion system (iOS B pack) ---------- */
 @keyframes motion-rise{
   from{opacity:0;transform:translateY(10px) scale(.985)}
@@ -613,7 +614,7 @@ button{font:inherit;color:inherit}
 }
 .think-label.is-swap{opacity:0}
 
-/* ---------- InfoTable 信息表（价目为参照实现）：分类蓝 Tab + 灰条左文右数 + 底栏蓝按钮 ---------- */
+/* ---------- InfoTable 信息表（价目为参照实现）：分类蓝 Tab + 白行发丝线左文右数 + 底栏蓝按钮 ---------- */
 /* ---------- P1 功能卡：轻拟物价目册（区别于聊天气泡） ---------- */
 .bubble-agent{
   margin:0 0 10px;padding:12px 14px;border-radius:16px 16px 16px 6px;
@@ -636,12 +637,8 @@ button{font:inherit;color:inherit}
 }
 .session-card[hidden]{display:none !important}
 
-.fn-head{
-  display:flex;align-items:center;gap:10px;
-  padding:12px 14px 10px;
-  background:linear-gradient(105deg,#f7f0ff 0%,#ffe9f0 48%,#fff6f0 100%);
-  border-bottom:1px solid rgba(80,40,70,.06);
-}
+/* 结果卡头（机器人标 / 标题 / pill）已去掉，白底卡片直接进内容区 */
+.fn-head{display:none !important}
 .fn-ico{
   width:34px;height:34px;flex:none;
   display:grid;place-items:center;
@@ -675,8 +672,8 @@ button{font:inherit;color:inherit}
   background:var(--btn-fill);border-color:var(--btn-stroke-soft);color:var(--btn-blue);font-weight:600;
 }
 
-.fn-list{padding:0 8px 4px;max-height:none;position:relative}
-.fn-group{margin:0 0 6px}
+.fn-list{padding:2px 0 4px;max-height:none;position:relative}
+.fn-group{margin:0}
 .fn-more-wrap{display:none !important}
 
 /* 分类选择的 Chip 组（替代下拉） */
@@ -692,15 +689,15 @@ button{font:inherit;color:inherit}
   background:var(--btn-fill);border-color:var(--btn-stroke-soft);font-weight:600;
 }
 .fn-group-title{
-  margin:0;padding:8px 8px 4px;font-size:11.5px;font-weight:650;
+  margin:0;padding:10px 16px 4px;font-size:11px;font-weight:650;
   color:#8a7f88;letter-spacing:.04em;
 }
-.fn-item{margin:0 2px 6px;border-radius:12px;overflow:hidden}
+.fn-item{margin:0;border-radius:0;overflow:hidden}
 /* ---------- 左滑删除：动作块藏在行下方，只有滑开才可见 ---------- */
 /* touch-action:pan-y 让竖滑交给浏览器、横滑交给我们；鼠标拖拽同样走 Pointer Events */
 /* user-select:none 常驻：PC 上鼠标长拖不会拖出蓝色选区，也不会触发原生拖拽打断手势 */
 .fn-swipe{
-  position:relative;overflow:hidden;border-radius:12px;
+  position:relative;overflow:hidden;border-radius:0;
   touch-action:pan-y;
   -webkit-user-select:none;user-select:none;
 }
@@ -734,13 +731,17 @@ button{font:inherit;color:inherit}
 .fn-row{
   display:flex;align-items:center;gap:10px;
   width:100%;box-sizing:border-box;
-  padding:8px 12px;cursor:default;min-height:40px;
-  background:#faf9fb;border:1px solid rgba(26,26,26,.04);
-  border-radius:12px;
-  transition:background .18s ease,border-color .18s ease,box-shadow .18s ease;
+  padding:9px 16px;cursor:default;min-height:36px;
+  border:0;border-radius:0;background-color:#fff;
+  /* 发丝线左右缩进 16 */
+  background-image:linear-gradient(to right, transparent 16px, rgba(26,26,26,.1) 16px, rgba(26,26,26,.1) calc(100% - 16px), transparent calc(100% - 16px));
+  background-size:100% 1px;background-repeat:no-repeat;background-position:left bottom;
+  transition:background-color .18s ease;
   -webkit-tap-highlight-color:transparent;
 }
-.fn-row.is-off{opacity:.55;background:#f5f5f6}
+.fn-group .fn-item:last-child .fn-row,
+.fn-list > .fn-item:last-child .fn-row{background-image:none}
+.fn-row.is-off{opacity:.55;background-color:#fafafa}
 .fn-row-status{
   display:inline-flex;align-items:center;gap:5px;flex:none;
   font-size:11px;font-weight:500;color:#6a6a72;line-height:1.2;
@@ -764,7 +765,7 @@ button{font:inherit;color:inherit}
 }
 .fn-row.is-off .fn-dot{background:#b0b0b0}
 .fn-item.is-saved .fn-row{
-  background:#f3faf5;box-shadow:inset 0 0 0 1px rgba(52,199,89,.28);
+  background-color:#f3faf5;
 }
 .pay-amt-ro{
   font-size:12.5px;font-weight:600;color:#1a1a1a;
@@ -918,11 +919,35 @@ button{font:inherit;color:inherit}
 #mcTabs .fn-tab{
   flex:1 1 0;min-width:0;padding:0 2px;font-size:11.5px;
 }
-.mc-list{padding:0 8px 6px;display:flex;flex-direction:column;gap:8px}
+.mc-list{padding:0 8px 8px;display:flex;flex-direction:column;gap:6px}
 .mc-card{
-  border-radius:12px;overflow:hidden;
+  border-radius:10px;overflow:hidden;
   border:.5px solid rgba(26,26,26,.06);
   background:#faf9fb;
+}
+.mc-card.is-compact .mc-card-main{
+  padding:8px 10px 8px 12px;cursor:default;
+}
+.mc-card.is-compact .mc-card-main::before{top:8px;bottom:8px}
+.mc-card.is-compact .mc-card-top{margin-bottom:0;padding-left:6px}
+.mc-card.is-compact .mc-card-name{font-size:13px}
+.mc-card.is-compact .mc-compact-meta{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:4px;padding-left:6px;
+  font-size:11.5px;font-weight:550;color:#6a6a72;line-height:1.3;
+}
+.mc-card.is-compact .mc-compact-meta b{
+  font-weight:650;color:#2a2a30;font-variant-numeric:tabular-nums;
+}
+.mc-detail-wrap{
+  position:relative;margin:10px 0 12px;
+}
+.mc-detail-wrap[hidden]{display:none !important}
+.mc-detail-wrap .mc-card{margin:0}
+.mc-detail-foot{
+  display:grid;grid-template-columns:1fr;gap:8px;
+  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
+  background:rgba(255,255,255,.55);
 }
 .mc-card.is-balance{background:linear-gradient(135deg,#eef5fc 0%,#f7fbff 55%,#fff 100%);border-color:rgba(70,130,200,.14)}
 .mc-card.is-times{background:linear-gradient(135deg,#fceef3 0%,#fff7fa 55%,#fff 100%);border-color:rgba(190,90,130,.14)}
@@ -980,7 +1005,7 @@ button{font:inherit;color:inherit}
 .mc-card.is-open .mc-expand-hint{display:none}
 .mc-detail{
   padding:0 12px 11px 18px;
-  border-top:.5px dashed rgba(26,26,26,.08);
+  border-top:0;
   animation:motion-chip-in .22s var(--ease-out) both;
 }
 .mc-detail[hidden]{display:none !important}
@@ -1038,12 +1063,7 @@ button{font:inherit;color:inherit}
     0 10px 28px -18px rgba(80,30,50,.28),
     0 2px 6px rgba(40,20,30,.05);
 }
-.od-head{
-  display:flex;align-items:center;gap:10px;
-  padding:12px 14px 10px;
-  background:linear-gradient(105deg,#f7f0ff 0%,#ffe9f0 48%,#fff6f0 100%);
-  border-bottom:1px solid rgba(80,40,70,.06);
-}
+.od-head{display:none !important}
 .od-titles{flex:1;min-width:0}
 .od-title{margin:0;font-size:15px;font-weight:650;color:#1a1a1a}
 .od-pill{
@@ -2122,7 +2142,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
             </div><!-- #panelOrder -->
 
             <div class="demo-panel" id="panelCards" data-demo="cards" hidden>
-              <div class="msg-user" id="cardsUserMsg">
+              <div class="msg-user" id="cardsUserMsg" hidden>
                 <div class="bubble-user">店里现在有哪些会员卡？</div>
               </div>
 
@@ -2135,7 +2155,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <span class="think-label" id="thinkLabelCards">思考中</span>
               </div>
 
-              <div class="bubble-agent" id="cardsAgentNote" hidden>已整理店内会员卡模板，可按卡种查看；点卡片可查看更多。</div>
+              <div class="bubble-agent" id="cardsAgentNote" hidden>店里会员卡我按卡种列好了，每张只标人数和售价。想看哪张详情，直接跟我说名字就行。</div>
 
               <article class="session-card" id="cardsCard" aria-label="卡管理" hidden>
                 <header class="fn-head">
@@ -2160,6 +2180,23 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 </footer>
                 <div class="fn-toast" id="mcToast" role="status"></div>
               </article>
+
+              <div class="msg-user" id="cardsDetailUserMsg" hidden>
+                <div class="bubble-user">看看李四储值卡详情</div>
+              </div>
+              <div class="thinking" id="thinkingCardsDetail" aria-live="polite">
+                <div class="think-bot" id="thinkBotCardsDetail" aria-hidden="true">
+                  <span class="halo"></span>
+                  <span class="head"><img src="assets/robot.svg" alt=""></span>
+                  <span class="shadow"></span>
+                </div>
+                <span class="think-label" id="thinkLabelCardsDetail">思考中</span>
+              </div>
+              <div class="bubble-agent" id="cardsDetailNote" hidden>李四储值卡详情如下。</div>
+              <div class="mc-detail-wrap" id="cardsDetailCard" aria-label="卡详情" hidden>
+                <div id="cardsDetailBody"></div>
+                <div class="fn-toast" id="mcDetailToast" role="status"></div>
+              </div>
             </div><!-- #panelCards -->
           </div>
 
@@ -2225,10 +2262,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       <div class="prd-sync-panel" data-prd="price" id="prdPanelPrice" hidden>
         <h3>§4 价目表 · InfoTable</h3>
         <ul>
-          <li>分类蓝 Tab · 灰条行左文右数</li>
+          <li>白底无卡头；分类蓝 Tab · 白底紧凑行</li>
+          <li>行底发丝线左右缩进 16；组末无分隔</li>
           <li>底栏蓝主按钮 / 幽灵次按钮</li>
         </ul>
-        <p class="prd-muted">信息表规范实例 · 结果卡 ≠ 聊天泡。</p>
+        <p class="prd-muted">InfoTable · v3.17 白行发丝线</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="order-project" id="prdPanelOrderProject" hidden>
@@ -2265,11 +2303,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       <div class="prd-sync-panel" data-prd="order-draft" id="prdPanelOrderDraft" hidden>
         <h3>开单 · 确认卡</h3>
         <ul>
+          <li>白底无卡头（无机器人标 / 标题 / pill）</li>
           <li>首屏：谁 · 做什么 · 收多少 · 确认/拒绝</li>
           <li>员工明细 / 优惠 / 权益 <b>默认折叠</b></li>
           <li>仅会员卡默认展开收款（卡里的钱）</li>
         </ul>
-        <p class="prd-muted">§1.4 P6 先结果后细节 · §6 确认卡</p>
+        <p class="prd-muted">§1.4 P6 · §6 确认卡 · v3.17</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="order-multi" id="prdPanelOrderMulti" hidden>
@@ -2295,11 +2334,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       <div class="prd-sync-panel" data-prd="cards" id="prdPanelCards" hidden>
         <h3>§5 卡管理</h3>
         <ul>
-          <li>五类 Tab：储值 / 计次 / 折扣 / 套餐 / 周期</li>
-          <li>色相区分 · 「更多」展开字段</li>
-          <li>底栏 Toast：去开卡 / 去管理会员卡</li>
+          <li>两轮：列表卡落稳 → 再追问 → 详情色卡</li>
+          <li>详情单层色卡；底栏「更多详情」→ Toast 卡详情页</li>
+          <li>列表仅卡名 · 办卡人数 · 售价</li>
         </ul>
-        <p class="prd-muted">对照能力 · Tab 均分居中不溢出</p>
+        <p class="prd-muted">对照能力 · v3.18</p>
       </div>
     </div>
   </aside>
@@ -2582,8 +2621,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       ]
     }
   ];
-  var mcState = { type: "balance", openId: null, showAll: false };
+  var mcState = { type: "balance" };
   var mcToastTimer = 0;
+  var mcDetailTimer = 0;
   var cardsCard = document.getElementById("cardsCard");
   var cardsAgentNote = document.getElementById("cardsAgentNote");
   var thinkingCards = document.getElementById("thinkingCards");
@@ -2597,6 +2637,16 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var mcToast = document.getElementById("mcToast");
   var btnMcManage = document.getElementById("btnMcManage");
   var btnMcIssue = document.getElementById("btnMcIssue");
+  var cardsUserMsg = document.getElementById("cardsUserMsg");
+  var cardsDetailUserMsg = document.getElementById("cardsDetailUserMsg");
+  var thinkingCardsDetail = document.getElementById("thinkingCardsDetail");
+  var cardsDetailNote = document.getElementById("cardsDetailNote");
+  var cardsDetailCard = document.getElementById("cardsDetailCard");
+  var cardsDetailBody = document.getElementById("cardsDetailBody");
+  var mcDetailToast = document.getElementById("mcDetailToast");
+  var mcDetailToastTimer = 0;
+  var MC_DETAIL_DEMO_ID = "b1";
+  var MC_DETAIL_PAUSE_MS = 2200;
 
   function mcTypeMeta(typeId) {
     for (var i = 0; i < MC_TYPES.length; i++) if (MC_TYPES[i].id === typeId) return MC_TYPES[i];
@@ -2604,6 +2654,32 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   }
   function mcTemplatesOf(typeId) {
     return MC_TEMPLATES.filter(function (t) { return t.type === typeId; });
+  }
+  function mcTemplateById(id) {
+    for (var i = 0; i < MC_TEMPLATES.length; i++) if (MC_TEMPLATES[i].id === id) return MC_TEMPLATES[i];
+    return null;
+  }
+  function mcLookupField(t, keys) {
+    var pool = (t.summary || []).concat(t.details || []);
+    for (var k = 0; k < keys.length; k++) {
+      for (var i = 0; i < pool.length; i++) {
+        if (pool[i].k === keys[k]) return pool[i].v;
+      }
+    }
+    return "";
+  }
+  function mcHoldersText(t) {
+    return mcLookupField(t, ["办卡人数", "总办卡数"]) || "—";
+  }
+  function mcPriceText(t) {
+    var buy = mcLookupField(t, ["购买价格"]);
+    if (buy) return buy;
+    var cardAmt = mcLookupField(t, ["卡金额"]);
+    if (cardAmt) {
+      var m = String(cardAmt).match(/充值金额\s*([\d.]+)/);
+      if (m) return m[1] + "元";
+    }
+    return "—";
   }
   function showMcToast(msg) {
     if (!mcToast) return;
@@ -2613,6 +2689,81 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     mcToast.classList.add("is-on");
     clearTimeout(mcToastTimer);
     mcToastTimer = setTimeout(function () { mcToast.classList.remove("is-on"); }, 1800);
+  }
+  function showMcDetailToast(msg) {
+    if (!mcDetailToast) return;
+    mcDetailToast.textContent = msg;
+    mcDetailToast.classList.remove("is-on");
+    void mcDetailToast.offsetWidth;
+    mcDetailToast.classList.add("is-on");
+    clearTimeout(mcDetailToastTimer);
+    mcDetailToastTimer = setTimeout(function () { mcDetailToast.classList.remove("is-on"); }, 1800);
+  }
+  function hideCardsDetailDemo() {
+    clearTimeout(mcDetailTimer);
+    if (cardsDetailUserMsg) cardsDetailUserMsg.hidden = true;
+    if (thinkingCardsDetail) thinkingCardsDetail.classList.remove("is-on");
+    if (cardsDetailNote) cardsDetailNote.hidden = true;
+    if (cardsDetailCard) cardsDetailCard.hidden = true;
+    if (cardsDetailBody) cardsDetailBody.innerHTML = "";
+    if (mcDetailToast) mcDetailToast.classList.remove("is-on");
+    clearTimeout(mcDetailToastTimer);
+  }
+  function renderMcDetailCard(t) {
+    if (!cardsDetailBody || !t) return;
+    var meta = mcTypeMeta(t.type);
+    var rows = (t.summary || []).concat(t.details || []);
+    var detailHtml = rows.map(function (d) {
+      return (
+        '<div class="mc-detail-row">' +
+          '<i class="mc-k">' + escapeHtml(d.k) + "</i>" +
+          '<b class="mc-v">' + escapeHtml(d.v) + "</b>" +
+        "</div>"
+      );
+    }).join("");
+    cardsDetailBody.innerHTML =
+      '<article class="mc-card is-' + meta.tone + ' is-open" data-mc-id="' + t.id + '">' +
+        '<div class="mc-card-main">' +
+          '<div class="mc-card-top">' +
+            '<span class="mc-card-name">' + escapeHtml(t.name) + "</span>" +
+            '<span class="mc-type-tag">' + escapeHtml(meta.label) + "</span>" +
+          "</div>" +
+        "</div>" +
+        '<div class="mc-detail">' + detailHtml + "</div>" +
+        '<footer class="mc-detail-foot">' +
+          '<button type="button" class="fn-act fn-act-primary" id="btnMcDetailMore">更多详情</button>' +
+        "</footer>" +
+      "</article>";
+  }
+  function playCardsDetailDemo() {
+    var t = mcTemplateById(MC_DETAIL_DEMO_ID);
+    if (!t || !cardsDetailUserMsg) return;
+    hideCardsDetailDemo();
+    cardsDetailUserMsg.hidden = false;
+    motionEnter(cardsDetailUserMsg, "reply");
+    requestAnimationFrame(updateScrollHint);
+    if (thinkingCardsDetail) thinkingCardsDetail.classList.add("is-on");
+    clearTimeout(mcDetailTimer);
+    mcDetailTimer = setTimeout(function () {
+      if (thinkingCardsDetail) thinkingCardsDetail.classList.remove("is-on");
+      if (cardsDetailNote) {
+        cardsDetailNote.hidden = false;
+        motionEnter(cardsDetailNote);
+      }
+      renderMcDetailCard(t);
+      if (cardsDetailCard) {
+        cardsDetailCard.hidden = false;
+        motionEnter(cardsDetailCard);
+      }
+      requestAnimationFrame(function () {
+        try {
+          if (cardsDetailCard) {
+            cardsDetailCard.scrollIntoView({ behavior: MOTION_REDUCED ? "auto" : "smooth", block: "nearest" });
+          }
+        } catch (e) { /* */ }
+        updateScrollHint();
+      });
+    }, MOTION_REDUCED ? 0 : 1200);
   }
   function renderMcTabs() {
     if (!mcTabs) return;
@@ -2630,57 +2781,31 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (!mcList) return;
     var meta = mcTypeMeta(mcState.type);
     var all = mcTemplatesOf(mcState.type);
-    var limit = 3;
-    var list = mcState.showAll ? all : all.slice(0, limit);
     if (mcPill) mcPill.textContent = all.length + " 种模板 · " + meta.label;
-    mcList.innerHTML = list.map(function (t) {
-      var open = mcState.openId === t.id;
-      var sumClass = t.summary.length >= 3 ? " is-3" : "";
-      var sumHtml = t.summary.map(function (s) {
-        return (
-          '<span class="mc-kv">' +
-            '<i class="mc-k">' + escapeHtml(s.k) + "</i>" +
-            '<b class="mc-v">' + escapeHtml(s.v) + "</b>" +
-          "</span>"
-        );
-      }).join("");
-      var detailHtml = (t.details || []).map(function (d) {
-        return (
-          '<div class="mc-detail-row">' +
-            '<i class="mc-k">' + escapeHtml(d.k) + "</i>" +
-            '<b class="mc-v">' + escapeHtml(d.v) + "</b>" +
-          "</div>"
-        );
-      }).join("");
+    if (mcMoreWrap) mcMoreWrap.hidden = true;
+    mcList.innerHTML = all.map(function (t) {
       return (
-        '<article class="mc-card is-' + meta.tone + (open ? " is-open" : "") + '" data-mc-id="' + t.id + '">' +
-          '<button type="button" class="mc-card-main" data-mc-toggle="' + t.id + '" aria-expanded="' +
-            (open ? "true" : "false") + '">' +
+        '<article class="mc-card is-compact is-' + meta.tone + '" data-mc-id="' + t.id + '">' +
+          '<div class="mc-card-main">' +
             '<div class="mc-card-top">' +
               '<span class="mc-card-name">' + escapeHtml(t.name) + "</span>" +
               '<span class="mc-type-tag">' + escapeHtml(meta.label) + "</span>" +
             "</div>" +
-            '<div class="mc-sum' + sumClass + '">' + sumHtml + "</div>" +
-            '<p class="mc-expand-hint">更多</p>' +
-          "</button>" +
-          '<div class="mc-detail"' + (open ? "" : " hidden") + ">" + detailHtml + "</div>" +
+            '<div class="mc-compact-meta">' +
+              '<span>办卡 <b>' + escapeHtml(mcHoldersText(t)) + "</b></span>" +
+              '<span>售价 <b>' + escapeHtml(mcPriceText(t)) + "</b></span>" +
+            "</div>" +
+          "</div>" +
         "</article>"
       );
     }).join("") || '<p class="mb-picks-title" style="margin:8px 4px">该类暂无模板</p>';
-    if (mcMoreWrap && mcMore) {
-      var needMore = all.length > limit;
-      mcMoreWrap.hidden = !needMore;
-      if (needMore) {
-        mcMore.textContent = mcState.showAll ? "收起" : ("展开剩余 " + (all.length - limit));
-        mcMore.setAttribute("aria-expanded", mcState.showAll ? "true" : "false");
-      }
-    }
   }
   function renderCardsCard() {
     renderMcTabs();
     renderMcList();
   }
-  function showCardsResult() {
+  function showCardsResult(opts) {
+    opts = opts || {};
     if (cardsAgentNote) {
       cardsAgentNote.hidden = false;
       motionEnter(cardsAgentNote);
@@ -2691,54 +2816,72 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       motionEnter(cardsCard);
     }
     requestAnimationFrame(updateScrollHint);
+    clearTimeout(mcDetailTimer);
+    if (opts.scheduleDetail === false) return;
+    /* 第一轮列表先落稳，再进入第二轮追问 */
+    mcDetailTimer = setTimeout(function () {
+      playCardsDetailDemo();
+    }, MOTION_REDUCED ? 0 : MC_DETAIL_PAUSE_MS);
+  }
+  function snapCardsDetailFinal() {
+    var t = mcTemplateById(MC_DETAIL_DEMO_ID);
+    if (!t) return;
+    clearTimeout(mcDetailTimer);
+    if (thinkingCardsDetail) thinkingCardsDetail.classList.remove("is-on");
+    if (cardsDetailUserMsg) cardsDetailUserMsg.hidden = false;
+    if (cardsDetailNote) cardsDetailNote.hidden = false;
+    renderMcDetailCard(t);
+    if (cardsDetailCard) cardsDetailCard.hidden = false;
   }
   function startCardsFlow(playThink) {
-    mcState = { type: "balance", openId: null, showAll: false };
+    mcState = { type: "balance" };
+    hideCardsDetailDemo();
     if (cardsCard) cardsCard.hidden = true;
     if (cardsAgentNote) cardsAgentNote.hidden = true;
+    if (cardsUserMsg) cardsUserMsg.hidden = true;
+    clearTimeout(thinkDemoTimer);
+    clearTimeout(mcDetailTimer);
     if (!playThink) {
-      showCardsResult();
+      /* 抓取态：只出第一轮；详情由 prep 按需 snap */
+      if (cardsUserMsg) cardsUserMsg.hidden = false;
+      showCardsResult({ scheduleDetail: false });
       return;
     }
     useHopTarget("cards");
     messages.scrollTop = 0;
-    startThinking();
-    clearTimeout(thinkDemoTimer);
+    /* ① 先出第一句用户气泡，再思考 → 列表卡 */
+    if (cardsUserMsg) {
+      cardsUserMsg.hidden = false;
+      motionEnter(cardsUserMsg, "reply");
+    }
+    requestAnimationFrame(updateScrollHint);
     thinkDemoTimer = setTimeout(function () {
-      stopThinking();
-      showCardsResult();
-    }, 2600);
+      startThinking();
+      thinkDemoTimer = setTimeout(function () {
+        stopThinking();
+        showCardsResult();
+      }, MOTION_REDUCED ? 0 : 2200);
+    }, MOTION_REDUCED ? 0 : 450);
   }
   if (mcTabs) {
     mcTabs.addEventListener("click", function (e) {
       var btn = e.target.closest("[data-mc-type]");
       if (!btn) return;
       mcState.type = btn.getAttribute("data-mc-type");
-      mcState.openId = null;
-      mcState.showAll = false;
       renderCardsCard();
-      requestAnimationFrame(updateScrollHint);
-    });
-  }
-  if (mcList) {
-    mcList.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-mc-toggle]");
-      if (!btn) return;
-      var id = btn.getAttribute("data-mc-toggle");
-      mcState.openId = mcState.openId === id ? null : id;
-      renderMcList();
-    });
-  }
-  if (mcMore) {
-    mcMore.addEventListener("click", function () {
-      mcState.showAll = !mcState.showAll;
-      renderMcList();
       requestAnimationFrame(updateScrollHint);
     });
   }
   if (btnMcManage) {
     btnMcManage.addEventListener("click", function () {
       showMcToast("示意：跳转至卡管理页面");
+    });
+  }
+  if (cardsDetailCard) {
+    cardsDetailCard.addEventListener("click", function (e) {
+      var btn = e.target.closest("#btnMcDetailMore");
+      if (!btn) return;
+      showMcDetailToast("示意：跳转至卡详情页");
     });
   }
   if (btnMcIssue) {
@@ -3681,6 +3824,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     thinking.classList.remove("is-on");
     if (thinkingOrder) thinkingOrder.classList.remove("is-on");
     if (thinkingCards) thinkingCards.classList.remove("is-on");
+    if (thinkingCardsDetail) thinkingCardsDetail.classList.remove("is-on");
     hop.playing = false;
     cancelAnimationFrame(hop.raf);
     clearInterval(hop.labelTimer);
@@ -6721,6 +6865,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (navDemoArchive) navDemoArchive.classList.toggle("is-on", isArchive);
     if (navDemoCards) navDemoCards.classList.toggle("is-on", isCards);
     stopThinking();
+    if (!isCards) hideCardsDetailDemo();
     messages.scrollTop = 0;
     if (isCards) {
       if (opts.replay !== false) startCardsFlow(true);
@@ -6921,6 +7066,8 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (typeof renderCardsCard === "function") renderCardsCard();
       if (cardsAgentNote) cardsAgentNote.hidden = false;
       if (thinkingCards) thinkingCards.classList.remove("is-on");
+      if (thinkingCardsDetail) thinkingCardsDetail.classList.remove("is-on");
+      if (opts.openId) snapCardsDetailFinal();
     }
 
     if (cap === "bubble-user") {
