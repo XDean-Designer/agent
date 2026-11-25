@@ -1,0 +1,15 @@
+{
+  "finishedAt": "2026-11-25T09:00:16.393Z",
+  "results": [
+    {
+      "capture": "card-cards-expand",
+      "name": "Card-卡管理-详情",
+      "captureId": "b4284147-2751-4ac0-ab89-d4c934430b2a",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-expand",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14253
+    }
+  ]
+}

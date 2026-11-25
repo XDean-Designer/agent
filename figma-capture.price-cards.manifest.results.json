@@ -1,0 +1,75 @@
+{
+  "finishedAt": "2026-11-25T08:50:23.389Z",
+  "results": [
+    {
+      "capture": "card-price",
+      "name": "Card-价目-InfoTable",
+      "captureId": "c126bc32-9891-43cc-a77c-0e3e7a1b6ca6",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-price",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13645
+    },
+    {
+      "capture": "card-cards-balance",
+      "name": "Card-卡管理-储值卡",
+      "captureId": "e20339a1-3dd7-48e3-a267-83479416c6ca",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-balance",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 10082
+    },
+    {
+      "capture": "card-cards-times",
+      "name": "Card-卡管理-计次卡",
+      "captureId": "91599647-0362-4306-8264-a46def3b9da9",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-times",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 11276
+    },
+    {
+      "capture": "card-cards-discount",
+      "name": "Card-卡管理-折扣卡",
+      "captureId": "27ce1a01-2537-46d7-990c-6b407ea4f722",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-discount",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 11215
+    },
+    {
+      "capture": "card-cards-pack",
+      "name": "Card-卡管理-套餐卡",
+      "captureId": "c85a3ab9-c550-405e-8514-c19f962b41a3",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-pack",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13018
+    },
+    {
+      "capture": "card-cards-period",
+      "name": "Card-卡管理-周期卡",
+      "captureId": "d4c69a4f-f26a-4a9a-aee6-e8211227756b",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-period",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 15024
+    },
+    {
+      "capture": "card-cards-expand",
+      "name": "Card-卡管理-详情",
+      "captureId": "f4353ea7-e278-415f-b3a5-dd136531abcb",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-expand",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12372
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "fileKey": "XklWFkHzzSROjjkZhbZtKc",
+  "nodeId": "152:63",
+  "port": 8765,
+  "basePath": "/agent-chat.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "keepRealBitmaps": true,
+  "screens": [
+    { "capture": "card-cards-expand", "name": "Card-卡管理-详情", "captureId": "b4284147-2751-4ac0-ab89-d4c934430b2a", "delay": 2600 }
+  ]
+}

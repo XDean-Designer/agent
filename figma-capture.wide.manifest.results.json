@@ -1,0 +1,25 @@
+{
+  "finishedAt": "2026-11-25T09:10:23.474Z",
+  "results": [
+    {
+      "capture": "card-wide-table",
+      "name": "Card-宽表-横滑引导",
+      "captureId": "c8df052a-0d5c-4084-8bdf-8ec29594e683",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-wide-table",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12906
+    },
+    {
+      "capture": "card-wide-chart",
+      "name": "Card-宽图-横滑引导",
+      "captureId": "db6b3d87-8ff7-4db9-beba-aaae86ded6bb",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-wide-chart",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14169
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "fileKey": "XklWFkHzzSROjjkZhbZtKc",
+  "nodeId": "152:63",
+  "port": 8765,
+  "basePath": "/agent-chat.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "keepRealBitmaps": true,
+  "screens": [
+    { "capture": "card-wide-table", "name": "Card-宽表-横滑引导", "captureId": "c8df052a-0d5c-4084-8bdf-8ec29594e683", "delay": 2400 },
+    { "capture": "card-wide-chart", "name": "Card-宽图-横滑引导", "captureId": "db6b3d87-8ff7-4db9-beba-aaae86ded6bb", "delay": 2400 }
+  ]
+}

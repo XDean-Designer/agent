@@ -309,8 +309,8 @@ button{font:inherit;color:inherit}
 }
 .od-hero-tool.is-content:active{color:var(--btn-blue)}
 .ar-member-pick{
-  margin-top:8px;width:100%;padding:8px;border-radius:10px;
-  background:#f4f3f6;border:.5px solid rgba(26,26,26,.06);
+  margin-top:8px;width:100%;padding:8px 0 0;border-radius:0;
+  background:transparent;border:0;
   animation:motion-chip-in .24s var(--ease-out) both;
 }
 .ar-member-pick-title{
@@ -729,18 +729,21 @@ button{font:inherit;color:inherit}
 .fn-del.is-locked{background:#c9c6ce;color:#fff}
 .fn-del.is-locked:active{background:#c9c6ce}
 .fn-row{
+  position:relative;
   display:flex;align-items:center;gap:10px;
   width:100%;box-sizing:border-box;
   padding:9px 16px;cursor:default;min-height:36px;
   border:0;border-radius:0;background-color:#fff;
-  /* 发丝线左右缩进 16 */
-  background-image:linear-gradient(to right, transparent 16px, rgba(26,26,26,.1) 16px, rgba(26,26,26,.1) calc(100% - 16px), transparent calc(100% - 16px));
-  background-size:100% 1px;background-repeat:no-repeat;background-position:left bottom;
   transition:background-color .18s ease;
   -webkit-tap-highlight-color:transparent;
 }
-.fn-group .fn-item:last-child .fn-row,
-.fn-list > .fn-item:last-child .fn-row{background-image:none}
+/* 发丝线：真实 1px 层（勿用 background-size 渐变，Figma 捕获会铺满成灰带） */
+.fn-row::after{
+  content:"";position:absolute;left:16px;right:16px;bottom:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
+}
+.fn-group .fn-item:last-child .fn-row::after,
+.fn-list > .fn-item:last-child .fn-row::after{content:none}
 .fn-row.is-off{opacity:.55;background-color:#fafafa}
 .fn-row-status{
   display:inline-flex;align-items:center;gap:5px;flex:none;
@@ -760,10 +763,6 @@ button{font:inherit;color:inherit}
   flex:none;font-size:11px;font-weight:600;color:#8a8a8a;
   line-height:1;transform:translateY(-0.05em);
 }
-.fn-dot{
-  width:6px;height:6px;border-radius:50%;background:#3cbc6e;flex:none;
-}
-.fn-row.is-off .fn-dot{background:#b0b0b0}
 .fn-item.is-saved .fn-row{
   background-color:#f3faf5;
 }
@@ -892,9 +891,14 @@ button{font:inherit;color:inherit}
 }
 
 .fn-foot{
+  position:relative;
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
-  background:linear-gradient(180deg,#fff,#faf8fa);
+  padding:12px 16px 14px;border-top:0;
+  background:#fff;
+}
+.fn-foot::before{
+  content:"";position:absolute;left:16px;right:16px;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
 }
 .fn-act{
   appearance:none;cursor:pointer;
@@ -914,79 +918,97 @@ button{font:inherit;color:inherit}
 
 /* ---------- 卡管理（会员卡模板）——与 session-card 同族 ---------- */
 #mcTabs.fn-tabs{
-  justify-content:center;overflow-x:hidden;gap:4px;padding:10px 8px 8px;
+  justify-content:center;overflow-x:hidden;gap:4px;padding:12px 16px 10px;
 }
 #mcTabs .fn-tab{
   flex:1 1 0;min-width:0;padding:0 2px;font-size:11.5px;
 }
-.mc-list{padding:0 8px 8px;display:flex;flex-direction:column;gap:6px}
-.mc-card{
-  border-radius:10px;overflow:hidden;
-  border:.5px solid rgba(26,26,26,.06);
-  background:#faf9fb;
+.mc-list{
+  padding:0 0 12px;display:flex;flex-direction:column;gap:0;
+}
+/* 列表行：无描边卡、无左侧分色竖条；发丝线分隔（组末无） */
+.mc-card.is-compact{
+  border:0;border-radius:0;background:#fff;overflow:visible;
+  position:relative;
+}
+.mc-card.is-compact + .mc-card.is-compact::before{
+  content:"";position:absolute;left:16px;right:16px;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
 }
 .mc-card.is-compact .mc-card-main{
-  padding:8px 10px 8px 12px;cursor:default;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;cursor:default;
 }
-.mc-card.is-compact .mc-card-main::before{top:8px;bottom:8px}
-.mc-card.is-compact .mc-card-top{margin-bottom:0;padding-left:6px}
-.mc-card.is-compact .mc-card-name{font-size:13px}
+.mc-card.is-compact .mc-card-main::before{display:none}
+.mc-card.is-compact .mc-card-top{
+  margin:0;padding:0;flex:1;min-width:0;
+  display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+}
+.mc-card.is-compact .mc-card-name{font-size:14px;font-weight:650}
 .mc-card.is-compact .mc-compact-meta{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-top:4px;padding-left:6px;
+  display:block;margin:0;padding:0;
   font-size:11.5px;font-weight:550;color:#6a6a72;line-height:1.3;
 }
 .mc-card.is-compact .mc-compact-meta b{
   font-weight:650;color:#2a2a30;font-variant-numeric:tabular-nums;
 }
+.mc-card.is-compact .mc-compact-price{
+  flex:none;align-self:center;
+  font-size:16px;font-weight:700;color:#1a1a1a;
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;line-height:1.2;
+  white-space:nowrap;
+}
 .mc-detail-wrap{
-  position:relative;margin:10px 0 12px;
+  position:relative;margin:10px 0 12px; /* 与 session-card / 列表卡同宽，无额外水平缩进 */
 }
 .mc-detail-wrap[hidden]{display:none !important}
-.mc-detail-wrap .mc-card{margin:0}
+.mc-detail-wrap .mc-card{
+  margin:0;border-radius:18px;
+  border:1px solid rgba(80,40,70,.08);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.9) inset,
+    0 10px 28px -18px rgba(80,30,50,.28),
+    0 2px 6px rgba(40,20,30,.05);
+}
 .mc-detail-foot{
   display:grid;grid-template-columns:1fr;gap:8px;
-  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
-  background:rgba(255,255,255,.55);
+  padding:10px 16px 12px;border-top:1px solid rgba(26,26,26,.08);
+  background:#fff;
 }
-.mc-card.is-balance{background:linear-gradient(135deg,#eef5fc 0%,#f7fbff 55%,#fff 100%);border-color:rgba(70,130,200,.14)}
-.mc-card.is-times{background:linear-gradient(135deg,#fceef3 0%,#fff7fa 55%,#fff 100%);border-color:rgba(190,90,130,.14)}
-.mc-card.is-discount{background:linear-gradient(135deg,#f3eefc 0%,#faf7ff 55%,#fff 100%);border-color:rgba(120,90,190,.14)}
-.mc-card.is-pack{background:linear-gradient(135deg,#fff1e6 0%,#fff8f1 55%,#fff 100%);border-color:rgba(210,130,60,.16)}
-.mc-card.is-period{background:linear-gradient(135deg,#ffe9e0 0%,#fff5f0 55%,#fff 100%);border-color:rgba(210,110,80,.16)}
+/* 白卡语汇：无五色渐变；详情亦无左侧分色竖条（卡种靠 Tabs / 中性 pill） */
+.mc-card.is-balance,
+.mc-card.is-times,
+.mc-card.is-discount,
+.mc-card.is-pack,
+.mc-card.is-period{
+  background:#fff;border-color:rgba(26,26,26,.08);
+}
 .mc-card-main{
   appearance:none;cursor:pointer;font-family:inherit;text-align:left;
-  display:block;width:100%;padding:11px 12px 10px;border:0;background:transparent;
+  display:block;width:100%;padding:12px 16px;border:0;background:transparent;
   position:relative;
 }
-.mc-card-main::before{
-  content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0;
-}
-.mc-card.is-balance .mc-card-main::before{background:#5b8fd4}
-.mc-card.is-times .mc-card-main::before{background:#d46a8f}
-.mc-card.is-discount .mc-card-main::before{background:#8a6fd4}
-.mc-card.is-pack .mc-card-main::before{background:#e08a3c}
-.mc-card.is-period .mc-card-main::before{background:#e07555}
+.mc-card-main::before{display:none}
 .mc-card-top{
-  display:flex;align-items:center;gap:8px;padding-left:6px;margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;padding-left:0;margin-bottom:8px;
 }
 .mc-card-name{
   flex:1;min-width:0;font-size:14px;font-weight:700;color:#1a1a1a;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.mc-card.is-balance .mc-card-name{color:#3a5f8a}
-.mc-card.is-times .mc-card-name{color:#8a3d5c}
-.mc-card.is-discount .mc-card-name{color:#5a3f8a}
-.mc-card.is-pack .mc-card-name{color:#9a5520}
-.mc-card.is-period .mc-card-name{color:#9a4028}
+.mc-card.is-balance .mc-card-name,
+.mc-card.is-times .mc-card-name,
+.mc-card.is-discount .mc-card-name,
+.mc-card.is-pack .mc-card-name,
+.mc-card.is-period .mc-card-name{color:#1a1a1a}
 .mc-type-tag{
   flex:none;padding:2px 7px;border-radius:999px;
   font-size:10px;font-weight:600;line-height:1.3;
-  background:rgba(255,255,255,.72);border:.5px solid rgba(26,26,26,.08);
+  background:#f4f4f6;border:.5px solid rgba(26,26,26,.06);
   color:#6a6a72;
 }
 .mc-sum{
-  display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding-left:6px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding-left:8px;
 }
 .mc-sum.is-3{grid-template-columns:1fr 1fr 1fr}
 .mc-kv{min-width:0}
@@ -1004,7 +1026,7 @@ button{font:inherit;color:inherit}
 }
 .mc-card.is-open .mc-expand-hint{display:none}
 .mc-detail{
-  padding:0 12px 11px 18px;
+  padding:0 16px 11px;
   border-top:0;
   animation:motion-chip-in .22s var(--ease-out) both;
 }
@@ -1013,6 +1035,120 @@ button{font:inherit;color:inherit}
   display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
   padding:7px 0;border-top:.5px solid rgba(26,26,26,.05);
 }
+
+/* ---------- 宽表 / 宽图 · 横向溢出引导（HScrollRail） ---------- */
+.wide-card{
+  padding:14px 0 12px;
+}
+.wide-card-head{
+  padding:0 16px 10px;
+}
+.wide-card-title{
+  margin:0;font-size:15px;font-weight:650;color:#1a1a1a;letter-spacing:.01em;
+}
+.wide-card-sub{
+  margin:4px 0 0;font-size:11.5px;font-weight:500;color:#8a7f88;line-height:1.35;
+}
+.h-scroll{
+  position:relative;
+}
+.h-scroll-viewport{
+  overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  outline:none;
+  touch-action:pan-y;
+}
+.h-scroll.is-overflow .h-scroll-viewport{cursor:grab}
+.h-scroll.is-dragging .h-scroll-viewport{
+  cursor:grabbing;user-select:none;-webkit-user-select:none;
+}
+.h-scroll-viewport::-webkit-scrollbar{display:none}
+.h-scroll-content{
+  width:max-content;min-width:100%;
+  padding:0 16px;
+  box-sizing:border-box;
+}
+.h-scroll-fade{
+  pointer-events:none;position:absolute;top:0;right:0;bottom:22px;width:14px;
+  background:linear-gradient(to left, rgba(255,255,255,.95), rgba(255,255,255,0));
+  opacity:0;transition:opacity .2s var(--ease-out);
+}
+.h-scroll.is-overflow:not(.is-end) .h-scroll-fade{opacity:1}
+.h-scroll-rail{
+  display:flex;justify-content:center;padding:8px 16px 2px;
+}
+.h-scroll-rail[hidden]{display:none !important}
+.h-scroll-track{
+  position:relative;width:48%;max-width:180px;min-width:96px;height:3px;
+  border-radius:999px;background:rgba(26,26,26,.1);
+}
+.h-scroll-thumb{
+  position:absolute;top:50%;left:0;
+  width:28%;height:5px;margin-top:-2.5px;
+  border-radius:999px;background:rgba(42,42,48,.55);
+  cursor:grab;touch-action:none;
+  transition:background .15s ease, transform .35s var(--ease-spring);
+}
+.h-scroll-thumb:active{cursor:grabbing;background:rgba(42,42,48,.72)}
+.h-scroll.is-nudge .h-scroll-thumb{
+  animation:h-scroll-nudge .7s var(--ease-out) 1;
+}
+@keyframes h-scroll-nudge{
+  0%,100%{transform:translateX(0)}
+  35%{transform:translateX(5px)}
+  65%{transform:translateX(-2px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .h-scroll.is-nudge .h-scroll-thumb{animation:none}
+}
+
+.wide-table{
+  border-collapse:separate;border-spacing:0;
+  font-variant-numeric:tabular-nums;
+  min-width:720px;
+}
+.wide-table th,
+.wide-table td{
+  padding:8px 12px;font-size:12px;line-height:1.35;white-space:nowrap;
+  border-bottom:1px solid rgba(26,26,26,.08);
+  text-align:right;
+}
+.wide-table th:first-child,
+.wide-table td:first-child{
+  text-align:left;font-weight:600;color:#1a1a1a;position:sticky;left:0;
+  background:#fff;z-index:1;padding-left:0;
+}
+.wide-table th{
+  font-size:11px;font-weight:600;color:#8a7f88;border-bottom-color:rgba(26,26,26,.12);
+}
+.wide-table tbody tr:last-child td{border-bottom:0}
+.wide-table td{font-weight:550;color:#2a2a30}
+.wide-table .is-up{color:#2f9b6a}
+.wide-table .is-down{color:#c2506a}
+
+.wide-chart{
+  display:block;width:720px;height:200px;
+}
+.wide-chart .axis{stroke:rgba(26,26,26,.1);stroke-width:1;fill:none}
+.wide-chart .grid{stroke:rgba(26,26,26,.06);stroke-width:1;fill:none}
+.wide-chart .line{
+  fill:none;stroke:#7a7cf0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+}
+.wide-chart .area{
+  fill:url(#wideChartFill);opacity:.9;
+}
+.wide-chart .dot{fill:#7a7cf0;stroke:#fff;stroke-width:1.5}
+.wide-chart .lbl{
+  fill:#8a7f88;font-size:10px;font-family:inherit;
+}
+.wide-chart .ylab{
+  fill:#6a6a72;font-size:10px;font-family:inherit;font-variant-numeric:tabular-nums;
+}
+
+html.capture-mode #panelWide[hidden],
+html.capture-mode .wide-card[hidden]{display:none !important}
+
 .mc-detail-row:first-child{border-top:0;padding-top:9px}
 .mc-detail-row .mc-k{margin:0;flex:none;max-width:42%}
 .mc-detail-row .mc-v{
@@ -1080,7 +1216,7 @@ button{font:inherit;color:inherit}
 
 .od-hero{
   display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
-  padding:12px 14px 10px;
+  padding:14px 16px 12px;
 }
 .od-hero-main{min-width:0}
 .od-hero-amt-row{margin:0;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
@@ -1132,8 +1268,8 @@ button{font:inherit;color:inherit}
 }
 .od-hero-sub{font-size:12px;font-weight:500;color:#8a7f88}
 .ar-item-pick{
-  margin-top:8px;width:100%;padding:8px;border-radius:10px;
-  background:#f4f3f6;border:.5px solid rgba(26,26,26,.06);
+  margin-top:8px;width:100%;padding:8px 0 0;border-radius:0;
+  background:transparent;border:0;
   animation:motion-chip-in .24s var(--ease-out) both;
 }
 .ar-item-pick-title{
@@ -1174,16 +1310,21 @@ button{font:inherit;color:inherit}
 .ar-item-row.is-quick .ar-item-row-name{color:var(--btn-blue)}
 .ar-item-row-meta{font-size:10.5px;font-weight:500;color:#a09aa2}
 
-/* 手风琴分区：一次只开一个 */
+/* 手风琴分区：白底 + 左右缩进 16 发丝线；折叠为 iOS 圆钮 */
 .od-sec{
-  margin:0 8px 6px;border-radius:12px;overflow:hidden;
-  background:#faf9fb;border:1px solid rgba(26,26,26,.04);
-  transition:background var(--dur-ui) var(--ease-out);
+  position:relative;
+  margin:0;border-radius:0;overflow:visible;
+  background-color:#fff;border:0;
+}
+.od-sec::before{
+  content:"";position:absolute;left:16px;right:16px;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;z-index:1;
 }
 .od-sec-head{
   appearance:none;width:100%;cursor:pointer;font-family:inherit;text-align:left;
-  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;
-  padding:10px 12px;background:transparent;border:0;
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  padding:12px 16px;background:transparent;border:0;
+  box-sizing:border-box;
 }
 /* 摘要需要完整显示时：标题一行，摘要独占第二行 */
 .od-sec-head.is-stack{
@@ -1193,7 +1334,7 @@ button{font:inherit;color:inherit}
 }
 .od-sec-head.is-stack .od-sec-title{grid-area:title}
 .od-sec-head.is-stack .od-sec-sum{grid-area:sum}
-.od-sec-head.is-stack .od-sec-chev{grid-area:chev}
+.od-sec-head.is-stack .od-ios-chev{grid-area:chev}
 .od-sec-title{font-size:12px;font-weight:500;color:#8a7f88;white-space:nowrap}
 .od-sec-sum{
   font-size:12.5px;font-weight:500;color:#1a1a1a;min-width:0;
@@ -1228,48 +1369,55 @@ button{font:inherit;color:inherit}
 .st-name.is-big{color:#b85a2a}
 .st-name.is-mid{color:#2f6aa8}
 .st-name.is-small{color:#2d8a5a}
-.od-sec-chev{
-  width:14px;height:14px;flex:none;color:#c0bcc4;
-  transition:transform .22s var(--ease-out);
+/* iOS 风格折叠圆钮 */
+.od-ios-chev{
+  flex:none;width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#f2f2f7;color:#8e8e93;
+  transition:transform .22s var(--ease-out),background var(--dur-ui) var(--ease-out);
 }
+.od-ios-chev svg{width:11px;height:11px;display:block}
 .od-sec.is-open{
-  background:#fff;border-color:rgba(26,26,26,.07);
-  box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 7px 18px -16px rgba(80,30,50,.4);
+  background-color:#fff;border:0;box-shadow:none;
 }
-.od-sec.is-open .od-sec-chev{transform:rotate(180deg)}
-.od-sec-body{padding:0 12px 12px}
+.od-sec.is-open .od-ios-chev{transform:rotate(180deg);background:#e8e8ed}
+.od-sec-body{padding:0 16px 14px}
 .od-sec-body[hidden]{display:none !important}
 
-/* 多项目：L1 项目 > L2 工位 > L3 人名/业绩 */
+/* 多项目：去灰卡；保留左侧蓝竖条；项间发丝线 */
 .od-item-block{
   position:relative;
-  margin:0 0 10px;padding:12px 12px 10px 14px;
-  border-radius:12px;
-  background:#f6f5f8;
-  border:.5px solid rgba(26,26,26,.06);
+  margin:0;padding:12px 0 12px 12px;
+  border-radius:0;
+  background:transparent;
+  border:0;
+}
+.od-item-block + .od-item-block::after{
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
 }
 .od-item-block:last-child{margin-bottom:0}
 .od-item-block.is-single{
-  background:#f6f5f8;border-radius:12px;padding:10px 12px;
+  background:transparent;border-radius:0;padding:2px 0 4px;
 }
 .od-item-block.is-single::before{display:none}
 .od-item-block::before{
   content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;
-  border-radius:0 2px 2px 0;background:var(--btn-blue);opacity:.5;
+  border-radius:0 2px 2px 0;background:#5b8fd4;
 }
 .od-item-head{
   display:flex;align-items:baseline;justify-content:space-between;gap:8px;
-  margin:0 0 10px;padding-bottom:8px;
-  border-bottom:.5px solid rgba(26,26,26,.08);
+  margin:0 0 10px;padding:0 0 8px;
+  border-bottom:.5px solid rgba(26,26,26,.1);
 }
 .od-item-name{font-size:15px;font-weight:700;color:#1a1a1a;letter-spacing:.01em}
 .od-item-price{
   font-size:13px;font-weight:650;color:#5f5f68;font-variant-numeric:tabular-nums;
 }
-.od-item-block .st-list{margin:0;padding:0 0 0 2px}
+.od-item-block .st-list{margin:0;padding:0}
 .od-item-block .st-item{
-  padding:8px 0 8px 8px;margin:0 0 2px;
-  border-top:0;border-radius:8px;
+  padding:8px 0;margin:0;
+  border-top:0;border-radius:0;
 }
 .od-item-block .st-item:first-child{padding-top:4px}
 .od-item-block .st-name{
@@ -1278,34 +1426,45 @@ button{font:inherit;color:inherit}
   min-width:2.5em;
 }
 .od-item-block .st-person{
-  margin-left:8px;padding:6px 8px;margin-top:6px;
-  border-radius:8px;border-top:0;
-  background:rgba(255,255,255,.72);
+  margin-left:0;padding:6px 0;margin-top:4px;
+  border-radius:0;border-top:0;
+  background:transparent;
 }
 .od-item-block .st-person-name{font-size:11.5px;font-weight:600;color:#3a3a40}
 .od-item-block .st-metric > i{font-size:10px}
 .od-item-block .st-val,.od-item-block .st-input{font-size:11.5px}
-.od-item-block .st-dup{margin-left:8px;padding-left:8px;border-top:0}
-.od-item-benefit{margin-top:8px;padding-top:8px;border-top:.5px dashed rgba(26,26,26,.1)}
+.od-item-block .st-dup{margin-left:0;padding-left:0;border-top:0}
+.od-item-benefit{
+  position:relative;
+  margin-top:8px;padding-top:8px;
+}
+.od-item-benefit::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
+}
 .od-benefit-toggle{
   appearance:none;cursor:pointer;font-family:inherit;
   display:flex;align-items:center;justify-content:space-between;gap:8px;
-  width:100%;height:34px;padding:0 10px;border-radius:8px;
+  width:100%;min-height:36px;padding:0;border-radius:0;
   font-size:12px;font-weight:550;color:var(--btn-blue);
-  background:#fff;border:.5px solid var(--btn-stroke-soft);
+  background:transparent;border:0;
 }
 .od-benefit-toggle.is-set{color:#1a1a1a;font-weight:600}
-.od-benefit-toggle .od-benefit-chev{
-  width:12px;height:12px;flex:none;color:#a09aa2;
-  transition:transform .18s var(--ease-out);
-}
-.od-benefit-toggle.is-open .od-benefit-chev{transform:rotate(180deg)}
+.od-benefit-toggle.is-open .od-ios-chev{transform:rotate(180deg);background:#e8e8ed}
 .od-item-block .mb-picks{margin-top:8px}
 
 /* 服务员工：只标「谁在哪个工位」+ 每人本单业绩/提成 */
 .st-list{display:flex;flex-direction:column}
-.st-item{padding:9px 0;border-top:1px solid rgba(26,26,26,.05)}
-.st-item:first-child{border-top:0;padding-top:2px}
+.st-item{
+  position:relative;
+  padding:10px 0;
+}
+.st-item::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
+}
+.st-item:first-child{padding-top:2px}
+.st-item:first-child::before{content:none}
 .st-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .st-name{font-size:13px;font-weight:600;color:#1a1a1a;flex:none;letter-spacing:.01em}
 .st-empty{font-size:11.5px;color:#a09aa2}
@@ -1330,7 +1489,7 @@ button{font:inherit;color:inherit}
 .st-add.is-open{border-style:solid;border-color:var(--btn-stroke-soft);color:var(--btn-blue);background:rgba(233,243,255,.5)}
 .st-roster{
   display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
-  padding:8px;border-radius:10px;background:#f4f3f6;
+  padding:4px 0 0;border-radius:0;background:transparent;
   animation:motion-chip-in .24s var(--ease-out) both;
 }
 .st-roster .st-staff{background:#fff}
@@ -1338,8 +1497,8 @@ button{font:inherit;color:inherit}
 /* 每人一行：业绩 · 提成（均可就地改） */
 .st-person{
   display:flex;align-items:center;gap:8px;
-  margin-top:7px;padding-top:7px;font-size:12px;
-  border-top:1px dashed rgba(26,26,26,.07);
+  margin-top:6px;padding-top:8px;font-size:12px;
+  border-top:.5px solid rgba(26,26,26,.1);
 }
 .st-person-name{
   flex:none;font-size:12px;font-weight:600;color:#1a1a1a;
@@ -1457,10 +1616,10 @@ button{font:inherit;color:inherit}
   background:transparent;border:.5px solid var(--btn-stroke);
   display:inline-flex;align-items:center;gap:5px;
 }
-/* 会员卡权益选择（收款展开区内） */
+/* 会员卡权益选择（员工分区内） */
 .mb-picks{
-  margin-top:8px;padding:10px 10px 8px;border-radius:10px;
-  background:rgba(90,120,220,.05);border:.5px solid rgba(90,120,220,.14);
+  margin-top:8px;padding:4px 0 0;border-radius:0;
+  background:transparent;border:0;
 }
 .mb-picks-title{
   margin:0 0 8px;font-size:11.5px;font-weight:500;color:#6a6a72;
@@ -1684,14 +1843,20 @@ button{font:inherit;color:inherit}
 .bubble-reply img{width:18px;height:18px;object-fit:contain}
 .od-amount-block{display:none}
 .od-hint{
-  margin:0;padding:0 14px 10px;font-size:11.5px;color:#8a7f88;line-height:1.4;
+  margin:0;padding:0 16px 10px;font-size:11.5px;color:#8a7f88;line-height:1.4;
 }
 .od-hint[hidden]{display:none !important}
 .order-card[data-phase="success"] .od-hint{display:none}
 .od-foot{
+  position:relative;
   display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  padding:10px 12px 12px;border-top:1px solid rgba(26,26,26,.05);
-  background:linear-gradient(180deg,#fff,#faf8fa);
+  padding:12px 16px 14px;
+  border-top:0;
+  background:#fff;
+}
+.od-foot::before{
+  content:"";position:absolute;left:16px;right:16px;top:0;height:1px;
+  background:rgba(26,26,26,.1);pointer-events:none;
 }
 .order-card[data-phase="success"] .od-foot,
 .order-card[data-phase="rejected"] .od-foot{display:none}
@@ -1844,10 +2009,42 @@ html.capture-mode .site-nav,
 html.capture-mode .site-nav-scrim,
 html.capture-mode .prd-sync{display:none !important}
 html.capture-mode .stage{margin-left:0 !important;padding:0 !important}
-/* 去掉桌面「手机壳」投影，避免导 Figma 后整屏外圈阴影过重 */
+/* 去掉桌面「手机壳」投影，避免导 Figma 后整屏外圈阴影过重；
+ * 并撑开会话全文高度，避免价目长表 / 卡详情被 844 视口裁切 */
 html.capture-mode #frame{
   box-shadow:none !important;
+  height:auto !important;
+  min-height:var(--lh);
+  overflow:visible !important;
 }
+html.capture-mode .agent{
+  position:relative !important;
+  left:auto !important;right:auto !important;top:auto !important;bottom:auto !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:var(--lh);
+  overflow:visible !important;
+  border-radius:0 !important;
+  transform:none !important;
+}
+html.capture-mode .agent-surface{
+  position:absolute !important;inset:0 !important;
+}
+html.capture-mode .agent-inner{
+  flex:none !important;
+  height:auto !important;
+  min-height:var(--lh);
+  overflow:visible !important;
+}
+html.capture-mode .messages-shell,
+html.capture-mode .messages{
+  flex:none !important;
+  height:auto !important;
+  max-height:none !important;
+  min-height:0 !important;
+  overflow:visible !important;
+}
+html.capture-mode .scroll-hint{display:none !important}
 /*
  * html-to-design 对「大 blur + 负 spread」/多层 box-shadow 会画成过重双晕。
  * 抓取时改用单层、无负 spread 的轻阴影，接近真机视觉且 Figma 不叠重。
@@ -1948,6 +2145,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     <button type="button" id="navDemoOrderMulti" title="对照：顾客+项目已齐">开单 · 三项</button>
     <button type="button" id="navDemoArchive" title="对照能力">归档</button>
     <button type="button" id="navDemoCards" title="对照能力">卡管理</button>
+    <button type="button" id="navDemoWide" title="宽表 / 宽图横滑引导">宽表 · 图表</button>
     <button type="button" id="navSimSelfPay">模拟新自助单</button>
     <button type="button" id="navThink">演示思考 → 出结果</button>
   </div>
@@ -2100,7 +2298,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <div class="bubble-agent" id="orderAgentNote" hidden>泡泡染收到～还差几样就能出单啦。</div>
                 <div id="orderAskReplies" class="order-ask-replies"></div>
                 <div class="ask-card" id="askCard" hidden>
-                  <p id="askText">先说下是哪位顾客？直接跟我说名字，或者点下面也行。</p>
+                  <p id="askText">先说下是哪位顾客？</p>
                   <div class="ask-chips" id="askChipsPrimary"></div>
                   <div class="ask-more-panel" id="askMorePanel">
                     <div class="ask-chips" id="askChipsMore"></div>
@@ -2155,7 +2353,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <span class="think-label" id="thinkLabelCards">思考中</span>
               </div>
 
-              <div class="bubble-agent" id="cardsAgentNote" hidden>店里会员卡我按卡种列好了，每张只标人数和售价。想看哪张详情，直接跟我说名字就行。</div>
+              <div class="bubble-agent" id="cardsAgentNote" hidden>店里会员卡我按卡种列好了，每张只标办卡人数和金额。想看哪张详情，直接跟我说名字就行。</div>
 
               <article class="session-card" id="cardsCard" aria-label="卡管理" hidden>
                 <header class="fn-head">
@@ -2198,6 +2396,58 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
                 <div class="fn-toast" id="mcDetailToast" role="status"></div>
               </div>
             </div><!-- #panelCards -->
+
+            <div class="demo-panel" id="panelWide" data-demo="wide" hidden>
+              <div class="msg-user" id="wideUserMsg" hidden>
+                <div class="bubble-user">帮我看下近 7 天各项目业绩对比。</div>
+              </div>
+              <div class="thinking" id="thinkingWide" aria-live="polite">
+                <div class="think-bot" id="thinkBotWide" aria-hidden="true">
+                  <span class="halo"></span>
+                  <span class="head"><img src="assets/robot.svg" alt=""></span>
+                  <span class="shadow"></span>
+                </div>
+                <span class="think-label" id="thinkLabelWide">思考中</span>
+              </div>
+              <div class="bubble-agent" id="wideAgentNote" hidden>近 7 天项目对比表列比较多，左右滑动可看完整列；下面还有一张趋势图。</div>
+
+              <article class="session-card wide-card" id="wideTableCard" aria-label="业绩宽表" hidden>
+                <div class="wide-card-head">
+                  <p class="wide-card-title">近 7 天 · 项目业绩对比</p>
+                  <p class="wide-card-sub">列较宽，可左右滑动查看</p>
+                </div>
+                <div class="h-scroll" data-hscroll data-nudge="1">
+                  <div class="h-scroll-viewport" tabindex="0" role="region" aria-label="横向可滚动表格">
+                    <div class="h-scroll-content" id="wideTableBody"></div>
+                  </div>
+                  <div class="h-scroll-fade" aria-hidden="true"></div>
+                  <div class="h-scroll-rail" hidden aria-hidden="true">
+                    <div class="h-scroll-track">
+                      <div class="h-scroll-thumb"></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <div class="bubble-agent" id="wideChartNote" hidden>趋势图横轴日期较多，同样可以左右滑动。</div>
+              <article class="session-card wide-card" id="wideChartCard" aria-label="业绩宽图" hidden>
+                <div class="wide-card-head">
+                  <p class="wide-card-title">近 14 天 · 实收趋势</p>
+                  <p class="wide-card-sub">左右滑动查看完整横轴</p>
+                </div>
+                <div class="h-scroll" data-hscroll data-nudge="1">
+                  <div class="h-scroll-viewport" tabindex="0" role="region" aria-label="横向可滚动图表">
+                    <div class="h-scroll-content" id="wideChartBody"></div>
+                  </div>
+                  <div class="h-scroll-fade" aria-hidden="true"></div>
+                  <div class="h-scroll-rail" hidden aria-hidden="true">
+                    <div class="h-scroll-track">
+                      <div class="h-scroll-thumb"></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            </div><!-- #panelWide -->
           </div>
 
           <button type="button" class="scroll-hint" id="scrollHint" hidden aria-label="向下滚动查看完整会话">
@@ -2326,19 +2576,30 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
         <ul>
           <li>待办 chips → 归档确认卡</li>
           <li>切换会员用同一 <code>STORE_MEMBERS</code></li>
-          <li>项目「更换」对齐价目表 + 快捷开单</li>
+          <li>底栏「稍后」+「完成归档」；会员池 7 人</li>
+          <li>项目「更换」为 ar-item 行（参考价目，非 InfoTable 发丝线）</li>
         </ul>
-        <p class="prd-muted">对照能力；原则仍适用白话与少步骤。</p>
+        <p class="prd-muted">对照能力 · v3.22 对齐原型</p>
       </div>
 
       <div class="prd-sync-panel" data-prd="cards" id="prdPanelCards" hidden>
         <h3>§5 卡管理</h3>
         <ul>
-          <li>两轮：列表卡落稳 → 再追问 → 详情色卡</li>
-          <li>详情单层色卡；底栏「更多详情」→ Toast 卡详情页</li>
-          <li>列表仅卡名 · 办卡人数 · 售价</li>
+          <li>两轮：列表卡落稳 → 再追问 → 白底详情卡（无竖条）+ 卡种小标</li>
+          <li>详情水平边距 16；底栏「更多详情」→ Toast 卡详情页</li>
+          <li>列表：卡名 · 办卡人数 · 右侧金额；发丝线列表、无描边/无竖条/无卡种胶囊</li>
         </ul>
-        <p class="prd-muted">对照能力 · v3.18</p>
+          <p class="prd-muted">对照能力 · v3.23 详情无竖条</p>
+      </div>
+
+      <div class="prd-sync-panel" data-prd="wide" id="prdPanelWide" hidden>
+        <h3>§8 横向溢出引导</h3>
+        <ul>
+          <li>宽表 / 宽图卡内横滑；超宽才显示迷你滑动条</li>
+          <li>按住内容可拖；右缘渐隐；首次轻抖</li>
+          <li>与纵向 scroll-hint 分工：横=条，纵=chevron</li>
+        </ul>
+        <p class="prd-muted">豆包式 HScrollRail · v3.25</p>
       </div>
     </div>
   </aside>
@@ -2396,10 +2657,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var navDemoOrderMulti = document.getElementById("navDemoOrderMulti");
   var navDemoArchive = document.getElementById("navDemoArchive");
   var navDemoCards = document.getElementById("navDemoCards");
+  var navDemoWide = document.getElementById("navDemoWide");
   var navSimSelfPay = document.getElementById("navSimSelfPay");
   var panelPrice = document.getElementById("panelPrice");
   var panelOrder = document.getElementById("panelOrder");
   var panelCards = document.getElementById("panelCards");
+  var panelWide = document.getElementById("panelWide");
   var tabTip = document.getElementById("tabTip");
   var orderUserMsg = document.getElementById("orderUserMsg");
   var btnClose = document.getElementById("btnClose");
@@ -2450,7 +2713,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var odToast = document.getElementById("orderFlowToast") || document.getElementById("odToast");
   var btnOrderApprove = document.getElementById("btnOrderApprove");
   var btnOrderReject = document.getElementById("btnOrderReject");
-  var demoMode = "price"; /* price | order | orderMulti | archive | cards */
+  var demoMode = "price"; /* price | order | orderMulti | archive | cards | wide */
   var orderDemoVariant = "single"; /* single | multi */
   var flowKind = "order"; /* order | archive — 共用开单确认卡壳 */
   var orderAskStep = "project"; /* project | projectPick | customer | bundle */
@@ -2785,20 +3048,17 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (mcMoreWrap) mcMoreWrap.hidden = true;
     mcList.innerHTML = all.map(function (t) {
       return (
-        '<article class="mc-card is-compact is-' + meta.tone + '" data-mc-id="' + t.id + '">' +
+        '<article class="mc-card is-compact" data-mc-id="' + t.id + '">' +
           '<div class="mc-card-main">' +
             '<div class="mc-card-top">' +
               '<span class="mc-card-name">' + escapeHtml(t.name) + "</span>" +
-              '<span class="mc-type-tag">' + escapeHtml(meta.label) + "</span>" +
+              '<div class="mc-compact-meta">办卡人数 <b>' + escapeHtml(mcHoldersText(t)) + "</b></div>" +
             "</div>" +
-            '<div class="mc-compact-meta">' +
-              '<span>办卡 <b>' + escapeHtml(mcHoldersText(t)) + "</b></span>" +
-              '<span>售价 <b>' + escapeHtml(mcPriceText(t)) + "</b></span>" +
-            "</div>" +
+            '<span class="mc-compact-price">' + escapeHtml(mcPriceText(t)) + "</span>" +
           "</div>" +
         "</article>"
       );
-    }).join("") || '<p class="mb-picks-title" style="margin:8px 4px">该类暂无模板</p>';
+    }).join("") || '<p class="mb-picks-title" style="margin:8px 16px">该类暂无模板</p>';
   }
   function renderCardsCard() {
     renderMcTabs();
@@ -3197,10 +3457,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           "</button>" +
           '<div class="fn-swipe-track">' +
             '<div class="fn-row' + (off ? " is-off" : "") + '">' +
-              '<span class="fn-row-status">' +
-                '<span class="fn-dot" aria-hidden="true"></span>' +
-                '<span>' + escapeHtml(r[3]) + "</span>" +
-              "</span>" +
+              '<span class="fn-row-status">' + escapeHtml(r[3]) + "</span>" +
               '<span class="fn-row-name">' + escapeHtml(r[1]) + "</span>" +
               '<span class="fn-row-price"><small>¥</small>' + escapeHtml(String(r[2])) + "</span>" +
             "</div>" +
@@ -3354,6 +3611,9 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     } else if (demoMode === "cards") {
       key = "cards";
       label = "§5 卡管理";
+    } else if (demoMode === "wide") {
+      key = "wide";
+      label = "§8 横向溢出";
     } else if (demoMode === "archive") {
       key = "archive";
       label = "§7 自助归档";
@@ -3684,6 +3944,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
 
   /* ----- chevron：当前演示的结果卡未完整显示时出现 ----- */
   function activeResultCard() {
+    if (demoMode === "wide") {
+      var chartCard = document.getElementById("wideChartCard");
+      var tableCard = document.getElementById("wideTableCard");
+      if (chartCard && !chartCard.hidden) return chartCard;
+      return tableCard;
+    }
     if (demoMode === "cards") return cardsCard;
     if (demoMode === "order" || demoMode === "orderMulti" || demoMode === "archive") {
       if (orderStep === "ask" && askCard && !askCard.hidden) return askCard;
@@ -4497,9 +4763,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           (item.benefit ? " is-set" : "") + (open ? " is-open" : "") +
           '" data-mb-toggle="' + item.id + '" aria-expanded="' + (open ? "true" : "false") + '">' +
           "<span>" + escapeHtml(label) + "</span>" +
-          '<svg class="od-benefit-chev" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-            '<path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-          "</svg>" +
+          iosChevronHtml() +
         "</button>" +
         (open ? memberBenefitPicksHtml(item.benefit && item.benefit.id, item.id) : "") +
       "</div>"
@@ -4905,6 +5169,15 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     );
   }
 
+  function iosChevronHtml() {
+    return (
+      '<span class="od-ios-chev" aria-hidden="true">' +
+        '<svg viewBox="0 0 14 14" fill="none">' +
+          '<path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+        "</svg>" +
+      "</span>"
+    );
+  }
   function sectionHtml(key, title, summary, bodyHtml, open, wrapSum) {
     return (
       '<section class="od-sec' + (open ? " is-open" : "") + '" data-sec="' + key + '">' +
@@ -4912,9 +5185,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
           '" aria-expanded="' + (open ? "true" : "false") + '">' +
           '<span class="od-sec-title">' + title + "</span>" +
           '<span class="od-sec-sum' + (wrapSum ? " is-wrap" : "") + '">' + summary + "</span>" +
-          '<svg class="od-sec-chev" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-            '<path d="M3.5 5.5L7 9l3.5-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>' +
-          "</svg>" +
+          iosChevronHtml() +
         "</button>" +
         '<div class="od-sec-body"' + (open ? "" : " hidden") + ">" + bodyHtml + "</div>" +
       "</section>"
@@ -6849,6 +7120,310 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     if (act === "skip") { showOdToast("已跳过"); }
   });
 
+  /* ----- 宽表 / 宽图 · HScrollRail ----- */
+  var wideUserMsg = document.getElementById("wideUserMsg");
+  var thinkingWide = document.getElementById("thinkingWide");
+  var wideAgentNote = document.getElementById("wideAgentNote");
+  var wideTableCard = document.getElementById("wideTableCard");
+  var wideChartNote = document.getElementById("wideChartNote");
+  var wideChartCard = document.getElementById("wideChartCard");
+  var wideTableBody = document.getElementById("wideTableBody");
+  var wideChartBody = document.getElementById("wideChartBody");
+  var wideFlowTimer = 0;
+  var WIDE_TABLE_ROWS = [
+    ["设计总监剪发", "12", "2016", "168", "Tony", "何苏", "—", "+8%"],
+    ["泡泡染", "9", "2682", "298", "阿禾", "小鹿", "米米", "+12%"],
+    ["洗剪吹精修", "28", "1904", "68", "Tony", "—", "豆豆", "-3%"],
+    ["头皮护理洗", "7", "896", "128", "何苏", "阿禾", "—", "+5%"],
+    ["北境之星染", "4", "2752", "688", "Tony", "小鹿", "米米", "+18%"],
+    ["蛋白矫正", "3", "1884", "628", "阿禾", "—", "豆豆", "-6%"],
+    ["烫发软化", "5", "1990", "398", "Tony", "何苏", "—", "+2%"]
+  ];
+  var WIDE_CHART_POINTS = [186, 210, 198, 245, 232, 268, 255, 290, 274, 310, 298, 336, 322, 358];
+
+  function bindHScroll(root, opts) {
+    opts = opts || {};
+    if (!root || root.__hscrollBound) return;
+    root.__hscrollBound = true;
+    var viewport = root.querySelector(".h-scroll-viewport");
+    var rail = root.querySelector(".h-scroll-rail");
+    var thumb = root.querySelector(".h-scroll-thumb");
+    var fade = root.querySelector(".h-scroll-fade");
+    if (!viewport || !rail || !thumb) return;
+
+    function maxScroll() {
+      return Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    }
+    function sync() {
+      var max = maxScroll();
+      var overflow = max > 2;
+      root.classList.toggle("is-overflow", overflow);
+      rail.hidden = !overflow;
+      if (!overflow) {
+        root.classList.remove("is-end");
+        return;
+      }
+      var ratio = viewport.clientWidth / viewport.scrollWidth;
+      var thumbW = Math.max(18, Math.round(rail.querySelector(".h-scroll-track").clientWidth * ratio));
+      thumb.style.width = thumbW + "px";
+      var trackW = rail.querySelector(".h-scroll-track").clientWidth;
+      var travel = Math.max(0, trackW - thumbW);
+      var t = max ? viewport.scrollLeft / max : 0;
+      thumb.style.left = Math.round(travel * t) + "px";
+      root.classList.toggle("is-end", viewport.scrollLeft >= max - 2);
+      if (fade) fade.style.opacity = root.classList.contains("is-end") ? "0" : "";
+    }
+    viewport.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync, { passive: true });
+
+    /* 迷你滑块拖动 */
+    var thumbDrag = false;
+    var thumbStartX = 0;
+    var thumbStartLeft = 0;
+    thumb.addEventListener("pointerdown", function (e) {
+      if (maxScroll() <= 2) return;
+      thumbDrag = true;
+      thumbStartX = e.clientX;
+      thumbStartLeft = viewport.scrollLeft;
+      thumb.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      e.stopPropagation();
+    });
+    thumb.addEventListener("pointermove", function (e) {
+      if (!thumbDrag) return;
+      var track = rail.querySelector(".h-scroll-track");
+      var travel = Math.max(1, track.clientWidth - thumb.offsetWidth);
+      var max = maxScroll();
+      var next = thumbStartLeft + ((e.clientX - thumbStartX) / travel) * max;
+      viewport.scrollLeft = Math.max(0, Math.min(max, next));
+    });
+    function endThumbDrag() { thumbDrag = false; }
+    thumb.addEventListener("pointerup", endThumbDrag);
+    thumb.addEventListener("pointercancel", endThumbDrag);
+
+    /* 按住内容区拖拽横滑（表 / 图共用） */
+    var pan = { on: false, axis: null, id: 0, x: 0, y: 0, left: 0 };
+    viewport.addEventListener("pointerdown", function (e) {
+      if (thumbDrag) return;
+      if (e.target.closest && e.target.closest(".h-scroll-thumb")) return;
+      if (maxScroll() <= 2) return;
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      pan.on = true;
+      pan.axis = null;
+      pan.id = e.pointerId;
+      pan.x = e.clientX;
+      pan.y = e.clientY;
+      pan.left = viewport.scrollLeft;
+    });
+    viewport.addEventListener("pointermove", function (e) {
+      if (!pan.on || e.pointerId !== pan.id) return;
+      var dx = e.clientX - pan.x;
+      var dy = e.clientY - pan.y;
+      if (!pan.axis) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        pan.axis = Math.abs(dx) >= Math.abs(dy) ? "h" : "v";
+        if (pan.axis === "v") {
+          pan.on = false;
+          return;
+        }
+        try { viewport.setPointerCapture(e.pointerId); } catch (err) { /* */ }
+        root.classList.add("is-dragging");
+      }
+      if (pan.axis === "h") {
+        var max = maxScroll();
+        viewport.scrollLeft = Math.max(0, Math.min(max, pan.left - dx));
+        e.preventDefault();
+      }
+    });
+    function endPan(e) {
+      if (!pan.on || (e && e.pointerId !== pan.id)) return;
+      pan.on = false;
+      pan.axis = null;
+      root.classList.remove("is-dragging");
+    }
+    viewport.addEventListener("pointerup", endPan);
+    viewport.addEventListener("pointercancel", endPan);
+    viewport.addEventListener("lostpointercapture", endPan);
+
+    viewport.addEventListener("keydown", function (e) {
+      var step = 48;
+      if (e.key === "ArrowRight") { viewport.scrollLeft += step; e.preventDefault(); }
+      if (e.key === "ArrowLeft") { viewport.scrollLeft -= step; e.preventDefault(); }
+    });
+
+    root.__hscrollSync = sync;
+    root.__hscrollNudge = function () {
+      if (MOTION_REDUCED || opts.nudge === false || root.getAttribute("data-nudge") === "0") return;
+      if (maxScroll() <= 2) return;
+      root.classList.add("is-nudge");
+      var from = viewport.scrollLeft;
+      viewport.scrollLeft = from + 14;
+      sync();
+      setTimeout(function () {
+        viewport.scrollLeft = from;
+        sync();
+        setTimeout(function () { root.classList.remove("is-nudge"); }, 400);
+      }, MOTION_REDUCED ? 0 : 320);
+    };
+    requestAnimationFrame(sync);
+  }
+
+  function initAllHScroll() {
+    document.querySelectorAll("[data-hscroll]").forEach(function (el) {
+      bindHScroll(el);
+      if (el.__hscrollSync) el.__hscrollSync();
+    });
+  }
+
+  function renderWideTable() {
+    if (!wideTableBody) return;
+    var head =
+      "<table class='wide-table'><thead><tr>" +
+      ["项目", "单量", "实收", "客单", "大工", "中工", "小工", "环比"].map(function (h) {
+        return "<th>" + h + "</th>";
+      }).join("") +
+      "</tr></thead><tbody>";
+    var body = WIDE_TABLE_ROWS.map(function (r) {
+      var trend = r[7];
+      var cls = trend.indexOf("+") === 0 ? "is-up" : trend.indexOf("-") === 0 ? "is-down" : "";
+      return (
+        "<tr>" +
+        r.map(function (cell, i) {
+          return "<td" + (i === 7 ? " class='" + cls + "'" : "") + ">" + escapeHtml(cell) + "</td>";
+        }).join("") +
+        "</tr>"
+      );
+    }).join("");
+    wideTableBody.innerHTML = head + body + "</tbody></table>";
+  }
+
+  function renderWideChart() {
+    if (!wideChartBody) return;
+    var w = 720;
+    var h = 200;
+    var padL = 36;
+    var padR = 16;
+    var padT = 18;
+    var padB = 28;
+    var pts = WIDE_CHART_POINTS;
+    var min = Math.min.apply(null, pts) - 20;
+    var max = Math.max.apply(null, pts) + 20;
+    var innerW = w - padL - padR;
+    var innerH = h - padT - padB;
+    function xAt(i) { return padL + (innerW * i) / (pts.length - 1); }
+    function yAt(v) { return padT + innerH * (1 - (v - min) / (max - min)); }
+    var path = pts.map(function (v, i) {
+      return (i === 0 ? "M" : "L") + xAt(i).toFixed(1) + " " + yAt(v).toFixed(1);
+    }).join(" ");
+    var area = path + " L" + xAt(pts.length - 1).toFixed(1) + " " + (padT + innerH) +
+      " L" + xAt(0).toFixed(1) + " " + (padT + innerH) + " Z";
+    var days = ["3/1", "3/2", "3/3", "3/4", "3/5", "3/6", "3/7", "3/8", "3/9", "3/10", "3/11", "3/12", "3/13", "3/14"];
+    var dots = pts.map(function (v, i) {
+      return '<circle class="dot" cx="' + xAt(i).toFixed(1) + '" cy="' + yAt(v).toFixed(1) + '" r="3"/>';
+    }).join("");
+    var labels = days.map(function (d, i) {
+      if (i % 2 === 1) return "";
+      return '<text class="lbl" x="' + xAt(i).toFixed(1) + '" y="' + (h - 8) + '" text-anchor="middle">' + d + "</text>";
+    }).join("");
+    var yTicks = [min + 20, (min + max) / 2, max - 20].map(function (v) {
+      var y = yAt(v);
+      return (
+        '<line class="grid" x1="' + padL + '" x2="' + (w - padR) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>' +
+        '<text class="ylab" x="' + (padL - 6) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end">' +
+        Math.round(v) + "</text>"
+      );
+    }).join("");
+    wideChartBody.innerHTML =
+      '<svg class="wide-chart" viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" aria-hidden="true">' +
+      "<defs><linearGradient id='wideChartFill' x1='0' y1='0' x2='0' y2='1'>" +
+      "<stop offset='0%' stop-color='rgba(122,124,240,.28)'/>" +
+      "<stop offset='100%' stop-color='rgba(122,124,240,0)'/>" +
+      "</linearGradient></defs>" +
+      yTicks +
+      '<line class="axis" x1="' + padL + '" y1="' + (padT + innerH) + '" x2="' + (w - padR) + '" y2="' + (padT + innerH) + '"/>' +
+      '<path class="area" d="' + area + '"/>' +
+      '<path class="line" d="' + path + '"/>' +
+      dots + labels +
+      "</svg>";
+  }
+
+  function hideWideDemo() {
+    clearTimeout(wideFlowTimer);
+    if (wideUserMsg) wideUserMsg.hidden = true;
+    if (thinkingWide) thinkingWide.classList.remove("is-on");
+    if (wideAgentNote) wideAgentNote.hidden = true;
+    if (wideTableCard) wideTableCard.hidden = true;
+    if (wideChartNote) wideChartNote.hidden = true;
+    if (wideChartCard) wideChartCard.hidden = true;
+  }
+
+  function nudgeWideScrolls() {
+    requestAnimationFrame(function () {
+      initAllHScroll();
+      document.querySelectorAll("#panelWide [data-hscroll]").forEach(function (el) {
+        if (el.__hscrollSync) el.__hscrollSync();
+        if (el.__hscrollNudge) el.__hscrollNudge();
+      });
+    });
+  }
+
+  function showWideResult(opts) {
+    opts = opts || {};
+    renderWideTable();
+    renderWideChart();
+    var showTable = opts.focus !== "chart";
+    var showChart = opts.focus !== "table";
+    if (wideAgentNote) {
+      wideAgentNote.hidden = !showTable;
+      if (showTable) motionEnter(wideAgentNote);
+    }
+    if (wideTableCard) {
+      wideTableCard.hidden = !showTable;
+      if (showTable) motionEnter(wideTableCard);
+    }
+    if (wideChartNote) {
+      wideChartNote.hidden = !showChart;
+      if (showChart) {
+        wideChartNote.textContent = showTable
+          ? "趋势图横轴日期较多，同样可以左右滑动。"
+          : "近 14 天实收趋势横轴较长，左右滑动可看完整日期。";
+        motionEnter(wideChartNote);
+      }
+    }
+    if (wideChartCard) {
+      wideChartCard.hidden = !showChart;
+      if (showChart) motionEnter(wideChartCard);
+    }
+    nudgeWideScrolls();
+    requestAnimationFrame(updateScrollHint);
+  }
+
+  function startWideFlow(playThink, opts) {
+    opts = opts || {};
+    hideWideDemo();
+    clearTimeout(thinkDemoTimer);
+    clearTimeout(wideFlowTimer);
+    if (!playThink) {
+      if (wideUserMsg) wideUserMsg.hidden = false;
+      showWideResult(opts);
+      return;
+    }
+    useHopTarget("price");
+    messages.scrollTop = 0;
+    if (wideUserMsg) {
+      wideUserMsg.hidden = false;
+      motionEnter(wideUserMsg, "reply");
+    }
+    requestAnimationFrame(updateScrollHint);
+    thinkDemoTimer = setTimeout(function () {
+      if (thinkingWide) thinkingWide.classList.add("is-on");
+      thinkDemoTimer = setTimeout(function () {
+        if (thinkingWide) thinkingWide.classList.remove("is-on");
+        showWideResult(opts);
+      }, MOTION_REDUCED ? 0 : 1800);
+    }, MOTION_REDUCED ? 0 : 400);
+  }
+
   function setDemoMode(mode, opts) {
     opts = opts || {};
     demoMode = mode;
@@ -6856,18 +7431,25 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     var isOrder = mode === "order" || mode === "orderMulti";
     var isArchive = mode === "archive";
     var isCards = mode === "cards";
+    var isWide = mode === "wide";
     if (panelPrice) panelPrice.hidden = !isPrice;
     if (panelOrder) panelOrder.hidden = !(isOrder || isArchive);
     if (panelCards) panelCards.hidden = !isCards;
+    if (panelWide) panelWide.hidden = !isWide;
     if (navDemoPrice) navDemoPrice.classList.toggle("is-on", isPrice);
     if (navDemoOrder) navDemoOrder.classList.toggle("is-on", mode === "order");
     if (navDemoOrderMulti) navDemoOrderMulti.classList.toggle("is-on", mode === "orderMulti");
     if (navDemoArchive) navDemoArchive.classList.toggle("is-on", isArchive);
     if (navDemoCards) navDemoCards.classList.toggle("is-on", isCards);
+    if (navDemoWide) navDemoWide.classList.toggle("is-on", isWide);
     stopThinking();
     if (!isCards) hideCardsDetailDemo();
+    if (!isWide) hideWideDemo();
     messages.scrollTop = 0;
-    if (isCards) {
+    if (isWide) {
+      if (opts.replay !== false) startWideFlow(true, opts);
+      else showWideResult(opts);
+    } else if (isCards) {
       if (opts.replay !== false) startCardsFlow(true);
       else showCardsResult();
     } else if (isOrder) {
@@ -6912,6 +7494,12 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       setDemoMode("cards");
     });
   }
+  if (navDemoWide) {
+    navDemoWide.addEventListener("click", function () {
+      openAgent();
+      setDemoMode("wide");
+    });
+  }
   if (navSimSelfPay) {
     navSimSelfPay.addEventListener("click", function () {
       simulateNewSelfPay();
@@ -6931,6 +7519,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
     if (demoMode === "cards") {
       startCardsFlow(true);
+      return;
+    }
+    if (demoMode === "wide") {
+      startWideFlow(true);
       return;
     }
     useHopTarget("price");
@@ -6965,6 +7557,24 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       if (panelPrice) panelPrice.hidden = true;
       if (panelOrder) panelOrder.hidden = true;
       if (panelCards) panelCards.hidden = true;
+      if (panelWide) panelWide.hidden = true;
+    }
+    function prepWide(opts) {
+      opts = opts || {};
+      hideAllPanels();
+      if (panelWide) panelWide.hidden = false;
+      demoMode = "wide";
+      startWideFlow(false, opts);
+      if (thinkingWide) thinkingWide.classList.remove("is-on");
+      /* capture：停在左侧，露出右缘裁切 + 滑动条 */
+      requestAnimationFrame(function () {
+        initAllHScroll();
+        document.querySelectorAll("#panelWide [data-hscroll]").forEach(function (el) {
+          var vp = el.querySelector(".h-scroll-viewport");
+          if (vp) vp.scrollLeft = 0;
+          if (el.__hscrollSync) el.__hscrollSync();
+        });
+      });
     }
     function showPriceOnly() {
       hideAllPanels();
@@ -7200,6 +7810,14 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }
     if (cap === "card-cards-expand") {
       prepCards({ type: "balance", openId: "b1" });
+      return;
+    }
+    if (cap === "card-wide-table") {
+      prepWide({ focus: "table" });
+      return;
+    }
+    if (cap === "card-wide-chart") {
+      prepWide({ focus: "chart" });
       return;
     }
     if (cap === "card-order-staff-roster") {

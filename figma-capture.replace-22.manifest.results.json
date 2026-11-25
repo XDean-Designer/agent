@@ -1,0 +1,225 @@
+{
+  "finishedAt": "2026-11-25T04:00:16.420Z",
+  "results": [
+    {
+      "capture": "card-price",
+      "name": "Card-价目-InfoTable",
+      "captureId": "41ffd4ac-cb95-4206-9c50-0e537131dd10",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-price",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14142
+    },
+    {
+      "capture": "card-ask-project",
+      "name": "Card-追问-项目",
+      "captureId": "0e163471-10ba-4051-a9fb-2bce68aad703",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-ask-project",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 10364
+    },
+    {
+      "capture": "card-ask-customer",
+      "name": "Card-追问-顾客",
+      "captureId": "2e93d7c9-fd2f-42da-a0bc-3ff95fb0795e",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-ask-customer",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 11029
+    },
+    {
+      "capture": "card-ask-bundle",
+      "name": "Card-追问白卡-合并",
+      "captureId": "6efd3d49-4110-473b-9cd5-fe623ca9ea49",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-ask-bundle",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12926
+    },
+    {
+      "capture": "card-order-draft",
+      "name": "Card-开单确认-待确认",
+      "captureId": "21054086-6580-4c54-9b32-fd1504f5eb49",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-draft",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12880
+    },
+    {
+      "capture": "card-order-stations",
+      "name": "Card-开单确认-员工展开",
+      "captureId": "fa30c79f-065f-4073-8218-a95b32632dcf",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-stations",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13084
+    },
+    {
+      "capture": "card-order-staff-roster",
+      "name": "Card-开单确认-选员工面板",
+      "captureId": "c9eeb097-1147-4b90-afc4-f693d4c9f064",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-staff-roster",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13011
+    },
+    {
+      "capture": "card-order-staff-multi",
+      "name": "Card-开单确认-多员工已选",
+      "captureId": "6e95bbc2-181b-421c-85dd-170becd8cbbc",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-staff-multi",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12970
+    },
+    {
+      "capture": "card-order-coupon",
+      "name": "Card-开单确认-优惠展开",
+      "captureId": "ac247b7b-06d0-42ec-b5f7-3d9dd640ec62",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-coupon",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12716
+    },
+    {
+      "capture": "card-order-pay",
+      "name": "Card-开单确认-收款展开",
+      "captureId": "65c3c4f6-0dd0-4e7a-a1c8-b8d85b3cac9f",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-pay",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12269
+    },
+    {
+      "capture": "card-order-pay-member",
+      "name": "Card-开单确认-会员卡收款",
+      "captureId": "00e3b696-a80b-4fe1-8a41-24c4fedf97d4",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-pay-member",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12649
+    },
+    {
+      "capture": "card-order-multi-draft",
+      "name": "Card-开单-三项确认-折叠",
+      "captureId": "db77a3aa-afa6-4f42-aa36-980980b5aa06",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-draft",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14316
+    },
+    {
+      "capture": "card-order-multi",
+      "name": "Card-开单-三项-员工展开",
+      "captureId": "9a017097-b809-4b9f-bde1-d6f15f7b8857",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 12825
+    },
+    {
+      "capture": "card-order-multi-benefit",
+      "name": "Card-开单-三项-权益展开",
+      "captureId": "660b1a1c-6057-4a93-98ca-4682df64ef55",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-benefit",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13388
+    },
+    {
+      "capture": "card-order-multi-coupon",
+      "name": "Card-开单-三项-优惠展开",
+      "captureId": "7d23d4b2-d62b-48a3-b113-e63c77c1eb64",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-coupon",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 13591
+    },
+    {
+      "capture": "card-order-multi-pay",
+      "name": "Card-开单-三项-收款展开",
+      "captureId": "242d22dc-4343-489a-82ed-5388612243b7",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-order-multi-pay",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14894
+    },
+    {
+      "capture": "card-cards-balance",
+      "name": "Card-卡管理-储值卡",
+      "captureId": "e4b5181f-87c5-4dda-be6d-7326d1ad65c9",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-balance",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 10686
+    },
+    {
+      "capture": "card-cards-times",
+      "name": "Card-卡管理-计次卡",
+      "captureId": "a46cd1a6-48ab-43cf-bdfe-647d9c52cd97",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-times",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 10916
+    },
+    {
+      "capture": "card-cards-discount",
+      "name": "Card-卡管理-折扣卡",
+      "captureId": "6235fb74-bee4-4a00-b48f-02c4b42a8740",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-discount",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 10916
+    },
+    {
+      "capture": "card-cards-pack",
+      "name": "Card-卡管理-套餐卡",
+      "captureId": "09001218-d344-497d-a78a-ee2587ca6926",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-pack",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 11976
+    },
+    {
+      "capture": "card-cards-period",
+      "name": "Card-卡管理-周期卡",
+      "captureId": "1907fc2b-7aed-49aa-891e-0d010962ce0a",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-period",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 11552
+    },
+    {
+      "capture": "card-cards-expand",
+      "name": "Card-卡管理-模板展开",
+      "captureId": "79149ffd-ef67-497d-a3f1-ab67e2a0ac3b",
+      "pageUrl": "http://127.0.0.1:8765/agent-chat.html?capture=card-cards-expand",
+      "ok": true,
+      "status": "submitted",
+      "http": 200,
+      "ms": 14131
+    }
+  ]
+}

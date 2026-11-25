@@ -1,0 +1,20 @@
+{
+  "fileKey": "XklWFkHzzSROjjkZhbZtKc",
+  "nodeId": "152:63",
+  "port": 8765,
+  "basePath": "/agent-chat.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "keepRealBitmaps": true,
+  "screens": [
+    { "capture": "card-price", "name": "Card-价目-InfoTable", "captureId": "c126bc32-9891-43cc-a77c-0e3e7a1b6ca6", "delay": 2200 },
+    { "capture": "card-cards-balance", "name": "Card-卡管理-储值卡", "captureId": "e20339a1-3dd7-48e3-a267-83479416c6ca", "delay": 2200 },
+    { "capture": "card-cards-times", "name": "Card-卡管理-计次卡", "captureId": "91599647-0362-4306-8264-a46def3b9da9", "delay": 2200 },
+    { "capture": "card-cards-discount", "name": "Card-卡管理-折扣卡", "captureId": "27ce1a01-2537-46d7-990c-6b407ea4f722", "delay": 2200 },
+    { "capture": "card-cards-pack", "name": "Card-卡管理-套餐卡", "captureId": "c85a3ab9-c550-405e-8514-c19f962b41a3", "delay": 2200 },
+    { "capture": "card-cards-period", "name": "Card-卡管理-周期卡", "captureId": "d4c69a4f-f26a-4a9a-aee6-e8211227756b", "delay": 2200 },
+    { "capture": "card-cards-expand", "name": "Card-卡管理-详情", "captureId": "f4353ea7-e278-415f-b3a5-dd136531abcb", "delay": 2600 }
+  ]
+}
