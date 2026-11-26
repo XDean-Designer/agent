@@ -344,10 +344,10 @@ button{font:inherit;color:inherit}
   border-radius:50%;pointer-events:none;opacity:0;
   background:rgba(255,255,255,.97);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);
-  transition:opacity .16s var(--ease-out);
+  transition:opacity .12s var(--ease-out);
 }
 #frame.is-b2-open .home-ai-cover{opacity:1}
-/* 缩回末段揭开像素图中央图标，与大机器人交叉 */
+/* 缩回到位揭开像素图标，短重叠后收掉机器人 */
 #frame.is-b2-open.is-b2-revealing .home-ai-cover{opacity:0}
 
 /* B2：全屏浅蒙层 + 底部深色渐变（在 tab 下、机器人下） */
@@ -375,7 +375,7 @@ button{font:inherit;color:inherit}
 .intro-mascot{
   --bot:96px;
   --bot-h:152px;
-  --icon-scale:0.564;
+  --icon-scale:0.6768;
   --visual-bottom:90%;
   --fade-end:100%;
   position:absolute;left:50%;top:0;
@@ -3653,11 +3653,11 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var introMascot = document.getElementById("introMascot");
   var introClip = document.getElementById("introClip");
 
-  var B2_ICON_SCALE = 0.564; /* parked ≈0.47×1.2 */
+  var B2_ICON_SCALE = 0.6768; /* parked ≈0.47×1.2×1.2 */
   var B2_IN_MS = 380;
   var B2_SETTLE_MS = 120;
-  var B2_SHOW_MS = 1900; /* 多播后再定格缩回（+0.3s） */
-  var B2_OUT_MS = 320;
+  var B2_SHOW_MS = 1700; /* 播完再缩回（相对 1900 提前 0.2s） */
+  var B2_OUT_MS = 240; /* 缩回加快约 25% */
   var B2_LIFT_PX = 0;
   var B2_ANCHOR_X_NUDGE = 0;  /* 相对原右偏2 左移2 */
   var B2_ANCHOR_Y_NUDGE = -3; /* 整体上移 3 */
@@ -3666,9 +3666,10 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var B2_ICON_BELOW_RATIO = 0.15; /* 全透明点 = 图标底 + 15% 图标高 */
   var B2_BOT_H = 152;
   var B2_MEDIA_START = 0.5;
-  var B2_HANDOFF_MS = 150;
-  var B2_REVEAL_RATIO = 0.68;
-  var B2_REVEAL_EXTRA_MS = 300; /* 图标再晚出现 0.3s */
+  var B2_HANDOFF_MS = 100; /* 揭开后短等 cover 再 reset */
+  var B2_REVEAL_RATIO = 1.0; /* 缩回到位当帧揭开 */
+  var B2_REVEAL_EXTRA_MS = 100; /* 相对 -100 再晚 0.2s */
+  var B2_POST_OUT_FADE_MS = 90; /* 缩回结束后再淡出；缩回过程不透明 */
 
   var b2Busy = false;
   var introTimer = 0;
@@ -3818,7 +3819,7 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
     }).then(function () {
       return b2SeekStart();
     }).then(function () {
-      /* 缩回到位即淡出；图标仍按原节奏晚出现 */
+      /* 缩回只缩放（不透明）；结束后再淡出；图标按 reveal 节奏揭开 */
       if (!MOTION_REDUCED) {
         introMascot.style.transition =
           "transform " + B2_OUT_MS + "ms cubic-bezier(.2,.8,.2,1)";
@@ -3828,18 +3829,19 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
       var revealAt = MOTION_REDUCED
         ? 0
         : Math.round(B2_OUT_MS * B2_REVEAL_RATIO) + B2_REVEAL_EXTRA_MS;
-      var revealP = introWait(revealAt).then(function () {
-        frame.classList.add("is-b2-revealing");
-      });
-      return outDone.then(function () {
+      var fadeP = outDone.then(function () {
         if (!MOTION_REDUCED) {
-          introMascot.style.transition = "opacity " + B2_HANDOFF_MS + "ms ease";
+          introMascot.style.transition =
+            "opacity " + B2_POST_OUT_FADE_MS + "ms ease";
         }
         introMascot.style.opacity = "0";
-        return introWait(MOTION_REDUCED ? 0 : B2_HANDOFF_MS);
-      }).then(function () {
-        return revealP;
+        return introWait(MOTION_REDUCED ? 0 : B2_POST_OUT_FADE_MS);
       });
+      var revealP = introWait(revealAt).then(function () {
+        frame.classList.add("is-b2-revealing");
+        return introWait(MOTION_REDUCED ? 0 : B2_HANDOFF_MS);
+      });
+      return Promise.all([fadeP, revealP]);
     }).then(function () {
       b2Reset();
       b2Busy = false;
