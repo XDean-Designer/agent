@@ -375,7 +375,7 @@ button{font:inherit;color:inherit}
 .intro-mascot{
   --bot:96px;
   --bot-h:152px;
-  --icon-scale:0.47;
+  --icon-scale:0.564;
   --visual-bottom:90%;
   --fade-end:100%;
   position:absolute;left:50%;top:0;
@@ -3653,13 +3653,13 @@ html.is-mobile.is-nav-open .site-nav-scrim { opacity: 1; pointer-events: auto; }
   var introMascot = document.getElementById("introMascot");
   var introClip = document.getElementById("introClip");
 
-  var B2_ICON_SCALE = 0.47; /* ≈45/96 */
+  var B2_ICON_SCALE = 0.564; /* parked ≈0.47×1.2 */
   var B2_IN_MS = 380;
   var B2_SETTLE_MS = 120;
-  var B2_SHOW_MS = 1600; /* 多播 0.5s 再定格缩回 */
+  var B2_SHOW_MS = 1900; /* 多播后再定格缩回（+0.3s） */
   var B2_OUT_MS = 320;
   var B2_LIFT_PX = 0;
-  var B2_ANCHOR_X_NUDGE = 2;  /* 整体右移 */
+  var B2_ANCHOR_X_NUDGE = 0;  /* 相对原右偏2 左移2 */
   var B2_ANCHOR_Y_NUDGE = -3; /* 整体上移 3 */
   var B2_VISUAL_BOTTOM = 0.90; /* 与 CSS --visual-bottom 一致：贴底后肩线 */
   var B2_FADE_END = 1.0; /* 与 CSS --fade-end 一致：羽化全透明 */
